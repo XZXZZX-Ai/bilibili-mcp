@@ -43,3 +43,15 @@
 - Decision: Fold selected GitHub subagent patterns into the existing project agents instead of adding more agents.
 - Reason: The roadmap benefits from AAA testing, systematic debugging, package risk checks, MCP compatibility review, and release gates, but adding more full-size agents would increase context and orchestration cost.
 - Evidence: `.claude/agents/test-baseline-builder.md`, `.claude/agents/build-error-resolver.md`, `.claude/agents/package-maintainer.md`, `.codex/agents/risk-reviewer.toml`, and `.codex/agents/release-verifier.toml`.
+
+- Decision: Add explicit capability invocation rules for skills, MCP/tool connectors, and subagents.
+- Reason: The user observed inconsistent Codex and Claude Code use of skills, MCP tools, and subagents; repository instructions should require agents to check, invoke, name, or intentionally skip relevant capabilities instead of relying on implicit behavior.
+- Evidence: `AGENTS.md` Capability Invocation Rules and `CLAUDE.md` Capability Invocation Rules.
+
+- Decision: Keep hook stdout JSON-safe for Claude Code command hooks that write files.
+- Reason: Claude Code reported `Stop hook error: JSON validation failed`; write-file hooks should avoid ordinary stdout and emit a minimal JSON control object instead.
+- Evidence: `.codex/scripts/stop_summary.py`, `.codex/scripts/generate_learning_proposals.py`, `.codex/scripts/post_tool_use.py`, and `.codex/scripts/pre_compact.py` now print `{"suppressOutput": true}` after writing their artifacts.
+
+- Decision: Use a compatibility-first staged split for Phase 2 `src/bilibili/client.ts` refactoring.
+- Reason: Subtitle retrieval depends on WBI, Cookie headers, buvid fallback, and `/x/player/v2` fallback behavior; tests should pin this behavior before moving code.
+- Evidence: `docs/superpowers/specs/2026-05-28-bilibili-client-split-design.md` and `docs/superpowers/plans/2026-05-28-bilibili-client-split-implementation-plan.md`.

@@ -100,3 +100,112 @@
   - `get_subtitle.py` is local-only cleanup (git-ignored), not a tracked fix.
   - `dist/server.cjs/` bundle (1.7MB) may warrant review but is outside stabilization scope.
   - npm audit: 23 vulnerabilities not introduced or fixed by stabilization changes.
+
+## 2026-05-28 Hook And Memory Health Check
+
+- Command: `node -e "JSON.parse(require('fs').readFileSync('.codex/hooks.json','utf8')); JSON.parse(require('fs').readFileSync('.claude/settings.local.json','utf8')); console.log('hook config json ok')"`
+- Result: Passed.
+- Area: Codex and Claude Code hook configuration.
+- Caveat: This validates JSON syntax, not external app trust prompts.
+
+- Command: `powershell -NoProfile -ExecutionPolicy Bypass -File .\.codex\scripts\session-start.ps1`
+- Result: Passed with exit code 0 and printed bounded project context.
+- Area: SessionStart hook.
+- Caveat: A previous piped preview using `Select-Object -First` returned exit code 1 because the output pipe was closed early; the direct command passed.
+
+- Command: `post_tool_use.py`, `pre_compact.py`, `stop_summary.py`, and `generate_learning_proposals.py` synthetic health checks for both `codex` and `claude`.
+- Result: Passed. File artifacts were written, secret-like sample values were redacted, and stdout returned JSON `{"suppressOutput": true}` for write-file hooks.
+- Area: Runtime observations, pre-compact checkpoints, stop summaries, and controlled learning proposal generation.
+- Caveat: Synthetic failure observations are ignored by learning proposal generation and should not be promoted as lessons.
+
+- Command: `python .\.codex\scripts\generate_learning_proposals.py --source claude`
+- Result: Passed. `docs/agent-memory/pending-learning-proposals.md` currently has no proposals.
+- Area: Controlled learning.
+- Caveat: No proposal means the learning pipeline is functioning but has no approved durable lesson to promote from runtime candidates.
+
+## 2026-05-28 Phase 2 Task 1-2 Verification
+
+- Command: `npm test -- tests/bilibili-video-api.test.ts`
+- Result: Passed. 1 test file, 3 tests.
+- Area: Phase 2 Task 1 subtitle API behavior baseline and Task 2 WBI extraction regression check.
+- Caveat: Tests use mocked fetch and do not call live Bilibili APIs.
+
+- Command: `npm test`
+- Result: Passed. 4 test files, 48 tests.
+- Area: Phase 2 Task 1 full test verification after adding API-level subtitle tests.
+- Caveat: API behavior coverage currently focuses on subtitle fallback and subtitle content URL normalization.
+
+- Command: `npm run build`
+- Result: Passed after extracting WBI signing into `src/bilibili/wbi.ts`.
+- Area: Phase 2 Task 2 TypeScript and Node ESM compatibility.
+- Caveat: PowerShell displayed mojibake for Chinese comments, but Python UTF-8 reads showed `wbi.ts` content is valid UTF-8.
+
+- Command: `npm test -- tests/bilibili-video-api.test.ts`
+- Result: Passed after extracting buvid fingerprint handling into `src/bilibili/fingerprint.ts`.
+- Area: Phase 2 Task 3 subtitle fallback regression check.
+- Caveat: Tests use mocked fetch and do not call live Bilibili APIs.
+
+- Command: `npm run build`
+- Result: Passed after extracting buvid fingerprint handling into `src/bilibili/fingerprint.ts`.
+- Area: Phase 2 Task 3 TypeScript and Node ESM compatibility.
+- Caveat: PowerShell displayed mojibake for Chinese comments, but Python UTF-8 reads showed `fingerprint.ts` content is valid UTF-8.
+
+- Command: `npm test`
+- Result: Passed. 4 test files, 48 tests after extracting HTTP helpers into `src/bilibili/http.ts`.
+- Area: Phase 2 Task 4 full regression check.
+- Caveat: Tests use mocked fetch for subtitle API behavior and do not call live Bilibili APIs.
+
+- Command: `npm run build`
+- Result: Passed after extracting HTTP helpers into `src/bilibili/http.ts`.
+- Area: Phase 2 Task 4 TypeScript and Node ESM compatibility.
+- Caveat: `retryableFetch` and `throttledFetch` are temporarily exported because `getSubtitleContent()` still lives in `client.ts`; Task 5 should move that consumer into `video-api.ts`.
+
+- Command: `npm test`
+- Result: Passed. 4 test files, 48 tests after extracting video and subtitle API functions into `src/bilibili/video-api.ts`.
+- Area: Phase 2 Task 5 full regression check.
+- Caveat: Subtitle API tests use mocked fetch and do not call live Bilibili APIs.
+
+- Command: `npm run build`
+- Result: Passed after extracting video and subtitle API functions into `src/bilibili/video-api.ts`.
+- Area: Phase 2 Task 5 TypeScript and Node ESM compatibility.
+- Caveat: `client.ts` still contains comments API logic until Task 6.
+
+- Command: `npm test`
+- Result: Passed. 4 test files, 48 tests after extracting comments API logic into `src/bilibili/comments-api.ts`.
+- Area: Phase 2 Task 6 full regression check.
+- Caveat: Existing automated tests do not directly exercise comments API fallback behavior.
+
+- Command: `npm run build`
+- Result: Passed after converting `src/bilibili/client.ts` to compatibility re-exports.
+- Area: Phase 2 Task 6 and Task 7 TypeScript and Node ESM compatibility.
+- Caveat: Public export compatibility was also checked through built `dist/bilibili/client.js`.
+
+- Command: `node -e "import('./dist/bilibili/client.js').then(...)"`
+- Result: Passed. `checkLoginStatus`, `fetchWithWBI`, `fetchWithoutWBI`, `getVideoInfo`, `getVideoSubtitle`, `getSubtitleContent`, and `getVideoComments` are all functions.
+- Area: Phase 2 Task 7 compatibility exports.
+- Caveat: This verifies export presence, not live Bilibili API behavior.
+
+## 2026-05-28 Phase 2 Final Verification
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: Final Phase 2 TypeScript compilation.
+
+- Command: `npm test`
+- Result: Passed. 4 test files, 48 tests.
+- Area: Final Phase 2 regression suite.
+- Caveat: Comments API fallback behavior remains a residual untested path.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 94 files, 554.9 kB. Package includes `dist/bilibili/client.*`, `http.*`, `wbi.*`, `fingerprint.*`, `video-api.*`, and `comments-api.*`.
+- Area: Final Phase 2 package contents.
+- Caveat: `dist/server.cjs/index.cjs.map` remains large but unchanged from the stabilization-era residual risk.
+
+- Command: `node -e "import('./dist/bilibili/client.js').then(...)"`
+- Result: Passed. All 7 compatibility exports are functions.
+- Area: Final Phase 2 public import compatibility.
+
+- Command: `git status --short`
+- Result: Phase 2 files are present alongside pre-existing agent/hooks and memory/doc changes.
+- Area: Final Phase 2 worktree scope.
+- Caveat: Agent/hooks configuration changes are still unrelated to the code split and should be committed separately if the user wants separate history.
