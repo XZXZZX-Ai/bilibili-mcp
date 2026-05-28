@@ -238,6 +238,41 @@ Several existing Markdown files and comments contain mojibake/encoding corruptio
   - command results
   - unresolved risks or skipped checks
 
+## Capability Invocation Rules
+
+Codex and Claude Code should use skills, MCP tools, and subagents deliberately instead of relying on implicit recall.
+
+Before substantial planning, implementation, review, Git work, testing work, release work, or external-tool guidance:
+
+1. Identify which capability category applies: skill, MCP/tool connector, Codex custom agent, or Claude Code subagent.
+2. Check the locally documented capability names and paths in this file, `CLAUDE.md`, `.codex/agents/`, `.claude/agents/`, and the active skill list available to the current agent.
+3. Invoke or explicitly name the relevant capability in the handoff when its trigger matches the task.
+4. If a relevant capability is intentionally not used, state the reason briefly in the handoff or report.
+5. Do not use unavailable capabilities by assumption. If a capability is not installed for the current agent, report that and use the closest installed fallback.
+
+Skill usage rules:
+
+- If the user explicitly names a skill, use that skill or state why it is unavailable.
+- Use `vitest` for adding or maintaining the test baseline.
+- Use `secret-scanning` for credential, Cookie, `.env`, package contents, workflow secrets, or pre-commit/pre-publish secret-risk work.
+- Use the configured Git skills for commit, push, PR, CI, review-comment, and GitHub Actions workflows instead of ad hoc Git workflows.
+- Do not assume Codex skills, `.agents\skills`, and Claude Code skills are shared. Claude Code skills must exist under `C:\Users\ZX\.claude\skills` or be explicitly synced there.
+
+MCP/tool connector usage rules:
+
+- Use the GitHub connector or GitHub skills for live GitHub repositories, PRs, issues, review comments, Actions logs, and remote CI state.
+- Use official documentation or MCP-backed docs tools for OpenAI, Codex, MCP SDK, npm publishing, GitHub Actions, and other external behavior that may have changed.
+- Use local shell commands for repository facts, package metadata, tests, and build output because the worktree is authoritative.
+- Do not invent MCP server behavior or remote state from memory; inspect the live source, official docs, or local files.
+
+Subagent usage rules:
+
+- Codex should use or recommend `.codex/agents/` only for planning, risk review, and release verification.
+- Codex should name the relevant `.claude/agents/` subagent in Claude Code handoffs when implementation work clearly matches it.
+- Claude Code should use `.claude/agents/` when the user asks, Codex names the subagent, or the task clearly matches the subagent description.
+- Do not spawn autonomous agent trees or multi-agent teams unless the user explicitly asks for that workflow.
+- Every report that used a subagent should name which subagent was used and summarize its result.
+
 ## Git Skill Workflow
 
 Use these Git skills as the default workflow for this repository:

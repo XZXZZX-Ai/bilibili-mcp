@@ -268,6 +268,39 @@ This repository is manually orchestrated by the user.
 - Do not switch tools automatically.
 - If the implementation direction is unclear, stop and report the decision point.
 
+## Capability Invocation Rules
+
+Use skills, MCP/tools, and subagents explicitly and predictably.
+
+Before substantial implementation, review, Git work, tests, release checks, or external-tool guidance:
+
+1. Identify whether the task matches an installed skill, an MCP/tool connector, or a project subagent.
+2. Prefer the matching local capability over ad hoc instructions.
+3. State the capability used in the work report.
+4. If a relevant capability is unavailable or intentionally skipped, state why.
+
+Skill usage:
+
+- If the user or Codex handoff names a skill, use it or report that it is unavailable.
+- Use `vitest` for adding, changing, or diagnosing the test baseline.
+- Use `secret-scanning` before commit/publish/PR work when changed or staged files touch credentials, Cookie handling, `.env` examples, package contents, workflow secrets, or release configuration.
+- Use the Git skills in the Git Skill Awareness section for commit, push, PR, CI, review-comment, and GitHub Actions workflows.
+- Do not assume a skill under `C:\Users\ZX\.agents\skills` or `C:\Users\ZX\.codex\skills` is available to Claude Code unless it also exists under `C:\Users\ZX\.claude\skills`.
+
+MCP/tool usage:
+
+- Use the local repository and shell commands as the authority for worktree state, package metadata, tests, build output, and diffs.
+- Use GitHub tooling or GitHub skills for live PRs, issues, review comments, Actions logs, remote checks, and repository state.
+- Use docs-grounded tools or installed documentation skills for GitHub Actions, npm publishing, MCP SDK, OpenAI/Codex behavior, or any external behavior likely to have changed.
+- Do not guess remote state, current documentation, or MCP behavior from memory when a tool or official source can verify it.
+
+Subagent usage:
+
+- Use a project subagent when the user asks, Codex handoff names it, or the task clearly matches `.claude/agents/<name>.md`.
+- Use only one focused subagent by default. Do not create subagent trees or multi-agent workflows unless the user explicitly asks.
+- If a subagent reports a decision point, stop and return the decision point to the user or Codex.
+- In the final report, include the subagent name used, or state that no subagent was used and why.
+
 ## Handoff Awareness
 
 Codex handoffs should normally include:

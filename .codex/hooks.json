@@ -1,0 +1,60 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File C:/Users/ZX/bilibili-mcp/.codex/scripts/session-start.ps1",
+            "timeout": 15,
+            "statusMessage": "Loading bilibili-mcp project memory"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/ZX/bilibili-mcp/.codex/scripts/post_tool_use.py --agent codex",
+            "timeout": 15,
+            "statusMessage": "Recording failed shell observations"
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/ZX/bilibili-mcp/.codex/scripts/pre_compact.py --agent codex",
+            "timeout": 15,
+            "statusMessage": "Saving pre-compact checkpoint"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python C:/Users/ZX/bilibili-mcp/.codex/scripts/stop_summary.py --agent codex",
+            "timeout": 15,
+            "statusMessage": "Saving hook observation summary"
+          },
+          {
+            "type": "command",
+            "command": "python C:/Users/ZX/bilibili-mcp/.codex/scripts/generate_learning_proposals.py --source codex",
+            "timeout": 15,
+            "statusMessage": "Generating pending learning proposals"
+          }
+        ]
+      }
+    ]
+  }
+}
