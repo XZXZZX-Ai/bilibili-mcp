@@ -17,7 +17,11 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
-.claude/
+.claude/*
+!.claude/agents/
+!.claude/agents/*.md
+.codex/memory/
+.codex/runtime/
 
 # 临时文件
 *.tmp

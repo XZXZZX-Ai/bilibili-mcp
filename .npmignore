@@ -20,6 +20,10 @@ tests/
 *.test.ts
 *.spec.ts
 
+# 调试产物
+dist/debug_*
+dist/smithery-test.*
+
 # 其他
 .git/
 .gitignore
