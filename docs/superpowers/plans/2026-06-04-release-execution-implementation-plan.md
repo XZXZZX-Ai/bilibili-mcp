@@ -50,19 +50,19 @@ Official npm docs state that trusted publishing requires npm CLI `11.5.1+` and N
 
 ## Task 1: Commit Current Memory/Tracker Fixes
 
-- [ ] Review current diff:
+- [x] Review current diff:
   - `.codex/scripts/plan_tracker.py`
   - `docs/agent-memory/lessons-learned.md`
   - `docs/agent-memory/project-facts.md`
   - `docs/agent-memory/verification-log.md`
-- [ ] Confirm `plan_tracker.py` returns a tracked implementation plan instead of `2026-05-27-agent-memory-learning-system.md`.
-- [ ] Confirm no generated `__pycache__/` is present.
-- [ ] Run focused checks:
+- [x] Confirm `plan_tracker.py` returns a tracked implementation plan instead of `2026-05-27-agent-memory-learning-system.md`.
+- [x] Confirm no generated `__pycache__/` is present.
+- [x] Run focused checks:
   - `python .codex/scripts/plan_tracker.py`
   - `python .codex/scripts/generate_learning_proposals.py --source codex`
   - `python .codex/scripts/generate_learning_proposals.py --source claude`
-- [ ] Commit only memory/tracker changes.
-- [ ] Push `master`.
+- [x] Commit only memory/tracker changes.
+- [x] Push `master`.
 
 Expected commit message:
 
@@ -72,15 +72,15 @@ chore: fix active plan tracking memory
 
 ## Task 2: Final Local Release Verification
 
-- [ ] Ensure working tree is clean.
-- [ ] Confirm local branch is up to date with `origin/master`.
-- [ ] Confirm version:
+- [x] Ensure working tree is clean.
+- [x] Confirm local branch is up to date with `origin/master`.
+- [x] Confirm version:
   - `node -e "const p=require('./package.json'); console.log(p.name, p.version)"`
-- [ ] Run:
+- [x] Run:
   - `npm test`
   - `npm run build`
   - `npm pack --dry-run`
-- [ ] Inspect package dry-run output for required files:
+- [x] Inspect package dry-run output for required files:
   - `package.json`
   - `README.md`
   - `README_EN.md`
@@ -92,7 +92,7 @@ chore: fix active plan tracking memory
   - `dist/bilibili/metadata.js`
   - `dist/bilibili/subtitle.js`
   - `dist/bilibili/comments.js`
-- [ ] Confirm package dry-run output excludes:
+- [x] Confirm package dry-run output excludes:
   - `tests/`
   - `.env`
   - `.claude/`
@@ -102,34 +102,34 @@ chore: fix active plan tracking memory
   - `smithery.yaml`
   - `debug_subtitle2.mjs`
   - `smithery-test.*`
-- [ ] Run a secret-oriented scan over release-relevant files and npm pack output.
+- [x] Run a secret-oriented scan over release-relevant files and npm pack output.
 
 ## Task 3: User Gate - npm Trusted Publishing
 
-- [ ] Stop and ask the user to confirm npm trusted publishing is configured.
-- [ ] User must confirm the npm package trusted publisher details match:
+- [x] Stop and ask the user to confirm npm trusted publishing is configured.
+- [x] User must confirm the npm package trusted publisher details match:
   - GitHub org/user: `365903728-oss`
   - repository: `bilibili-mcp`
   - workflow filename: `publish.yml`
   - allowed action includes `npm publish`
-- [ ] If not configured, stop. Do not push the tag.
+- [x] If not configured, stop. Do not push the tag.
 
 ## Task 4: Create And Push Release Tag
 
-- [ ] Confirm no local `v1.4.0` tag exists:
+- [x] Confirm no local `v1.4.0` tag exists:
   - `git tag --list v1.4.0`
-- [ ] Confirm remote does not already have `v1.4.0`:
+- [x] Confirm remote does not already have `v1.4.0`:
   - `git ls-remote --tags origin v1.4.0`
-- [ ] Create annotated tag:
+- [x] Create annotated tag:
   - `git tag -a v1.4.0 -m "Release v1.4.0"`
-- [ ] Push tag:
+- [x] Push tag:
   - `git push origin v1.4.0`
-- [ ] Report the pushed tag and commit SHA.
+- [x] Report the pushed tag and commit SHA.
 
 ## Task 5: Monitor Publish Workflow
 
-- [ ] Inspect GitHub Actions run triggered by `v1.4.0`.
-- [ ] Confirm workflow steps:
+- [x] Inspect GitHub Actions run triggered by `v1.4.0`.
+- [x] Confirm workflow steps:
   - checkout
   - setup node
   - install npm
@@ -137,20 +137,17 @@ chore: fix active plan tracking memory
   - `npm test`
   - `npm run build`
   - `npm publish`
-- [ ] If the workflow fails, do not retry blindly. Capture:
-  - failing step
-  - error message
-  - whether failure is npm trusted publishing config, workflow syntax, test/build, duplicate version, or package contents
-- [ ] If publish succeeds, record the run URL and npm package version URL.
+- [x] Workflow did not fail; no failure details needed capture.
+- [x] If publish succeeds, record the run URL and npm package version URL.
 
 ## Task 6: Post-Publish Verification
 
-- [ ] Verify npm published version:
+- [x] Verify npm published version:
   - `npm view @xzxzzx/bilibili-mcp version`
   - `npm view @xzxzzx/bilibili-mcp dist-tags`
-- [ ] Confirm package page or npm metadata shows `1.4.0`.
+- [x] Confirm package page or npm metadata shows `1.4.0`.
 - [ ] Optionally verify provenance from npm package page or npm metadata if available.
-- [ ] Update `docs/agent-memory/verification-log.md` with release execution results.
+- [x] Update `docs/agent-memory/verification-log.md` with release execution results.
 
 ## Task 7: GitHub Release
 

@@ -629,3 +629,25 @@
 
 - Files updated: `project-facts.md`, `lessons-learned.md`, and `verification-log.md`.
 - Conclusion: Phase 4 now has both verification memory and explicit reusable learning entries.
+
+## 2026-06-04 Phase 5 Release Execution Verification
+
+- Command: `git tag --list v1.4.0`, `git ls-remote --tags origin v1.4.0`, and `git show --no-patch --pretty=fuller v1.4.0`
+- Result: Annotated tag `v1.4.0` exists locally and remotely. The tag targets commit `021a2a1f96fcbac30d5c4bcc030cd0212a6b7130`.
+- Area: Release tag verification.
+
+- Command: `gh run list --workflow publish.yml --limit 1`
+- Result: Latest publish workflow run completed successfully for `v1.4.0`, event `push`, run id `26944676803`, duration 38s, created `2026-06-04T09:57:32Z`.
+- Area: GitHub Actions publish workflow.
+- Caveat: `gh run view 26944676803 --json ...` returned an API EOF once, but `gh run list` and npm registry metadata both confirmed success.
+
+- Command: `npm view @xzxzzx/bilibili-mcp@1.4.0 name version description keywords gitHead dist-tags time --json`
+- Result: npm registry shows `@xzxzzx/bilibili-mcp@1.4.0`, `latest` dist-tag points to `1.4.0`, description includes metadata/transcripts/subtitles/comment summarization, keywords include `transcript` and `metadata`, and `gitHead` is `021a2a1f96fcbac30d5c4bcc030cd0212a6b7130`.
+- Area: npm publication verification.
+
+- Command: `npm view @xzxzzx/bilibili-mcp version dist-tags gitHead --json`
+- Result: npm registry reports version `1.4.0`, `latest: 1.4.0`, and gitHead `021a2a1f96fcbac30d5c4bcc030cd0212a6b7130`.
+- Area: Post-publish package state.
+
+- Previous recovery context: `v1.3.8` was already present on npm from 2026-03-11 and did not represent the current Phase 1-5 code. The current release was retargeted to `v1.4.0`; `v1.3.8` tag remains preserved for forensic trace and should not be deleted without explicit user approval.
+- Remaining release step: GitHub Release for `v1.4.0` has not been created yet.
