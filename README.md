@@ -18,32 +18,7 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 ```bash
 # 直接运行
 npx -y @xzxzzx/bilibili-mcp
-
-# Claude Code 一键添加
-claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"
 ```
-
-<details><summary><b>Claude Desktop 配置</b></summary>
-
-```json
-{
-  "mcpServers": {
-    "bilibili-mcp": {
-      "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"],
-      "env": {
-        "BILIBILI_SESSDATA": "<your_sessdata>",
-        "BILIBILI_BILI_JCT": "<your_bili_jct>",
-        "BILIBILI_DEDEUSERID": "<your_dedeuserid>"
-      }
-    }
-  }
-}
-```
-</details>
-
-
-更多客户端配置见 [安装方式](#-安装方式)。
 
 ### 🤖 AI 客户端配置入口
 

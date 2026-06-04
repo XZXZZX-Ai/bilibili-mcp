@@ -18,32 +18,7 @@ View in [简体中文](https://github.com/365903728-oss/bilibili-mcp/blob/master
 ```bash
 # Run directly
 npx -y @xzxzzx/bilibili-mcp
-
-# Claude Code one-liner
-claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"
 ```
-
-<details><summary><b>Claude Desktop config</b></summary>
-
-```json
-{
-  "mcpServers": {
-    "bilibili-mcp": {
-      "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"],
-      "env": {
-        "BILIBILI_SESSDATA": "<your_sessdata>",
-        "BILIBILI_BILI_JCT": "<your_bili_jct>",
-        "BILIBILI_DEDEUSERID": "<your_dedeuserid>"
-      }
-    }
-  }
-}
-```
-</details>
-
-
-More client setups under [Installation](#-installation).
 
 ### 🤖 AI Client Setup
 
