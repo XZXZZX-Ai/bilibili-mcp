@@ -123,8 +123,6 @@ Choose your AI client and jump directly to the detailed setup instructions:
 > [!NOTE]
 > Do not write real Cookie values in client config files. Prefer `bilibili-mcp config` or environment variables. See [⚙️ Credential Configuration](#-credential-configuration).
 
-<details><summary><b>Expand for detailed per-client setup</b></summary>
-
 ### Claude Code
 
 ```bash
@@ -243,7 +241,6 @@ Edit `~/.config/opencode/opencode.json`:
 
 
 
-</details>
 
 ## ⚙️ Credential Configuration
 

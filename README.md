@@ -123,8 +123,6 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 > [!NOTE]
 > 不要在客户端配置文件中写入真实 Cookie。建议先用 `bilibili-mcp config` 或环境变量配置凭证，详见 [⚙️ 凭证配置](#️-凭证配置)。
 
-<details><summary><b>展开查看各客户端详细配置</b></summary>
-
 ### Claude Code
 
 ```bash
@@ -243,7 +241,6 @@ Settings → AI → MCP → Add Server：
 
 
 
-</details>
 
 ## ⚙️ 凭证配置
 
