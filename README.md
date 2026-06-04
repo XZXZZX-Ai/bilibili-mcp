@@ -4,7 +4,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![npm downloads](https://img.shields.io/npm/dm/@xzxzzx/bilibili-mcp.svg)](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp)
 
-Bilibili MCP server — 让 AI 客户端获取 Bilibili 视频字幕、转录、元数据和热门评论。
+Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取 Bilibili 视频字幕、转录、元数据和热门评论的 MCP server。
 
 🌐 [English Documentation](https://github.com/365903728-oss/bilibili-mcp/blob/master/README_EN.md) · 📜 [更新日志](https://github.com/365903728-oss/bilibili-mcp/blob/master/CHANGELOG.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.4.0](https://github.com/365903728-oss/bilibili-mcp/releases/tag/v1.4.0)
 
@@ -32,9 +32,9 @@ claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili
       "command": "npx",
       "args": ["-y", "@xzxzzx/bilibili-mcp"],
       "env": {
-        "BILIBILI_SESSDATA": "你的_SESSDATA",
-        "BILIBILI_BILI_JCT": "你的_bili_jct",
-        "BILIBILI_DEDEUSERID": "你的_DedeUserID"
+        "BILIBILI_SESSDATA": "<your_sessdata>",
+        "BILIBILI_BILI_JCT": "<your_bili_jct>",
+        "BILIBILI_DEDEUSERID": "<your_dedeuserid>"
       }
     }
   }
@@ -197,9 +197,9 @@ Claude Desktop 支持通过全局配置文件接入 MCP 服务器：
       "command": "npx",
       "args": ["-y", "@xzxzzx/bilibili-mcp"],
       "env": {
-        "BILIBILI_SESSDATA": "你的_SESSDATA",
-        "BILIBILI_BILI_JCT": "你的_bili_jct",
-        "BILIBILI_DEDEUSERID": "你的_DedeUserID"
+        "BILIBILI_SESSDATA": "<your_sessdata>",
+        "BILIBILI_BILI_JCT": "<your_bili_jct>",
+        "BILIBILI_DEDEUSERID": "<your_dedeuserid>"
       }
     }
   }

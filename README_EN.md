@@ -32,9 +32,9 @@ claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili
       "command": "npx",
       "args": ["-y", "@xzxzzx/bilibili-mcp"],
       "env": {
-        "BILIBILI_SESSDATA": "YOUR_SESSDATA",
-        "BILIBILI_BILI_JCT": "YOUR_bili_jct",
-        "BILIBILI_DEDEUSERID": "YOUR_DedeUserID"
+        "BILIBILI_SESSDATA": "<your_sessdata>",
+        "BILIBILI_BILI_JCT": "<your_bili_jct>",
+        "BILIBILI_DEDEUSERID": "<your_dedeuserid>"
       }
     }
   }
@@ -137,9 +137,9 @@ Claude Desktop supports MCP servers via a global configuration file:
       "command": "npx",
       "args": ["-y", "@xzxzzx/bilibili-mcp"],
       "env": {
-        "BILIBILI_SESSDATA": "YOUR_SESSDATA",
-        "BILIBILI_BILI_JCT": "YOUR_bili_jct",
-        "BILIBILI_DEDEUSERID": "YOUR_DedeUserID"
+        "BILIBILI_SESSDATA": "<your_sessdata>",
+        "BILIBILI_BILI_JCT": "<your_bili_jct>",
+        "BILIBILI_DEDEUSERID": "<your_dedeuserid>"
       }
     }
   }
