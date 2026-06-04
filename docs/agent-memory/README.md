@@ -60,4 +60,4 @@ Promotion remains manual:
 
 Do not treat pending proposals as formal memory.
 
-Review reminders are phase-gated. The hook state compares completed `### Task N` sections in the active stabilization plan and only reminds after the completed phase count increases.
+Review reminders are phase-gated. The hook state automatically resolves the current incomplete implementation plan under `docs/superpowers/plans/`, compares completed `### Task N` sections in that active plan, and only reminds after the completed phase count increases.

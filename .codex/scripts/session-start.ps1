@@ -39,7 +39,12 @@ if ($Status) {
 }
 
 Write-Section "Active Roadmap"
-Write-Output "docs/superpowers/plans/2026-05-27-stabilization-roadmap.md"
+$Tracker = Join-Path $Root ".codex\scripts\plan_tracker.py"
+if (Test-Path -LiteralPath $Tracker) {
+    python $Tracker 2>$null
+} else {
+    Write-Output "docs/superpowers/plans/2026-05-27-stabilization-roadmap.md"
+}
 
 Write-Preview (Join-Path $MemoryRoot "README.md") "Memory README" 35
 Write-Preview (Join-Path $MemoryRoot "project-facts.md") "Project Facts" 50

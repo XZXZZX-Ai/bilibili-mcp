@@ -55,3 +55,15 @@
 - Decision: Use a compatibility-first staged split for Phase 2 `src/bilibili/client.ts` refactoring.
 - Reason: Subtitle retrieval depends on WBI, Cookie headers, buvid fallback, and `/x/player/v2` fallback behavior; tests should pin this behavior before moving code.
 - Evidence: `docs/superpowers/specs/2026-05-28-bilibili-client-split-design.md` and `docs/superpowers/plans/2026-05-28-bilibili-client-split-implementation-plan.md`.
+
+- Decision: Plan Phase 3 as an additive MCP tool surface expansion, not a breaking replacement of existing tools.
+- Reason: Existing MCP clients may already depend on `get_video_info` and `get_video_comments`; transcript, metadata, and explicit comment controls can be added without breaking those callers.
+- Evidence: `docs/superpowers/specs/2026-05-28-mcp-tool-surface-design.md` and `docs/superpowers/plans/2026-05-28-mcp-tool-surface-implementation-plan.md`.
+
+- Decision: Plan Phase 4 as a documentation and release-gate phase, with GitHub Actions/npm publish behavior verified against official docs at implementation time.
+- Reason: npm trusted publishing, provenance, Node, and npm CLI requirements can change; release workflow should be documentation-backed and should not restore Smithery or introduce tokens by default.
+- Evidence: `docs/superpowers/specs/2026-05-28-documentation-release-polish-design.md` and `docs/superpowers/plans/2026-05-28-documentation-release-polish-implementation-plan.md`.
+
+- Decision: Make controlled-learning reminders automatically track the current incomplete implementation plan instead of hard-coding the original stabilization roadmap.
+- Reason: After Phase 2, phase-gated learning reminders still pointed at the completed stabilization plan, so Phase 3/4 work would not trigger review reminders correctly.
+- Evidence: `.codex/scripts/plan_tracker.py`, `.codex/scripts/generate_learning_proposals.py`, `.codex/scripts/pre_compact.py`, and `.codex/scripts/session-start.ps1`.

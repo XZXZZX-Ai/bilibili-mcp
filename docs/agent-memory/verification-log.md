@@ -209,3 +209,179 @@
 - Result: Phase 2 files are present alongside pre-existing agent/hooks and memory/doc changes.
 - Area: Final Phase 2 worktree scope.
 - Caveat: Agent/hooks configuration changes are still unrelated to the code split and should be committed separately if the user wants separate history.
+
+## 2026-05-28 Active Plan Tracking Verification
+
+- Command: `python .codex/scripts/plan_tracker.py`
+- Result: Returned `docs\superpowers\plans\2026-05-28-mcp-tool-surface-implementation-plan.md`.
+- Area: Controlled learning active-plan resolution.
+- Caveat: The tracker chooses the first incomplete implementation plan in project roadmap order and preserves an already-active incomplete plan.
+
+- Command: `python .codex/scripts/generate_learning_proposals.py --source codex` and `python .codex/scripts/generate_learning_proposals.py --source claude`
+- Result: Passed. Both Codex and Claude runtime `learning-proposal-phase-state.json` files now point at `2026-05-28-mcp-tool-surface-implementation-plan.md` with completed count `0`.
+- Area: Phase-gated learning proposal reminders.
+- Caveat: No learning proposal is generated unless runtime candidates meet the promotion threshold.
+
+- Command: Synthetic PreCompact payload through `pre_compact.py --agent codex`
+- Result: Passed. The pre-compact checkpoint now records the Phase 3 MCP tool surface implementation plan as the active roadmap.
+- Area: PreCompact checkpointing.
+- Caveat: Synthetic payload verifies script behavior, not the external app trigger.
+
+## 2026-05-28 Phase 3 Task 1 Verification
+
+- Command: `npm test -- tests/server-tools.test.ts`
+- Result: Passed. 1 test file, 8 passed tests, 2 todo tests for planned Phase 3 tools.
+- Area: Phase 3 Task 1 MCP tool surface baseline.
+- Caveat: The test invokes the registered `tools/list` handler through the MCP SDK server's internal `_requestHandlers` map. This avoids starting stdio transport, but may need adjustment if the SDK internal shape changes.
+
+- Command: `npm test`
+- Result: Passed. 5 test files, 56 passed tests, 2 todo tests.
+- Area: Phase 3 Task 1 full regression suite.
+- Caveat: The 2 todo tests intentionally represent future `get_video_transcript` and `get_video_metadata` schema assertions.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: Phase 3 Task 1 TypeScript compilation.
+
+## 2026-05-28 Phase 3 Task 2 Verification
+
+- Command: `npm test -- tests/validation.test.ts`
+- Result: Passed. 30 validation tests.
+- Area: Phase 3 Task 2 comment option validation.
+- Caveat: `validateCommentSort("")` was initially accepted as falsy and then corrected to throw; `undefined` remains the only absent-value pass-through.
+
+- Command: `npm test`
+- Result: Passed. 5 test files, 69 passed tests, 2 todo tests.
+- Area: Phase 3 Task 2 full regression suite.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: Phase 3 Task 2 TypeScript compilation.
+
+## 2026-05-28 Phase 3 Task 3 Verification
+
+- Command: `npm test -- tests/bilibili-comments-tool.test.ts`
+- Result: Passed. 12 comment wrapper tests.
+- Area: Phase 3 Task 3 comment wrapper option controls.
+- Caveat: The first test version introduced mojibake in test descriptions/comments; this was corrected and verified with `rg -n "鈥|鈫|�|—|→" tests/bilibili-comments-tool.test.ts` returning no matches.
+
+- Command: `npm test`
+- Result: Passed. 6 test files, 81 passed tests, 2 todo tests.
+- Area: Phase 3 Task 3 full regression suite.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: Phase 3 Task 3 TypeScript compilation.
+
+## 2026-06-04 Phase 3 Task 4 Verification
+
+- Command: `npm test -- tests/bilibili-metadata.test.ts`
+- Result: Passed. 8 metadata wrapper tests.
+- Area: Phase 3 Task 4 metadata-only wrapper.
+- Caveat: Tests mock `getVideoInfo()` and do not call live Bilibili APIs.
+
+- Command: `npm test`
+- Result: Passed. 7 test files, 89 passed tests, 2 todo tests.
+- Area: Phase 3 Task 4 full regression suite.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: Phase 3 Task 4 TypeScript compilation.
+
+- Command: `rg -n "鈥|鈫|�|—|→" src/bilibili/metadata.ts src/bilibili/types.ts tests/bilibili-metadata.test.ts`
+- Result: No matches.
+- Area: Phase 3 Task 4 encoding check.
+
+## 2026-06-04 Phase 3 Task 5 Verification
+
+- Command: `npm test -- tests/bilibili-transcript.test.ts`
+- Result: Passed. 12 transcript wrapper tests.
+- Area: Phase 3 Task 5 transcript-only wrapper.
+- Caveat: Tests mock `getVideoInfo()`, `getVideoSubtitle()`, and `getSubtitleContent()` and do not call live Bilibili APIs.
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 101 passed tests, 2 todo tests.
+- Area: Phase 3 Task 5 full regression suite.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: Phase 3 Task 5 TypeScript compilation.
+
+- Command: `git diff -- src/bilibili/subtitle.ts tests/bilibili-transcript.test.ts src/bilibili/types.ts | Select-String -Pattern "→|—|鈥|鈫|�" -Context 1,1`
+- Result: No output after replacing two newly added `→` arrows with `->`.
+- Area: Phase 3 Task 5 new-content encoding check.
+
+## 2026-06-04 Phase 3 Task 6 Verification
+
+- Command: `npm test -- tests/server-tools.test.ts`
+- Result: Passed. 17 MCP tool schema tests, 0 todo tests.
+- Area: Phase 3 Task 6 MCP tool registration baseline.
+- Caveat: These tests use the MCP SDK server's internal `_requestHandlers` map to inspect the `tools/list` response. Handler behavior is mostly covered through service-wrapper tests rather than direct MCP handler mocks.
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests.
+- Area: Phase 3 Task 6 full regression suite.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: Phase 3 Task 6 TypeScript compilation and MCP server imports.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files, 559.4 kB. Package includes updated `dist/server.*`, `dist/bilibili/metadata.*`, and Phase 3 wrapper outputs. No tests, `.env`, Smithery, or debug artifacts were reported in the tarball contents.
+- Area: Phase 3 Task 6 package contents.
+
+- Command: `bad-character scan for mojibake markers, replacement characters, em dash, and arrow in src/server.ts and tests/server-tools.test.ts`
+- Result: No matches.
+- Area: Phase 3 Task 6 new server/test encoding check.
+
+## 2026-06-04 Phase 3 Task 7 Verification
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests.
+- Area: Phase 3 Task 7 documentation change regression suite.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: Phase 3 Task 7 TypeScript compilation after updating `src/server.ts` schema descriptions.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files, 560.1 kB. Package includes updated `README.md`, `README_EN.md`, and built `dist/server.*`.
+- Area: Phase 3 Task 7 package contents.
+
+- Command: `rg -n "detailed.*50|50.*detailed|前50|50 popular|#3-.*稳健性|#3-.*robustness" README.md README_EN.md src/server.ts`
+- Result: No matches after review correction.
+- Area: Phase 3 Task 7 stale documentation scan.
+
+- Command: `git diff -U0 -- README.md README_EN.md src/server.ts | rg -n "^\\+.*(mojibake markers|replacement characters|em dash|arrow)"`
+- Result: No matches for newly added bad characters. A full-file scan still matches pre-existing README Issue-contact punctuation outside the Phase 3 additions.
+- Area: Phase 3 Task 7 new-content encoding check.
+
+## 2026-06-04 Phase 3 Final Verification (Task 8)
+
+- Command: `git status --short`
+- Result: Expected changes — 14 modified (source, tests, docs, READMEs, config), 9 new untracked (plan/spec docs, new source modules, new test files). No unexpected artifacts.
+- Area: Phase 3 final baseline.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript compilation with new MCP schemas and service wrappers.
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests, 0 todo. All new wrapper tests pass. All existing tests pass (no regressions).
+- Area: Phase 3 tool surface test baseline.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files, 560.1 kB. Package includes new modules (metadata.ts, expanded server.ts). Excludes tests/, .env, Smithery artifacts, debug artifacts.
+- Area: Package contents.
+
+- Command: Contaminant scan (`smithery-test`, `debug_subtitle2`, `detailed=50` stale text)
+- Result: Zero stale detailed=50 matches. Zero debug/Smithery artifacts in package. Only intentional `.npmignore` rule references `dist/smithery-test.*`.
+- Area: Documentation and package hygiene.
+
+- Command: Mojibake scan (new files and modified source/docs)
+- Result: No new mojibake introduced. Pre-existing mojibake in `verification-log.md` (not Phase 3 scope).
+- Area: Encoding check.
+
+- Final tool list: `get_video_info` (unchanged), `get_video_comments` (expanded with limit/sort/include_replies), `get_video_transcript` (new), `get_video_metadata` (new).
+- Phase 3 plan: Tasks 1-8 all marked complete.
+- Remaining risks: No stdio-level MCP handler integration tests (wrapper behavior covered by unit tests). npm audit 23 vulnerabilities not introduced by Phase 3.

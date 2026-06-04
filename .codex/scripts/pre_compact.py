@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
+from plan_tracker import resolve_active_plan
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -58,7 +59,7 @@ def main() -> int:
     payload = read_payload()
     branch = run_git(["branch", "--show-current"])
     status = run_git(["status", "--short"])
-    roadmap = ROOT / "docs" / "superpowers" / "plans" / "2026-05-27-stabilization-roadmap.md"
+    roadmap = resolve_active_plan()
 
     lines = [
         f"# {args.agent} pre-compact checkpoint",
