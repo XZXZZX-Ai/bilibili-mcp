@@ -40,6 +40,7 @@ claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili
   }
 }
 ```
+</details>
 
 
 更多客户端配置见 [安装方式](#-安装方式)。
