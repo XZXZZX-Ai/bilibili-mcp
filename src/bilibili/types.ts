@@ -123,6 +123,47 @@ export type SupportedLanguage = 'zh-Hans' | 'zh-CN' | 'zh-Hant' | 'en' | 'ja' | 
 // 评论详细程度类型
 export type CommentDetailLevel = 'brief' | 'detailed';
 
+// 评论排序类型
+export type CommentSort = "hot" | "time";
+
+// 视频转录数据类型
+export interface VideoTranscriptData {
+  bvid: string;
+  data_source: "subtitle" | "description";
+  language?: string;
+  transcript: string;
+  title: string;
+}
+
+// 视频元数据类型
+export interface VideoMetadataData {
+  bvid: string;
+  title: string;
+  author?: string;
+  duration?: number;
+  pubdate?: string;
+  pubdate_timestamp?: number;
+  description: string;
+  tags: string[];
+  stats: {
+    view?: number;
+    like?: number;
+    coin?: number;
+    favorite?: number;
+    share?: number;
+    reply?: number;
+    danmaku?: number;
+  };
+}
+
+// 评论选项（新 API）
+export interface CommentOptions {
+  detailLevel?: CommentDetailLevel;
+  limit?: number;
+  sort?: CommentSort;
+  includeReplies?: boolean;
+}
+
 // API 错误类型
 export interface APIError {
   code: number;

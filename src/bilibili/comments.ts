@@ -1,6 +1,12 @@
 // 评论处理逻辑
 import { getVideoInfo, getVideoComments } from "./client.js";
-import { Comment, ProcessedComment, CommentsResponse, CommentDetailLevel } from "./types.js";
+import {
+  Comment,
+  CommentOptions,
+  ProcessedComment,
+  CommentDetailLevel,
+  CommentsResponse,
+} from "./types.js";
 import { extractBVId } from "../utils/bvid.js";
 import { cacheManager } from "../utils/cache.js";
 import { CommentsDisabledError } from "../utils/errors.js";
@@ -63,18 +69,54 @@ function processComment(
 
 /**
  * 获取视频评论
+ *
+ * 支持旧式调用：
+ *   getVideoCommentsData(bvidOrUrl)
+ *   getVideoCommentsData(bvidOrUrl, "brief")
+ *   getVideoCommentsData(bvidOrUrl, "detailed")
+ *
+ * 支持新式 options 调用：
+ *   getVideoCommentsData(bvidOrUrl, { detailLevel: "detailed", limit: 5, sort: "time", includeReplies: false })
  */
 export async function getVideoCommentsData(
   bvidOrUrl: string,
-  detailLevel: CommentDetailLevel = "brief",
-  sort: number = 1, // 0按时间，1按热度
-  includeReplies: boolean = true
+  detailLevelOrOptions?: CommentDetailLevel | CommentOptions,
+  legacySort?: number,
+  legacyIncludeReplies?: boolean,
 ): Promise<CommentData> {
+  // Resolve options from old or new API shape
+  const isOldApi =
+    detailLevelOrOptions === undefined ||
+    typeof detailLevelOrOptions === "string";
+
+  const detailLevel: CommentDetailLevel = isOldApi
+    ? (detailLevelOrOptions ?? "brief")
+    : (detailLevelOrOptions.detailLevel ?? "brief");
+
+  const limit: number | undefined = isOldApi
+    ? undefined
+    : (detailLevelOrOptions as CommentOptions).limit;
+
+  const sort: number = isOldApi
+    ? (legacySort ?? 1)
+    : ((detailLevelOrOptions as CommentOptions).sort === "time" ? 0 : 1);
+
+  const includeReplies: boolean = isOldApi
+    ? (legacyIncludeReplies ?? true)
+    : ((detailLevelOrOptions as CommentOptions).includeReplies ?? true);
+
   const bvid = extractBVId(bvidOrUrl);
-  
-  // 生成缓存键
-  const cacheKey = cacheManager.generateKey('comments', bvid, detailLevel, sort.toString(), includeReplies.toString());
-  
+
+  // 生成缓存键：包含有效的 detailLevel/limit/sort/includeReplies
+  const cacheDetail = limit !== undefined ? `limit-${limit}` : detailLevel;
+  const cacheKey = cacheManager.generateKey(
+    "comments",
+    bvid,
+    cacheDetail,
+    sort.toString(),
+    includeReplies.toString(),
+  );
+
   try {
     // 尝试从缓存获取
     const cachedData = cacheManager.getCommentInfo(cacheKey);
@@ -89,16 +131,24 @@ export async function getVideoCommentsData(
     const videoData = await getVideoInfo(bvid);
     const cid = videoData.cid;
 
-    // 根据详情级别确定评论数量
-    const commentCount = detailLevel === "brief" ? 10 : 20;
+    // 评论数量：优先使用显式 limit，否则根据 detailLevel 决定
+    const commentCount = limit ?? (detailLevel === "brief" ? 10 : 20);
 
     // 获取评论
-    const commentsData = await getVideoComments(bvidOrUrl, 1, commentCount, sort, includeReplies) as CommentsResponse;
+    const commentsData = (await getVideoComments(
+      bvidOrUrl,
+      1,
+      commentCount,
+      sort,
+      includeReplies,
+    )) as CommentsResponse;
 
     const rawComments = commentsData?.replies || [];
 
     // 处理评论
-    let processedComments = rawComments.map((comment) => processComment(comment, includeReplies));
+    let processedComments = rawComments.map((comment) =>
+      processComment(comment, includeReplies),
+    );
 
     // 如果是详细模式且包含回复，添加高赞回复
     if (detailLevel === "detailed" && includeReplies) {
@@ -122,7 +172,9 @@ export async function getVideoCommentsData(
     });
 
     // 统计
-    const commentsWithTimestamp = processedComments.filter((c) => c.has_timestamp).length;
+    const commentsWithTimestamp = processedComments.filter(
+      (c) => c.has_timestamp,
+    ).length;
 
     const result: CommentData = {
       comments: processedComments,
@@ -134,7 +186,7 @@ export async function getVideoCommentsData(
 
     // 存入缓存
     cacheManager.setCommentInfo(cacheKey, result);
-    
+
     return result;
   } catch (error) {
     if (error instanceof CommentsDisabledError) {

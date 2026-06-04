@@ -75,3 +75,29 @@ export function validateDetailLevel(level?: string): void {
     throw new Error('Invalid detail level: must be "brief" or "detailed"');
   }
 }
+
+/**
+ * 验证评论数量限制
+ */
+export function validateCommentLimit(limit?: number): void {
+  if (limit === undefined) return;
+
+  if (typeof limit !== "number" || !Number.isInteger(limit)) {
+    throw new Error("Comment limit must be an integer between 1 and 50");
+  }
+
+  if (limit < 1 || limit > 50) {
+    throw new Error("Comment limit must be between 1 and 50");
+  }
+}
+
+/**
+ * 验证评论排序方式
+ */
+export function validateCommentSort(sort?: string): void {
+  if (sort === undefined) return;
+
+  if (!["hot", "time"].includes(sort)) {
+    throw new Error('Invalid comment sort: must be "hot" or "time"');
+  }
+}

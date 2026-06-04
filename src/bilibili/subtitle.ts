@@ -2,7 +2,7 @@
 import { getVideoInfo, getVideoSubtitle, getSubtitleContent, checkLoginStatus } from "./client.js";
 import { extractBVId } from "../utils/bvid.js";
 import { cacheManager } from "../utils/cache.js";
-import { BilibiliAPIError, PaidVideoError } from "../utils/errors.js";
+import { BilibiliAPIError, NoSubtitleError, PaidVideoError } from "../utils/errors.js";
 
 
 export interface SubtitleData {
@@ -78,6 +78,123 @@ function mergeSubtitleText(
 function extractTags(videoData: any): string[] {
   const tags = videoData.tag || [];
   return tags.map((tag: { tag_name: string }) => tag.tag_name);
+}
+
+/**
+ * 获取纯视频转录文本（新 API）
+ *
+ * 不自动降级到描述。如果字幕不可用：
+ * - fallbackToDescription=false -> throw NoSubtitleError
+ * - fallbackToDescription=true -> return description text
+ * - COOKIE_EXPIRED 错误始终向上传播
+ */
+export async function getVideoTranscriptData(
+  bvidOrUrl: string,
+  preferredLang?: string,
+  fallbackToDescription = false,
+): Promise<import("./types.js").VideoTranscriptData> {
+  const bvid = extractBVId(bvidOrUrl);
+  const videoData = (await getVideoInfo(bvid)) as any;
+  const title = videoData.title;
+  const description = videoData.desc || "";
+  const cid = videoData.cid;
+
+  // 获取字幕列表
+  try {
+    const subtitleData = await getVideoSubtitle(bvid, cid);
+
+    if (
+      !subtitleData?.subtitle?.subtitles ||
+      subtitleData.subtitle.subtitles.length === 0
+    ) {
+      if (fallbackToDescription) {
+        return {
+          bvid,
+          data_source: "description",
+          transcript: description,
+          title,
+        };
+      }
+      throw new NoSubtitleError(
+        `Video ${bvid} has no subtitles available`,
+      );
+    }
+
+    const bestSubtitle = selectBestSubtitle(
+      subtitleData.subtitle.subtitles,
+      preferredLang,
+    );
+
+    if (!bestSubtitle) {
+      if (fallbackToDescription) {
+        return {
+          bvid,
+          data_source: "description",
+          transcript: description,
+          title,
+        };
+      }
+      throw new NoSubtitleError(
+        `No suitable subtitle found for video ${bvid}`,
+      );
+    }
+
+    const subtitleContent = await getSubtitleContent(
+      bestSubtitle.subtitle_url,
+    );
+
+    if (!subtitleContent?.body || subtitleContent.body.length === 0) {
+      if (fallbackToDescription) {
+        return {
+          bvid,
+          data_source: "description",
+          transcript: description,
+          title,
+        };
+      }
+      throw new NoSubtitleError(
+        `Subtitle body is empty for video ${bvid}`,
+      );
+    }
+
+    const transcript = mergeSubtitleText(subtitleContent.body);
+
+    return {
+      bvid,
+      data_source: "subtitle",
+      language: bestSubtitle.lan,
+      transcript,
+      title,
+    };
+  } catch (error) {
+    // COOKIE_EXPIRED must propagate
+    if (
+      error instanceof BilibiliAPIError &&
+      error.code === "COOKIE_EXPIRED"
+    ) {
+      throw error;
+    }
+    // NoSubtitleError: only rethrow if fallback disabled
+    if (error instanceof NoSubtitleError) {
+      if (!fallbackToDescription) throw error;
+      return {
+        bvid,
+        data_source: "description",
+        transcript: description,
+        title,
+      };
+    }
+    // Other errors: fallback to description if enabled, else rethrow
+    if (fallbackToDescription) {
+      return {
+        bvid,
+        data_source: "description",
+        transcript: description,
+        title,
+      };
+    }
+    throw error;
+  }
 }
 
 /**

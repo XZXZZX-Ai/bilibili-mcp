@@ -28,7 +28,9 @@
   - [🌟 功能特性](#-功能特性)
     - [1. 视频总结 (`get_video_info`)](#1-视频总结-get_video_info)
     - [2. 评论总结 (`get_video_comments`)](#2-评论总结-get_video_comments)
-    - [3. 🛡️ 稳健性增强](#3-️-稳健性增强)
+    - [3. 视频转录 (`get_video_transcript`)](#3-视频转录-get_video_transcript)
+    - [4. 视频元数据 (`get_video_metadata`)](#4-视频元数据-get_video_metadata)
+    - [5. 🛡️ 稳健性增强](#5-️-稳健性增强)
   - [📋 环境要求](#-环境要求)
   - [🚀 安装方式](#-安装方式)
     - [🖱️ Cursor](#️-cursor)
@@ -85,9 +87,27 @@
 - 优先保留包含时间戳的评论（如 `05:20`），方便定位高能片段
 - 支持两种详细程度：
   - `brief`: 10 条热门评论速览
-  - `detailed`: 50 条热门评论 + 高赞连带回复
+  - `detailed`: 20 条热门评论 + 高赞连带回复
+- 可选参数：
+  - `limit`: 显式评论数量 `1-50`，覆盖 `detail_level` 的默认数量
+  - `sort`: 排序方式 `"hot"`（按热度，默认）或 `"time"`（按时间）
+  - `include_replies`: 是否包含高赞回复（默认 `true`）
 
-### 3. 🛡️ 稳健性增强
+### 3. 视频转录 (`get_video_transcript`)
+- 返回纯字幕文本，按行合并
+- 支持指定偏好语言（默认按 `zh-Hans` > `ai-zh` > `zh-CN` > `zh-Hant` > `en` 优先级选择）
+- 可选参数：
+  - `preferred_lang`: 偏好字幕语言代码
+  - `fallback_to_description`: 字幕不可用时是否降级为视频描述（默认 `false`）
+- 默认不降级：无字幕时返回 `SUBTITLE_UNAVAILABLE` 错误
+- Cookie 失效时始终返回 `COOKIE_EXPIRED`，不静默降级
+
+### 4. 视频元数据 (`get_video_metadata`)
+- 返回视频标题、作者、时长、发布时间、描述、标签、播放/点赞/投币等统计信息
+- 不获取字幕或评论
+- 仅需 `bvid_or_url` 参数
+
+### 5. 🛡️ 稳健性增强
 - **Cookie 过期智能检测**：当字幕获取为空时自动验证登录状态，区分“无字幕视频”与“凭证失效”，并抛出明确的 `COOKIE_EXPIRED` 错误，避免静默降级。
 
 ---
@@ -404,6 +424,24 @@ bilibili-mcp config
 {
   "name": "get_video_comments",
   "arguments": { "bvid_or_url": "BV1xx4x1x7xx", "detail_level": "brief" }
+}
+
+// 获取纯字幕文本（无字幕时返回错误）
+{
+  "name": "get_video_transcript",
+  "arguments": { "bvid_or_url": "BV1xx4x1x7xx" }
+}
+
+// 获取视频元数据
+{
+  "name": "get_video_metadata",
+  "arguments": { "bvid_or_url": "BV1xx4x1x7xx" }
+}
+
+// 获取评论（自定义数量+排序）
+{
+  "name": "get_video_comments",
+  "arguments": { "bvid_or_url": "BV1xx4x1x7xx", "limit": 5, "sort": "time", "include_replies": false }
 }
 ```
 

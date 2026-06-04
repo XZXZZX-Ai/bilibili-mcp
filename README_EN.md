@@ -23,7 +23,9 @@ View this document in [简体中文](./README.md)
   - [🌟 Features](#-features)
     - [1. Video Summarization (`get_video_info`)](#1-video-summarization-get_video_info)
     - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)
-    - [3. 🛡️ Robustness Enhancement](#3-️-robustness-enhancement)
+    - [3. Video Transcript (`get_video_transcript`)](#3-video-transcript-get_video_transcript)
+    - [4. Video Metadata (`get_video_metadata`)](#4-video-metadata-get_video_metadata)
+    - [5. 🛡️ Robustness Enhancement](#5-️-robustness-enhancement)
   - [📋 Requirements](#-requirements)
   - [🚀 Installation](#-installation)
     - [🖱️ Cursor](#️-cursor)
@@ -80,9 +82,27 @@ Before proceeding with installation, please ensure you are familiar with [How to
 - Prioritizes comments with timestamps (e.g., `05:20`) for quick highlight location.
 - Supports two levels of detail:
   - `brief`: 10 popular comments summary.
-  - `detailed`: 50 popular comments + high-quality replies.
+  - `detailed`: 20 popular comments + high-quality replies.
+- Optional parameters:
+  - `limit`: Explicit comment count `1-50`, overrides `detail_level` default.
+  - `sort`: Sort order `"hot"` (default) or `"time"`.
+  - `include_replies`: Whether to include top replies (default `true`).
 
-### 3. 🛡️ Robustness Enhancement
+### 3. Video Transcript (`get_video_transcript`)
+- Returns clean subtitle text, joined by newlines.
+- Supports preferred language selection (defaults to `zh-Hans` > `ai-zh` > `zh-CN` > `zh-Hant` > `en` priority).
+- Optional parameters:
+  - `preferred_lang`: Preferred subtitle language code.
+  - `fallback_to_description`: Fall back to video description if subtitles unavailable (default `false`).
+- By default, returns `SUBTITLE_UNAVAILABLE` error when no subtitles exist.
+- Cookie expiration always returns `COOKIE_EXPIRED`, never silently falls back.
+
+### 4. Video Metadata (`get_video_metadata`)
+- Returns video title, author, duration, publish date, description, tags, and stats (views, likes, coins, etc.).
+- Does not fetch subtitles or comments.
+- Only requires the `bvid_or_url` parameter.
+
+### 5. 🛡️ Robustness Enhancement
 - **Intelligent Cookie Expiration Detection**: Automatically verifies login status when subtitles are empty, distinguishing between "videos without subtitles" and "invalid credentials," and throwing a clear `COOKIE_EXPIRED` error to prevent silent degradation.
 
 ---
@@ -388,6 +408,24 @@ AI assistants will call these tools using JSON:
 {
   "name": "get_video_comments",
   "arguments": { "bvid_or_url": "BV1xx4x1x7xx", "detail_level": "brief" }
+}
+
+// Transcript-only text (returns error if no subtitles)
+{
+  "name": "get_video_transcript",
+  "arguments": { "bvid_or_url": "BV1xx4x1x7xx" }
+}
+
+// Video metadata
+{
+  "name": "get_video_metadata",
+  "arguments": { "bvid_or_url": "BV1xx4x1x7xx" }
+}
+
+// Comments with custom limit + sort
+{
+  "name": "get_video_comments",
+  "arguments": { "bvid_or_url": "BV1xx4x1x7xx", "limit": 5, "sort": "time", "include_replies": false }
 }
 ```
 
