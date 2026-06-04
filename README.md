@@ -286,49 +286,48 @@ Settings → AI → MCP → Add Server：
 
 ## ⚙️ 凭证配置
 
-为了获取更完整的评论数据、绕过匿名访问限制并确保工具稳定运行，**必须**配置 B 站 Cookie。
+为了稳定获取字幕、转录和评论，建议配置 Bilibili Cookie。公开视频元数据可能无需 Cookie，但不要依赖无 Cookie 模式获取字幕或评论。
 
-### 🔑 第一步：获取 Bilibili Cookie
+### 推荐方式：CLI 向导
 
-1. 在电脑浏览器登录 [bilibili.com](https://www.bilibili.com)
-2. 按 `F12` 打开开发者工具（或在页面右键选择“检查”）。
-3. 切换到 **Application (应用)** 选项卡 -> 在左侧菜单找到 **Cookies** -> 点击 `https://www.bilibili.com`。
-4. 在右侧列表中找到以下三个关键变量，并记录它们的 **Value**：
-    - `SESSDATA`
-    - `bili_jct` (即 CSRF Token)
-    - `DedeUserID` (您的用户数字 ID)
-
-> [!TIP]
-> 如果您在 `Application` 找不到，也可以查看 `Network` (网络) 选项卡中的任意一个请求，在 `Headers` -> `Cookie` 字段中也能找到这些值。
-
-### 📝 第二步：应用凭证
-
-您可以针对不同的使用习惯选择以下任一方式：
-
-#### 方式 A：使用 CLI 向导（推荐，适用于全局安装）
-如果您全局安装了 npm 包（`npm i -g @xzxzzx/bilibili-mcp`），直接运行：
 ```bash
+npm install -g @xzxzzx/bilibili-mcp
 bilibili-mcp config
+bilibili-mcp check
 ```
-交互向导将引导您输入凭证并安全保存在**本地**配置目录（`~/.bilibili-mcp/config.json`）中。
 
-#### 方式 B：手动配置环境变量（适用于本地开发或 Docker）
-在项目根目录创建 `.env` 文件，手动填入以下变量：
+CLI 会把凭证保存在本地配置目录，不会写入仓库。
+
+### 环境变量方式
+
+适合 Docker、本地开发或手动配置 MCP 客户端环境变量。
 
 | 变量名 | 说明 |
-| :--- | :--- |
-| **BILIBILI_SESSDATA** | `SESSDATA` 的值 |
-| **BILIBILI_BILI_JCT** | `bili_jct` 的值 |
-| **BILIBILI_DEDEUSERID** | `DedeUserID` 的值 |
+|---|---|
+| `BILIBILI_SESSDATA` | Bilibili 登录 Cookie 中的 SESSDATA |
+| `BILIBILI_BILI_JCT` | Bilibili 登录 Cookie 中的 bili_jct |
+| `BILIBILI_DEDEUSERID` | Bilibili 用户 ID |
 
-> [!WARNING]
-> `.env` 文件仅供本地加载，**切勿提交到 Git 或公开仓库**。
+`.env` 示例：
 
-#### 🔒 安全须知
+```env
+BILIBILI_SESSDATA=<your_sessdata>
+BILIBILI_BILI_JCT=<your_bili_jct>
+BILIBILI_DEDEUSERID=<your_dedeuserid>
+```
 
-- **隐私保护**：您的凭证信息仅存储在您的本地设备上。本工具**绝不会**将其上传至除 Bilibili 官方 API 以外的任何第三方服务器。
-- **配置隔离**：`.env` 文件已被 `.gitignore` 排除。
-- **时效性**：Cookie 具有时效性。若遇到 `412` 或权限错误，请尝试更新 Cookie。
+### Cookie 获取提醒
+
+请只从你自己的 Bilibili 登录会话中获取 Cookie。不同浏览器的开发者工具界面会变化，具体步骤请以浏览器实际界面为准。
+
+不要把 Cookie 发给他人，不要粘贴到公开聊天、Issue、PR、README、日志或测试文件。
+
+### 安全须知
+
+- Cookie 只应保存在本地配置、环境变量或 `.env` 中。
+- `.env` 已被 `.gitignore` 排除，但仍要避免提交。
+- Cookie 泄露后应立即在 Bilibili 账号侧失效旧登录状态。
+- 本项目不会把 Cookie 上传到除 Bilibili 官方 API 以外的第三方服务。
 
 ---
 

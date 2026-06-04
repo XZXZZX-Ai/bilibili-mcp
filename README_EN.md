@@ -226,48 +226,48 @@ Edit `~/.config/opencode/opencode.json`:
 
 ## ⚙️ Credential Configuration
 
-To retrieve full comment data, bypass anonymous access limits, and ensure stability, you **must** configure Bilibili Cookies.
+For reliable access to subtitles, transcripts, and comments, configure Bilibili Cookies. Public video metadata may work without cookies, but do not rely on cookieless mode for subtitles or comments.
 
-### 🔑 Step 1: Obtain Bilibili Cookies
+### Recommended: CLI Wizard
 
-1. Log in to [bilibili.com](https://www.bilibili.com) in your desktop browser.
-2. Press `F12` to open Developer Tools (or right-click and select "Inspect").
-3. Go to the **Application** tab -> Find **Cookies** in the left menu -> Click `https://www.bilibili.com`.
-4. Locate the following three key variables and record their **Value**:
-    - `SESSDATA`
-    - `bili_jct` (also known as CSRF Token)
-    - `DedeUserID` (your numerical User ID)
-
-> [!TIP]
-> If you can't find them in the `Application` tab, check the `Network` tab for any request, and look for the `Cookie` field under `Headers`.
-
-### 📝 Step 2: Apply Credentials
-
-Choose one of the following methods based on your preference:
-
-#### Method A: CLI Wizard (Recommended, for global installations)
-If installed via npm (`npm i -g @xzxzzx/bilibili-mcp`), run:
 ```bash
+npm install -g @xzxzzx/bilibili-mcp
 bilibili-mcp config
+bilibili-mcp check
 ```
-The interactive wizard will guide you through entering credentials and save them **locally** (`~/.bilibili-mcp/config.json`).
 
-#### Method B: Manual Environment Variables (for local development or Docker)
-Create a `.env` file in the project root and enter the following variables:
+The CLI saves credentials to a local config directory, outside the repository.
+
+### Environment Variables
+
+For Docker, local development, or manual MCP client configuration.
 
 | Variable | Description |
-| :--- | :--- |
-| **BILIBILI_SESSDATA** | Value of `SESSDATA` |
-| **BILIBILI_BILI_JCT** | Value of `bili_jct` |
-| **BILIBILI_DEDEUSERID** | Value of `DedeUserID` |
+|---|---|
+| `BILIBILI_SESSDATA` | SESSDATA from your Bilibili login cookie |
+| `BILIBILI_BILI_JCT` | bili_jct from your Bilibili login cookie |
+| `BILIBILI_DEDEUSERID` | Your Bilibili user ID |
 
-> [!WARNING]
-> The `.env` file is for local use only. **Never commit it to Git or any public repository.**
+`.env` example:
 
-#### 🔒 Security Notice
-- **Privacy**: Your credentials are only stored on your local device. This tool **never** uploads them to any third-party server besides official Bilibili APIs.
-- **Isolation**: The `.env` file is excluded by `.gitignore`.
-- **Expiration**: Cookies expire over time. If you encounter `412` or permission errors, try updating your cookies.
+```env
+BILIBILI_SESSDATA=<your_sessdata>
+BILIBILI_BILI_JCT=<your_bili_jct>
+BILIBILI_DEDEUSERID=<your_dedeuserid>
+```
+
+### Obtaining Cookies
+
+Get cookies from your own Bilibili login session only. Browser developer tools vary; follow your browser"s actual interface.
+
+Do not share cookies with others. Do not paste them into public chats, issues, PRs, READMEs, logs, or test files.
+
+### Security Notice
+
+- Keep cookies in local config, environment variables, or `.env` only.
+- `.env` is excluded by `.gitignore`, but always avoid committing it.
+- If cookies are leaked, invalidate the old session on Bilibili"s account settings immediately.
+- This project does not upload cookies to any third-party service other than Bilibili"s official API.
 
 ---
 
