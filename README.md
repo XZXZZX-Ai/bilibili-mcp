@@ -30,7 +30,7 @@
     - [2. 评论总结 (`get_video_comments`)](#2-评论总结-get_video_comments)
     - [3. 视频转录 (`get_video_transcript`)](#3-视频转录-get_video_transcript)
     - [4. 视频元数据 (`get_video_metadata`)](#4-视频元数据-get_video_metadata)
-    - [5. 🛡️ 稳健性增强](#5-️-稳健性增强)
+    - [5. 行为说明与错误处理](#5-行为说明与错误处理)
   - [📋 环境要求](#-环境要求)
   - [🚀 安装方式](#-安装方式)
     - [🖱️ Cursor](#️-cursor)
@@ -107,10 +107,31 @@
 - 不获取字幕或评论
 - 仅需 `bvid_or_url` 参数
 
-### 5. 🛡️ 稳健性增强
+### 5. 行为说明与错误处理
+
 - **Cookie 过期智能检测**：当字幕获取为空时自动验证登录状态，区分“无字幕视频”与“凭证失效”，并抛出明确的 `COOKIE_EXPIRED` 错误，避免静默降级。
 
----
+#### 无 Cookie 行为
+
+- 部分公开视频元数据（`get_video_metadata`）可能在未登录状态下工作。
+- 字幕（`get_video_info`、`get_video_transcript`）在未登录时可能无法获取、不完整或返回空结果。
+- 评论（`get_video_comments`）在未登录时可能不完整、被限流或返回空列表。
+- 不建议依赖无 Cookie 模式获取字幕或评论。
+
+#### Cookie 凭据来源
+
+- Cookie 凭据应通过 `.env` 文件、环境变量或凭据管理工具提供。
+- 支持的环境变量：`BILIBILI_SESSDATA`、`BILIBILI_BILI_JCT`、`BILIBILI_DEDEUSERID`。
+- **切勿**在源码、脚本、文档、测试、日志或示例中硬编码 Cookie 值。
+- 如果 Cookie 值曾出现在仓库历史中，应尽快到 Bilibili 账号设置中轮换/失效旧 Cookie。
+
+#### 预期错误码
+
+| 错误码 | 含义 | 调用方建议 |
+|--------|------|-----------|
+| `VALIDATION_ERROR` | 输入参数不合法 | 检查并修正 `bvid_or_url` 或其他参数 |
+| `COOKIE_EXPIRED` | Cookie 已失效或未登录 | 用户应更新/轮换 Bilibili 凭据 |
+| `SUBTITLE_UNAVAILABLE` | 视频无可用的字幕 | 对 `get_video_transcript` 可重试并设置 `fallback_to_description: true` |
 
 ## 📋 环境要求
 

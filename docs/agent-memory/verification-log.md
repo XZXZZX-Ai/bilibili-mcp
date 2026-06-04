@@ -385,3 +385,188 @@
 - Final tool list: `get_video_info` (unchanged), `get_video_comments` (expanded with limit/sort/include_replies), `get_video_transcript` (new), `get_video_metadata` (new).
 - Phase 3 plan: Tasks 1-8 all marked complete.
 - Remaining risks: No stdio-level MCP handler integration tests (wrapper behavior covered by unit tests). npm audit 23 vulnerabilities not introduced by Phase 3.
+
+## 2026-06-04 Phase 4 Task 1 Public Surface Inspection
+
+- Command: `git status --short`
+- Result: Clean after removing generated `__pycache__/`.
+- Area: Phase 4 Task 1 read-only inspection baseline.
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests.
+- Area: Release-polish baseline.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript compilation.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files.
+- Area: Package contents baseline.
+
+- Finding: Actual MCP tool surface is `get_video_info`, `get_video_comments`, `get_video_transcript`, and `get_video_metadata`.
+- Finding: `README.md` and `README_EN.md` already document all four tools and the expanded comment parameters.
+- Finding: `CHANGELOG.md` and `CHANGELOG_EN.md` are missing a v1.3.8 entry for stabilization, client split, MCP tool expansion, Smithery removal, tests, and package cleanup.
+- Finding: `package.json` metadata is publishable but description and keywords do not yet mention transcript and metadata.
+- Finding: `.github/workflows/publish.yml` exists and appears to use trusted publishing/provenance, but lacks an `npm test` step before publish. Official docs verification is deferred to Phase 4 Task 5.
+
+## 2026-06-04 Phase 4 Task 2 README Documentation Verification
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests.
+- Area: README documentation update regression check.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript compilation after README-only changes.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files; updated `README.md` and `README_EN.md` are included.
+- Area: Package contents check.
+
+- Command: `rg -n '区分”|与”|鈥|鈫|�' README.md README_EN.md`
+- Result: No matches after correcting the README Chinese quote pairing.
+- Area: README encoding and typography check.
+
+- Finding: README files now document no-cookie limitations, Cookie-backed credential sources, and caller behavior for `VALIDATION_ERROR`, `COOKIE_EXPIRED`, and `SUBTITLE_UNAVAILABLE`.
+- Finding: Review follow-up fixed README TOC anchor drift for the behavior/error section and restored the environment requirements anchor.
+
+## 2026-06-04 Phase 4 Task 3 Changelog Verification
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests.
+- Area: Changelog update regression check.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript compilation after changelog-only changes.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files.
+- Area: Package contents check.
+
+- Command: `rg -n "hard-coded|硬编码|source code|源码|npm publish|GitHub release|tag pushed|SESSDATA=|bili_jct=|DedeUserID=|npm_[A-Za-z0-9]|ghp_[A-Za-z0-9]|鈥|鈫|�" CHANGELOG.md CHANGELOG_EN.md`
+- Result: No matches after review correction.
+- Area: Changelog overclaim, secret, and bad-character scan.
+
+- Finding: `CHANGELOG.md` and `CHANGELOG_EN.md` now include a 1.3.8 section for Phase 1 stabilization, Phase 2 client split, Phase 3 MCP tool expansion, Smithery removal, Vitest baseline, package cleanup, and README updates.
+- Finding: Credential-hardening wording avoids claiming npm publication, GitHub release/tag creation, or tracked source credential removal.
+
+## 2026-06-04 Phase 4 Task 4 Package Metadata Verification
+
+- Command: `node -e "const p=require('./package.json'); ..."`
+- Result: Confirmed publish-critical fields unchanged: name `@xzxzzx/bilibili-mcp`, version `1.3.8`, `main`/`module` `dist/index.js`, `types` `dist/index.d.ts`, `bin.bilibili-mcp` `dist/cli.js`, `files` `[dist, README.md, README_EN.md, LICENSE]`, Node engine `>=18.0.0`.
+- Area: Package metadata inspection.
+
+- Command: `git diff -- package.json package-lock.json`
+- Result: Only `package.json` description and keywords changed. `package-lock.json` unchanged.
+- Area: Metadata diff review.
+
+- Command: `rg -n "smithery|Smithery|debug_subtitle2|SESSDATA=|bili_jct=|DedeUserID=|npm_[A-Za-z0-9]|ghp_[A-Za-z0-9]" package.json package-lock.json`
+- Result: No matches.
+- Area: Package metadata secret and stale artifact scan.
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests.
+- Area: Package metadata regression check.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript compilation after metadata-only changes.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files.
+- Area: Package contents check.
+
+- Finding: Description now mentions video metadata, transcripts, subtitles, and comment summarization.
+- Finding: Keywords now include `transcript` and `metadata`.
+
+## 2026-06-04 Phase 4 Task 5 Publish Workflow Verification
+
+- Official docs checked: npm Trusted Publishers, npm provenance statements, GitHub Actions workflow syntax permissions, and GitHub Publishing Node.js packages documentation.
+- Result: Trusted publishing requires npm CLI `11.5.1+` and Node `22.14.0+`; `id-token: write` is required for OIDC; `contents: read` is sufficient repository read permission; `registry-url: https://registry.npmjs.org/` is required for npm publishing setup.
+- Area: Publish workflow documentation freshness.
+
+- Command: `git diff -- .github/workflows/publish.yml`
+- Result: Workflow now uses Node `22.14.0`, keeps `id-token: write` and `contents: read`, keeps npm registry setup, installs npm latest for trusted publishing support, runs `npm test` after `npm ci`, and keeps `npm publish --provenance --access public`.
+- Area: Publish workflow diff review.
+
+- Command: local YAML parse with PyYAML.
+- Result: Parsed steps and permissions correctly. Caveat: PyYAML YAML 1.1 parsed the `on` key as boolean `True`; this is a local parser quirk and not a GitHub Actions syntax issue.
+- Area: Workflow syntax sanity check.
+
+- Command: `rg -n "NPM_TOKEN|NODE_AUTH_TOKEN|npm_[A-Za-z0-9]|ghp_[A-Za-z0-9]|smithery|Smithery|鈥|鈫|�" .github/workflows/publish.yml`
+- Result: No matches.
+- Area: Workflow token, Smithery, and bad-character scan.
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests.
+- Area: Publish workflow update regression check.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript compilation after workflow-only changes.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files.
+- Area: Package contents check.
+
+- Finding: Workflow remains tag-triggered for `v*.*.*` and manually runnable via `workflow_dispatch`. No publish, tag, or release was performed.
+
+## 2026-06-04 Phase 4 Task 6 Secret And Package Content Verification
+
+- Command: secret scan over README files, changelogs, `package.json`, publish workflow, release-polish plan, and verification log.
+- Result: Matches were limited to verification-log scan commands, plan placeholders such as `BILIBILI_SESSDATA=your_sessdata`, and plan checklist patterns such as `SESSDATA=...`; no real Cookie, npm token, or GitHub token values were found.
+- Area: Secret scan.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files. Included expected `package.json`, `README.md`, `README_EN.md`, `LICENSE`, `dist/index.js`, `dist/index.d.ts`, `dist/cli.js`, `dist/server.js`, and Bilibili dist modules.
+- Area: Package contents.
+
+- Finding: Tarball excludes tests, `.env`, local debug scripts, Smithery artifacts, `.claude`, `.codex`, `docs/agent-memory`, and runtime cache files.
+- Finding: Hygiene scan hits for `.env`, `.codex`, `.claude`, `smithery-test`, and Smithery were documentation references or `.npmignore` exclusion rules, not package contents.
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests.
+- Area: Security/package review regression check.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript compilation.
+
+## 2026-06-04 Phase 4 Final Verification (Task 7)
+
+- Command: `git status --short`
+- Result: Expected Phase 4 changes only (READMEs, changelogs, package.json, publish.yml, plan doc, verification log). No unexpected artifacts.
+- Area: Phase 4 final baseline.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript compilation.
+
+- Command: `npm test`
+- Result: Passed. 8 test files, 110 tests, 0 todo.
+- Area: Phase 4 release polish test baseline.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. 98 files. Includes all expected dist and docs. Excludes tests/, .env, debug artifacts, Smithery artifacts, .claude/, .codex/, docs/agent-memory/.
+- Area: Package contents.
+
+- Command: Schema alignment scan (all 4 tools in READMEs and server.ts)
+- Result: Confirmed. get_video_info, get_video_comments, get_video_transcript, get_video_metadata all present with correct params.
+- Area: Documentation alignment.
+
+- Command: Stale text scan (detailed=50, overclaims, hard-coded source code removal)
+- Result: Only legitimate security best-practice warnings in READMEs ("Never hard-code Cookie values"). Changelogs clean. No overclaims.
+- Area: Documentation accuracy.
+
+- Command: Secret scan (NPM_TOKEN, NODE_AUTH_TOKEN, real tokens)
+- Result: Zero matches in all Phase 4 files.
+- Area: Security review.
+
+- Command: Bad-char scan (Phase 4 files)
+- Result: All clean.
+- Area: Encoding review.
+
+- Phase 4 plan: Tasks 1-7 all marked complete.
+- Remaining risks: No publish/tag/release has been performed. Trusted publishing OIDC setup on npm side must be configured before first publish. Workflow uses `npm install -g npm@latest` which is a moving target on CI.

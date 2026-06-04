@@ -25,7 +25,7 @@ View this document in [简体中文](./README.md)
     - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)
     - [3. Video Transcript (`get_video_transcript`)](#3-video-transcript-get_video_transcript)
     - [4. Video Metadata (`get_video_metadata`)](#4-video-metadata-get_video_metadata)
-    - [5. 🛡️ Robustness Enhancement](#5-️-robustness-enhancement)
+    - [5. Behavior and Error Handling](#5-behavior-and-error-handling)
   - [📋 Requirements](#-requirements)
   - [🚀 Installation](#-installation)
     - [🖱️ Cursor](#️-cursor)
@@ -102,10 +102,31 @@ Before proceeding with installation, please ensure you are familiar with [How to
 - Does not fetch subtitles or comments.
 - Only requires the `bvid_or_url` parameter.
 
-### 5. 🛡️ Robustness Enhancement
+### 5. Behavior and Error Handling
+
 - **Intelligent Cookie Expiration Detection**: Automatically verifies login status when subtitles are empty, distinguishing between "videos without subtitles" and "invalid credentials," and throwing a clear `COOKIE_EXPIRED` error to prevent silent degradation.
 
----
+#### Without Cookie
+
+- Some public video metadata (`get_video_metadata`) may work without authentication.
+- Subtitles (`get_video_info`, `get_video_transcript`) may be unavailable, incomplete, or fail without authentication.
+- Comments (`get_video_comments`) may be incomplete, empty, or rate-limited without authentication.
+- Do not rely on cookie-less mode for reliable subtitle or comment access.
+
+#### Credential Sources
+
+- Credentials should be supplied via `.env` file, environment variables, or the credential helper.
+- Supported environment variables: `BILIBILI_SESSDATA`, `BILIBILI_BILI_JCT`, `BILIBILI_DEDEUSERID`.
+- **Never** hard-code Cookie values in source code, scripts, docs, tests, logs, or examples.
+- If Cookie values were previously exposed in repository history, rotate them immediately via Bilibili account settings.
+
+#### Expected Error Codes
+
+| Code | Meaning | Caller Action |
+|------|---------|---------------|
+| `VALIDATION_ERROR` | Invalid input parameter | Fix the `bvid_or_url` or other parameter |
+| `COOKIE_EXPIRED` | Cookie expired or not logged in | User should refresh/rotate Bilibili credentials |
+| `SUBTITLE_UNAVAILABLE` | No subtitles available for this video | For `get_video_transcript`, retry with `fallback_to_description: true` |
 
 ## 📋 Requirements
 

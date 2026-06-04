@@ -17,14 +17,17 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.14.0'
           registry-url: 'https://registry.npmjs.org/'
           scope: '@xzxzzx'  # 重要：添加 scope 配置
 
-      - name: Install latest npm
-        run: npm install -g npm@latest # 确保 npm 版本 >= 11.5.1
+      - name: Install npm with trusted publishing support (>=11.5.1)
+        run: npm install -g npm@latest
 
       - run: npm ci
+
+      - name: Run tests
+        run: npm test
 
       - name: Build project
         run: npm run build
