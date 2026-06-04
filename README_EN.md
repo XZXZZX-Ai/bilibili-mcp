@@ -1173,7 +1173,7 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 
 1.  **Initial Generation**: Core architecture and base logic were rapidly built by **Claude Code** (powered by **GLM-4.7** model).
 2.  **Debugging & Optimization**: Bugs were fixed and features enhanced using **Claude** and **Gemini** models within the **Antigravity** environment, ensuring stable subtitle extraction and comment analysis.
-3.  **Multi-IDE Compatibility**: Through iterative updates, it now seamlessly supports Cursor, Trae, Windsurf, Zed, and mainstream AI CLI tools.
+3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** with **DeepSeek** executes implementation; now covers 30+ AI client MCP configurations, 4 MCP tools, and 110 unit tests.
 
 ---
 
