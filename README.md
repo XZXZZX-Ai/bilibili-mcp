@@ -17,7 +17,12 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 
 选择你正在使用的 AI 客户端，点击后可直接跳转到详细配置方法：
 
+- [Codex app](#codex-app)
 - [Claude Code](#claude-code)
+- [OpenClaw](#openclaw)
+- [Hermes](#hermes)
+- [WorkBuddy](#workbuddy)
+- [CodeBuddy](#codebuddy)
 - [Claude Desktop](#claude-desktop)
 - [Cursor](#cursor)
 - [Windsurf](#windsurf)
@@ -123,13 +128,134 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 > [!NOTE]
 > 不要在客户端配置文件中写入真实 Cookie。建议先用 `bilibili-mcp config` 或环境变量配置凭证，详见 [⚙️ 凭证配置](#️-凭证配置)。
 
+### Codex app
+
+打开 Codex app 的 Settings → Integrations & MCP，添加自定义 MCP server：
+
+- Command: `npx`
+- Arguments: `["-y", "@xzxzzx/bilibili-mcp"]`
+
+也可以直接编辑 Codex 共享配置文件 `~/.codex/config.toml`：
+
+```toml
+[mcp_servers.bilibili-mcp]
+command = "npx"
+args = ["-y", "@xzxzzx/bilibili-mcp"]
+```
+
+Codex app、Codex CLI 和 Codex IDE extension 共用这份 MCP 配置。
+
 ### Claude Code
 
 ```bash
-claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"
+claude mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
 ```
 
-或手动编辑 `~/.claude.json`，在 `mcpServers` 节点下添加与 Claude Desktop 相同的 JSON。
+默认会作为当前项目的本地 MCP server 保存。配置后可在 Claude Code 中运行 `/mcp`，或在终端运行 `claude mcp list` 检查连接状态。
+
+如果希望所有项目都可用，可使用用户级 scope：
+
+```bash
+claude mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+```
+
+也可以手动编辑 `~/.claude.json`，在对应项目或用户配置下添加与 Claude Desktop 相同的 JSON。
+
+### OpenClaw
+
+使用 OpenClaw 的 MCP registry 注册本服务：
+
+```bash
+openclaw mcp set bilibili-mcp '{"command":"npx","args":["-y","@xzxzzx/bilibili-mcp"]}'
+```
+
+检查配置：
+
+```bash
+openclaw mcp list
+openclaw mcp show bilibili-mcp
+```
+
+也可以在 OpenClaw 配置中加入同等结构：
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "bilibili-mcp": {
+        "command": "npx",
+        "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      }
+    }
+  }
+}
+```
+
+`openclaw mcp set` 只写入 OpenClaw 的 MCP server 定义；具体运行时是否启用，取决于你的 OpenClaw agent/runtime 配置。
+
+### Hermes
+
+编辑 `~/.hermes/config.yaml`，在 `mcp_servers` 下添加：
+
+```yaml
+mcp_servers:
+  bilibili-mcp:
+    command: "npx"
+    args: ["-y", "@xzxzzx/bilibili-mcp"]
+```
+
+如果你已经在运行 Hermes 会话，使用 `/reload-mcp` 重新加载 MCP 配置；也可以开启一个新的 Hermes 会话。
+
+### WorkBuddy
+
+WorkBuddy 官方文档推荐通过界面配置 MCP。进入侧边栏 插件 → MCP 服务器 → 配置 MCP，然后添加：
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+也可以按作用域编辑配置文件：
+
+- 用户级：`~/.workbuddy/mcp.json`
+- 项目级：`<项目目录>/.workbuddy/mcp.json`
+
+### CodeBuddy
+
+CodeBuddy CLI 可以直接添加 stdio MCP server：
+
+```bash
+codebuddy mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+```
+
+检查配置：
+
+```bash
+codebuddy mcp list
+codebuddy mcp get bilibili-mcp
+```
+
+也可以在 CodeBuddy IDE 侧栏对话面板右上角打开 CodeBuddy Settings → MCP → Add MCP，填入：
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "description": "Bilibili MCP server"
+    }
+  }
+}
+```
 
 ### Claude Desktop
 

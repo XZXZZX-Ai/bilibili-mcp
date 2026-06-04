@@ -17,7 +17,12 @@ View in [简体中文](https://github.com/365903728-oss/bilibili-mcp/blob/master
 
 Choose your AI client and jump directly to the detailed setup instructions:
 
+- [Codex app](#codex-app)
 - [Claude Code](#claude-code)
+- [OpenClaw](#openclaw)
+- [Hermes](#hermes)
+- [WorkBuddy](#workbuddy)
+- [CodeBuddy](#codebuddy)
 - [Claude Desktop](#claude-desktop)
 - [Cursor](#cursor)
 - [Windsurf](#windsurf)
@@ -123,13 +128,134 @@ Choose your AI client and jump directly to the detailed setup instructions:
 > [!NOTE]
 > Do not write real Cookie values in client config files. Prefer `bilibili-mcp config` or environment variables. See [⚙️ Credential Configuration](#-credential-configuration).
 
+### Codex app
+
+Open Codex app Settings → Integrations & MCP, then add a custom MCP server:
+
+- Command: `npx`
+- Arguments: `["-y", "@xzxzzx/bilibili-mcp"]`
+
+You can also edit the shared Codex configuration file at `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.bilibili-mcp]
+command = "npx"
+args = ["-y", "@xzxzzx/bilibili-mcp"]
+```
+
+Codex app, Codex CLI, and the Codex IDE extension share this MCP configuration.
+
 ### Claude Code
 
 ```bash
-claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"
+claude mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
 ```
 
-Alternatively, edit `~/.claude.json` and add the same JSON block shown for Claude Desktop under `mcpServers`.
+This saves the server as a local MCP server for the current project by default. After setup, run `/mcp` inside Claude Code or `claude mcp list` in your terminal to check the connection.
+
+To make it available across all projects, use user scope:
+
+```bash
+claude mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+```
+
+You can also edit `~/.claude.json` and add the same JSON block shown for Claude Desktop under the matching project or user configuration.
+
+### OpenClaw
+
+Register this server in OpenClaw's MCP registry:
+
+```bash
+openclaw mcp set bilibili-mcp '{"command":"npx","args":["-y","@xzxzzx/bilibili-mcp"]}'
+```
+
+Check the registered server:
+
+```bash
+openclaw mcp list
+openclaw mcp show bilibili-mcp
+```
+
+You can also add the same structure to your OpenClaw configuration:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "bilibili-mcp": {
+        "command": "npx",
+        "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      }
+    }
+  }
+}
+```
+
+`openclaw mcp set` only writes the MCP server definition into OpenClaw's configuration. Whether a runtime enables it depends on your OpenClaw agent/runtime setup.
+
+### Hermes
+
+Edit `~/.hermes/config.yaml` and add this entry under `mcp_servers`:
+
+```yaml
+mcp_servers:
+  bilibili-mcp:
+    command: "npx"
+    args: ["-y", "@xzxzzx/bilibili-mcp"]
+```
+
+If you already have a Hermes session running, use `/reload-mcp` to reload MCP configuration, or start a fresh Hermes session.
+
+### WorkBuddy
+
+WorkBuddy's official docs recommend configuring MCP from the UI. Open Sidebar → Plugins → MCP Server → Configure MCP, then add:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+You can also edit the scoped config file:
+
+- User scope: `~/.workbuddy/mcp.json`
+- Project scope: `<project>/.workbuddy/mcp.json`
+
+### CodeBuddy
+
+CodeBuddy CLI can add this stdio MCP server directly:
+
+```bash
+codebuddy mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+```
+
+Check the registered server:
+
+```bash
+codebuddy mcp list
+codebuddy mcp get bilibili-mcp
+```
+
+You can also open CodeBuddy Settings → MCP → Add MCP from the top-right of the IDE chat panel, then add:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "description": "Bilibili MCP server"
+    }
+  }
+}
+```
 
 ### Claude Desktop
 
