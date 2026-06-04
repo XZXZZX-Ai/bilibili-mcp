@@ -67,6 +67,40 @@ More client setups under [Installation](#-installation).
 
 ---
 
+## 🌟 Features
+
+### 1. Video Summarization (`get_video_info`)
+- Prioritizes retrieving CC or AI subtitles.
+- Automatically falls back to video title, description, and tags if no subtitles are available.
+- Supports multi-language subtitle selection (defaults to Simplified Chinese).
+- Supports manual preference for subtitle languages (e.g., `en`, `zh-Hant`).
+
+### 2. Comment Summarization (`get_video_comments`)
+- Retrieves popular comments to help gauge video sentiment.
+- Filters emoji placeholders (e.g., `[doge]`) for cleaner text.
+- Prioritizes comments with timestamps (e.g., `05:20`) for quick highlight location.
+- Supports two levels of detail:
+  - `brief`: 10 popular comments summary.
+  - `detailed`: 20 popular comments + high-quality replies.
+- Optional parameters:
+  - `limit`: Explicit comment count `1-50`, overrides `detail_level` default.
+  - `sort`: Sort order `"hot"` (default) or `"time"`.
+  - `include_replies`: Whether to include top replies (default `true`).
+
+### 3. Video Transcript (`get_video_transcript`)
+- Returns clean subtitle text, joined by newlines.
+- Supports preferred language selection (defaults to `zh-Hans` > `ai-zh` > `zh-CN` > `zh-Hant` > `en` priority).
+- Optional parameters:
+  - `preferred_lang`: Preferred subtitle language code.
+  - `fallback_to_description`: Fall back to video description if subtitles unavailable (default `false`).
+- By default, returns `SUBTITLE_UNAVAILABLE` error when no subtitles exist.
+- Cookie expiration always returns `COOKIE_EXPIRED`, never silently falls back.
+
+### 4. Video Metadata (`get_video_metadata`)
+- Returns video title, author, duration, publish date, description, tags, and stats (views, likes, coins, etc.).
+- Does not fetch subtitles or comments.
+- Only requires the `bvid_or_url` parameter.
+
 ### 5. Behavior and Error Handling
 
 - **Intelligent Cookie Expiration Detection**: Automatically verifies login status when subtitles are empty, distinguishing between "videos without subtitles" and "invalid credentials," and throwing a clear `COOKIE_EXPIRED` error to prevent silent degradation.
