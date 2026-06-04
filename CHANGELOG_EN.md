@@ -4,7 +4,7 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
-## [1.3.8] - 2026-06-04
+## [1.4.0] - 2026-06-04
 
 ### 🚀 Added
 - **Two new MCP tools**:

@@ -4,13 +4,13 @@
 
 ## Goal
 
-Release `@xzxzzx/bilibili-mcp` version `1.3.8` after Phase 1-4 source work has been completed, verified, committed, and pushed.
+Release `@xzxzzx/bilibili-mcp` version `1.4.0` after Phase 1-5 source work has been completed, verified, committed, and pushed.
 
 This phase is about release execution, not feature work or documentation polish.
 
 ## Current State
 
-- Package version: `1.3.8`.
+- Package version: `1.4.0` (retargeted from 1.3.8 — npm 1.3.8 was an old package from 2026-03-11, not the current code).
 - Phase 4 source changes are already pushed to `origin/master` in commit `f777980`.
 - Current local uncommitted changes are memory/tracker-only:
   - `.codex/scripts/plan_tracker.py`
@@ -24,7 +24,9 @@ This phase is about release execution, not feature work or documentation polish.
 
 ## External Requirements To Confirm
 
-Before pushing `v1.3.8`, the user must confirm npm trusted publishing is configured on npmjs.com:
+> **Recovery note (2026-06-04):** `v1.3.8` tag was pushed but npm `1.3.8` already existed as a 2026-03-11 package. Current release target retargeted to **v1.4.0**. `v1.3.8` tag preserved for forensic trace; do not delete without explicit approval.
+
+Before pushing `v1.4.0`, the user must confirm npm trusted publishing is configured on npmjs.com:
 
 - Package: `@xzxzzx/bilibili-mcp`
 - Publisher: GitHub Actions
