@@ -15,13 +15,6 @@ View in [简体中文](https://github.com/365903728-oss/bilibili-mcp/blob/master
 
 ## ⚡ Quick Start
 
-```bash
-# Run directly
-npx -y @xzxzzx/bilibili-mcp
-```
-
-### 🤖 AI Client Setup
-
 Choose your AI client and jump directly to the detailed setup instructions:
 
 - [Claude Code](#claude-code)
@@ -40,7 +33,6 @@ Choose your AI client and jump directly to the detailed setup instructions:
 ## 📑 Table of Contents
 
 - [⚡ Quick Start](#-quick-start)
-  - [🤖 AI Client Setup](#-ai-client-setup)
 - [🌟 Features](#-features)
   - [1. Video Summarization (`get_video_info`)](#1-video-summarization-get_video_info)
   - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)

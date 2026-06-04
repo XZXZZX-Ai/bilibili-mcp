@@ -15,13 +15,6 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 
 ## ⚡ 快速开始
 
-```bash
-# 直接运行
-npx -y @xzxzzx/bilibili-mcp
-```
-
-### 🤖 AI 客户端配置入口
-
 选择你正在使用的 AI 客户端，点击后可直接跳转到详细配置方法：
 
 - [Claude Code](#claude-code)
@@ -40,7 +33,6 @@ npx -y @xzxzzx/bilibili-mcp
 ## 📑 目录
 
 - [⚡ 快速开始](#-快速开始)
-  - [🤖 AI 客户端配置入口](#-ai-客户端配置入口)
 - [🌟 功能特性](#-功能特性)
   - [1. 视频总结 (`get_video_info`)](#1-视频总结-get_video_info)
   - [2. 评论总结 (`get_video_comments`)](#2-评论总结-get_video_comments)
