@@ -120,16 +120,6 @@ Choose your AI client and jump directly to the detailed setup instructions:
 
 ## 🚀 Client Setup
 
-You usually do not need a global install. Most AI clients only need this MCP server configuration:
-
-- `command`: `npx`
-- `args`: `["-y", "@xzxzzx/bilibili-mcp"]`
-
-Then follow the detailed setup section for your client below.
-
-> [!NOTE]
-> Do not write real Cookie values in client config files. Prefer `bilibili-mcp config` or environment variables. See [⚙️ Credential Configuration](#-credential-configuration).
-
 <details><summary><b>Expand for detailed per-client setup</b></summary>
 
 ### Claude Code
