@@ -40,33 +40,31 @@ claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili
   }
 }
 ```
-</details>
+
 
 更多客户端配置见 [安装方式](#-安装方式)。
 
-### 🤖 AI 客户端配置速查
+### 🤖 AI 客户端配置入口
 
-| 客户端 | 推荐配置方式 |
-|---|---|
-| Claude Code | `claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"` |
-| Claude Desktop | Settings → Developer → Edit Config → 添加 MCP Server |
-| Cursor | Settings → Features → MCP Servers → Add New MCP Server |
-| Windsurf | 编辑 `~/.codeium/windsurf/mcp_config.json` |
-| Zed | 编辑 `settings.json` → 添加 `context_servers` |
-| Codex CLI | `codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp` |
-| Gemini CLI | 编辑 `~/.gemini/settings.json` |
-| Trae | Settings → AI → MCP → Add Server |
-| Antigravity | MCP Store → Manage MCP Servers → 添加 |
-| OpenCode | 编辑 `~/.config/opencode/opencode.json` |
+选择你正在使用的 AI 客户端，点击后可直接跳转到详细配置方法：
 
-详细步骤见 [安装方式](#-安装方式)。
+- [Claude Code](#claude-code)
+- [Claude Desktop](#claude-desktop)
+- [Cursor](#cursor)
+- [Windsurf](#windsurf)
+- [Zed](#zed)
+- [Codex CLI](#codex-cli)
+- [Gemini CLI](#gemini-cli)
+- [Trae](#trae)
+- [Antigravity](#antigravity)
+- [OpenCode](#opencode)
 
 ---
 
 ## 📑 目录
 
 - [⚡ 快速开始](#-快速开始)
-  - [🤖 AI 客户端配置速查](#-ai-客户端配置速查)
+  - [🤖 AI 客户端配置入口](#-ai-客户端配置入口)
 - [🌟 功能特性](#-功能特性)
   - [1. 视频总结 (`get_video_info`)](#1-视频总结-get_video_info)
   - [2. 评论总结 (`get_video_comments`)](#2-评论总结-get_video_comments)
@@ -163,27 +161,9 @@ claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili
 | 配置 Cookie | `bilibili-mcp config` |
 | 检查配置 | `bilibili-mcp check` |
 
-### 客户端配置速查
-
-所有客户端使用同一核心配置：`command: npx`，`args: ["-y", "@xzxzzx/bilibili-mcp"]`。
-
-| 客户端 | 接入方式 | 配置路径 / 命令 |
-|---|---|---|
-| Claude Code | CLI | `claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"` |
-| Claude Desktop | JSON | Settings → Developer → Edit Config |
-| Cursor | UI / JSON | Settings → Features → MCP Servers |
-| Windsurf | JSON | `~/.codeium/windsurf/mcp_config.json` |
-| Zed | JSON | `settings.json` → `context_servers` |
-| Codex CLI | TOML | `codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp` |
-| Gemini CLI | JSON | `~/.gemini/settings.json` |
-| Trae | UI / JSON | Settings → AI → MCP |
-| Antigravity | UI / JSON | MCP Store → Manage MCP Servers |
-| OpenCode | JSON | `~/.config/opencode/opencode.json` |
-
 > [!NOTE]
-> 不要在客户端配置文件中写入真实 Cookie。Cookie 配置见 [⚙️ 凭证配置](#️-凭证配置)。
+> 不要在客户端配置文件中写入真实 Cookie。建议先用 `bilibili-mcp config` 或环境变量配置凭证，详见 [⚙️ 凭证配置](#️-凭证配置)。
 
-<details><summary><b>展开查看各客户端详细配置</b></summary>
 
 ### Claude Code
 
@@ -300,7 +280,7 @@ Settings → AI → MCP → Add Server：
 }
 ```
 
-</details>
+
 
 ## ⚙️ 凭证配置
 

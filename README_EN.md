@@ -40,33 +40,31 @@ claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili
   }
 }
 ```
-</details>
+
 
 More client setups under [Installation](#-installation).
 
-### 🤖 AI Client Setup Quick Reference
+### 🤖 AI Client Setup
 
-| Client | Recommended Setup |
-|---|---|
-| Claude Code | `claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"` |
-| Claude Desktop | Settings → Developer → Edit Config → add MCP Server |
-| Cursor | Settings → Features → MCP Servers → Add New MCP Server |
-| Windsurf | Edit `~/.codeium/windsurf/mcp_config.json` |
-| Zed | Edit `settings.json` → add `context_servers` |
-| Codex CLI | `codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp` |
-| Gemini CLI | Edit `~/.gemini/settings.json` |
-| Trae | Settings → AI → MCP → Add Server |
-| Antigravity | MCP Store → Manage MCP Servers → add |
-| OpenCode | Edit `~/.config/opencode/opencode.json` |
+Choose your AI client and jump directly to the detailed setup instructions:
 
-See [Installation](#-installation) for detailed steps.
+- [Claude Code](#claude-code)
+- [Claude Desktop](#claude-desktop)
+- [Cursor](#cursor)
+- [Windsurf](#windsurf)
+- [Zed](#zed)
+- [Codex CLI](#codex-cli)
+- [Gemini CLI](#gemini-cli)
+- [Trae](#trae)
+- [Antigravity](#antigravity)
+- [OpenCode](#opencode)
 
 ---
 
 ## 📑 Table of Contents
 
 - [⚡ Quick Start](#-quick-start)
-  - [🤖 AI Client Setup Quick Reference](#-ai-client-setup-quick-reference)
+  - [🤖 AI Client Setup](#-ai-client-setup)
 - [🌟 Features](#-features)
   - [1. Video Summarization (`get_video_info`)](#1-video-summarization-get_video_info)
   - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)
@@ -163,27 +161,9 @@ See [Installation](#-installation) for detailed steps.
 | Configure cookies | `bilibili-mcp config` |
 | Check config | `bilibili-mcp check` |
 
-### Client Quick Reference
-
-All clients use the same core config: `command: npx`, `args: ["-y", "@xzxzzx/bilibili-mcp"]`.
-
-| Client | Method | Config Path / Command |
-|---|---|---|
-| Claude Code | CLI | `claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"` |
-| Claude Desktop | JSON | Settings → Developer → Edit Config |
-| Cursor | UI / JSON | Settings → Features → MCP Servers |
-| Windsurf | JSON | `~/.codeium/windsurf/mcp_config.json` |
-| Zed | JSON | `settings.json` → `context_servers` |
-| Codex CLI | TOML | `codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp` |
-| Gemini CLI | JSON | `~/.gemini/settings.json` |
-| Trae | UI / JSON | Settings → AI → MCP |
-| Antigravity | UI / JSON | MCP Store → Manage MCP Servers |
-| OpenCode | JSON | `~/.config/opencode/opencode.json` |
-
 > [!NOTE]
-> Do not write real Cookie values in client config files. See [⚙️ Credential Configuration](#-credential-configuration).
+> Do not write real Cookie values in client config files. Prefer `bilibili-mcp config` or environment variables. See [⚙️ Credential Configuration](#-credential-configuration).
 
-<details><summary><b>Expand for detailed per-client setup</b></summary>
 
 ### Claude Code
 
@@ -300,7 +280,7 @@ Edit `~/.config/opencode/opencode.json`:
 }
 ```
 
-</details>
+
 
 ## ⚙️ Credential Configuration
 
