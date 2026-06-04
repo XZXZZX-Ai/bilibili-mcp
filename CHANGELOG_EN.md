@@ -4,6 +4,11 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.4.1] - 2026-06-04
+
+### 🔧 Changed
+- README restructure: improved hero, AI client setup guide, and tool call examples readability
+
 ## [1.4.0] - 2026-06-04
 
 ### 🚀 Added
