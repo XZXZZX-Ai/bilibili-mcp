@@ -40,7 +40,7 @@ Choose your AI client and jump directly to the detailed setup instructions:
   - [4. Video Metadata (`get_video_metadata`)](#4-video-metadata-get_video_metadata)
   - [5. Behavior and Error Handling](#5-behavior-and-error-handling)
 - [📋 Requirements](#-requirements)
-- [🚀 Installation](#-installation)
+- [🚀 Client Setup](#-client-setup)
 - [⚙️ Credential Configuration](#-credential-configuration)
 - [🧭 Which tool should I use?](#-which-tool-should-i-use)
 - [💡 Tool Call Examples](#-tool-call-examples)
@@ -118,20 +118,17 @@ Choose your AI client and jump directly to the detailed setup instructions:
 
 ---
 
-## 🚀 Installation
+## 🚀 Client Setup
 
-### Recommended
+You usually do not need a global install. Most AI clients only need this MCP server configuration:
 
-| Scenario | Command |
-|---|---|
-| Run directly | `npx -y @xzxzzx/bilibili-mcp` |
-| Global install | `npm install -g @xzxzzx/bilibili-mcp` |
-| Configure cookies | `bilibili-mcp config` |
-| Check config | `bilibili-mcp check` |
+- `command`: `npx`
+- `args`: `["-y", "@xzxzzx/bilibili-mcp"]`
+
+Then follow the detailed setup section for your client below.
 
 > [!NOTE]
 > Do not write real Cookie values in client config files. Prefer `bilibili-mcp config` or environment variables. See [⚙️ Credential Configuration](#-credential-configuration).
-
 
 ### Claude Code
 

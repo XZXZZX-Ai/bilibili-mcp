@@ -40,7 +40,7 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
   - [4. 视频元数据 (`get_video_metadata`)](#4-视频元数据-get_video_metadata)
   - [5. 行为说明与错误处理](#5-行为说明与错误处理)
 - [📋 环境要求](#-环境要求)
-- [🚀 安装方式](#-安装方式)
+- [🚀 客户端接入方式](#-客户端接入方式)
 - [⚙️ 凭证配置](#️-凭证配置)
 - [🧭 该用哪个工具](#-该用哪个工具)
 - [💡 工具调用示例](#-工具调用示例)
@@ -118,20 +118,17 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 
 ---
 
-## 🚀 安装方式
+## 🚀 客户端接入方式
 
-### 推荐方式
+本项目通常不需要手动全局安装。多数 AI 客户端只需要把 MCP server 配置为：
 
-| 场景 | 命令 |
-|---|---|
-| 临时运行 | `npx -y @xzxzzx/bilibili-mcp` |
-| 全局安装 | `npm install -g @xzxzzx/bilibili-mcp` |
-| 配置 Cookie | `bilibili-mcp config` |
-| 检查配置 | `bilibili-mcp check` |
+- `command`: `npx`
+- `args`: `["-y", "@xzxzzx/bilibili-mcp"]`
+
+然后按下方对应客户端的详细说明完成配置。
 
 > [!NOTE]
 > 不要在客户端配置文件中写入真实 Cookie。建议先用 `bilibili-mcp config` 或环境变量配置凭证，详见 [⚙️ 凭证配置](#️-凭证配置)。
-
 
 ### Claude Code
 
