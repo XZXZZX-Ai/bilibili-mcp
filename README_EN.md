@@ -367,7 +367,7 @@ Returns: `comments[]` (author, content, likes, timestamp, has_timestamp), `summa
 
 ---
 
-## 🛡️ API Rate Limiting## 🛡️ API Rate Limiting
+## 🛡️ API Rate Limiting
 
 Built-in strategies to ensure long-term availability:
 - **Interval**: 500ms (0.5s).

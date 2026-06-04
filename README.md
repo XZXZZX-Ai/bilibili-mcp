@@ -336,60 +336,95 @@ bilibili-mcp config
 
 | 目标 | 推荐工具 | 返回重点 |
 |---|---|---|
-| 想让 AI 总结一个视频 |  | 字幕优先；无字幕时返回标题、简介、标签 |
-| 只想拿完整转录文本 |  | 纯字幕文本、语言、数据来源 |
-| 想查看标题、作者、播放量等结构化信息 |  | 标题、作者、时长、发布时间、标签、统计数据 |
-| 想看观众反馈和热门评论 |  | 热门评论、时间戳评论、可选回复 |
+| 想让 AI 总结一个视频 | `get_video_info` | 字幕优先；无字幕时返回标题、简介、标签 |
+| 只想拿完整转录文本 | `get_video_transcript` | 纯字幕文本、语言、数据来源 |
+| 想查看标题、作者、播放量等结构化信息 | `get_video_metadata` | 标题、作者、时长、发布时间、标签、统计数据 |
+| 想看观众反馈和热门评论 | `get_video_comments` | 热门评论、时间戳评论、可选回复 |
 
 ## 💡 工具调用示例
 
 > AI 客户端会自动将你的自然语言意图转换为对应的 JSON 调用。
 
-### 
+### `get_video_transcript`
 
 **适合**：需要把视频内容交给 AI 做摘要、笔记、问答或知识整理。
 
 请求示例：
 
+```json
+{
+  "name": "get_video_transcript",
+  "arguments": {
+    "bvid_or_url": "https://www.bilibili.com/video/BV1xx411c7mD",
+    "preferred_lang": "zh-Hans",
+    "fallback_to_description": false
+  }
+}
+```
 
+返回内容：`bvid`、`title`、`language`、`transcript`（按行合并）、`data_source`（`subtitle` 或 `description`）。
 
-返回内容：、、、（按行合并）、（ 或 ）。
+> 默认无字幕时返回 `SUBTITLE_UNAVAILABLE`。如需降级，设置 `fallback_to_description: true`。
 
-> 默认无字幕时返回 。如需降级，设置 。
-
-### 
+### `get_video_metadata`
 
 **适合**：想快速了解视频基本信息，不需要字幕或评论内容。
 
 请求示例：
 
+```json
+{
+  "name": "get_video_metadata",
+  "arguments": {
+    "bvid_or_url": "BV1xx411c7mD"
+  }
+}
+```
 
+返回内容：`bvid`、`title`、`author`、`duration`、`pubdate` / `pubdate_timestamp`、`description`、`tags` 和 `stats`（播放、点赞、投币、收藏、分享、评论、弹幕）。
 
-返回内容：、、、、 / 、、 和 （播放、点赞、投币、收藏、分享、评论、弹幕）。
-
-### 
+### `get_video_info`
 
 **适合**：让 AI 总结视频核心内容——会优先尝试字幕，无字幕时回退到简介和标签。
 
 请求示例：
 
+```json
+{
+  "name": "get_video_info",
+  "arguments": {
+    "bvid_or_url": "https://www.bilibili.com/video/BV1xx411c7mD",
+    "preferred_lang": "zh-Hans"
+  }
+}
+```
 
+返回内容：`data_source`（`subtitle` 或 `description`）、`video_info`（标题、描述、标签、字幕文本、发布时间）。
 
-返回内容：（ 或 ）、（标题、描述、标签、字幕文本、发布时间）。
+> 无字幕视频会自动降级返回描述和标签（即 `data_source: "description"`）。
 
-> 无字幕视频会自动降级返回描述和标签（即 ）。
-
-### 
+### `get_video_comments`
 
 **适合**：想了解观众对视频的真实评价、找精彩时间点。
 
 请求示例：
 
+```json
+{
+  "name": "get_video_comments",
+  "arguments": {
+    "bvid_or_url": "BV1xx411c7mD",
+    "detail_level": "detailed",
+    "limit": 10,
+    "sort": "hot",
+    "include_replies": true
+  }
+}
+```
 
+返回内容：`comments[]`（含 `author`、`content`、`likes`、`timestamp`、`has_timestamp`）、`summary`（总数和时间戳评论数）。
 
-返回内容：（含 、、、、）、（总数和时间戳评论数）。
-
-> Cookie 过期或未登录可能导致评论为空。 可获取最新评论， 不返回子回复。
+> Cookie 过期或未登录可能导致评论为空。`sort: "time"` 可获取最新评论，`include_replies: false` 不返回子回复。
 
 ---
 
