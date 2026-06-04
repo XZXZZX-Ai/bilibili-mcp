@@ -44,11 +44,29 @@ claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili
 
 更多客户端配置见 [安装方式](#-安装方式)。
 
+### 🤖 AI 客户端配置速查
+
+| 客户端 | 推荐配置方式 |
+|---|---|
+| Claude Code | `claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"` |
+| Claude Desktop | Settings → Developer → Edit Config → 添加 MCP Server |
+| Cursor | Settings → Features → MCP Servers → Add New MCP Server |
+| Windsurf | 编辑 `~/.codeium/windsurf/mcp_config.json` |
+| Zed | 编辑 `settings.json` → 添加 `context_servers` |
+| Codex CLI | `codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp` |
+| Gemini CLI | 编辑 `~/.gemini/settings.json` |
+| Trae | Settings → AI → MCP → Add Server |
+| Antigravity | MCP Store → Manage MCP Servers → 添加 |
+| OpenCode | 编辑 `~/.config/opencode/opencode.json` |
+
+详细步骤见 [安装方式](#-安装方式)。
+
 ---
 
 ## 📑 目录
 
 - [⚡ 快速开始](#-快速开始)
+  - [🤖 AI 客户端配置速查](#-ai-客户端配置速查)
 - [🌟 功能特性](#-功能特性)
   - [1. 视频总结 (`get_video_info`)](#1-视频总结-get_video_info)
   - [2. 评论总结 (`get_video_comments`)](#2-评论总结-get_video_comments)

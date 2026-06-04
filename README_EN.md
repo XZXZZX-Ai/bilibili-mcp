@@ -44,11 +44,29 @@ claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili
 
 More client setups under [Installation](#-installation).
 
+### 🤖 AI Client Setup Quick Reference
+
+| Client | Recommended Setup |
+|---|---|
+| Claude Code | `claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"` |
+| Claude Desktop | Settings → Developer → Edit Config → add MCP Server |
+| Cursor | Settings → Features → MCP Servers → Add New MCP Server |
+| Windsurf | Edit `~/.codeium/windsurf/mcp_config.json` |
+| Zed | Edit `settings.json` → add `context_servers` |
+| Codex CLI | `codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp` |
+| Gemini CLI | Edit `~/.gemini/settings.json` |
+| Trae | Settings → AI → MCP → Add Server |
+| Antigravity | MCP Store → Manage MCP Servers → add |
+| OpenCode | Edit `~/.config/opencode/opencode.json` |
+
+See [Installation](#-installation) for detailed steps.
+
 ---
 
 ## 📑 Table of Contents
 
 - [⚡ Quick Start](#-quick-start)
+  - [🤖 AI Client Setup Quick Reference](#-ai-client-setup-quick-reference)
 - [🌟 Features](#-features)
   - [1. Video Summarization (`get_video_info`)](#1-video-summarization-get_video_info)
   - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)
