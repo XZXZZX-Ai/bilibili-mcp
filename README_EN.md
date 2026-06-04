@@ -58,6 +58,7 @@ More client setups under [Installation](#-installation).
 - [📋 Requirements](#-requirements)
 - [🚀 Installation](#-installation)
 - [⚙️ Credential Configuration](#-credential-configuration)
+- [🧭 Which tool should I use?](#-which-tool-should-i-use)
 - [💡 Tool Call Examples](#-tool-call-examples)
 - [🛡️ API Rate Limiting](#️-api-rate-limiting)
 - [🛠️ Development Guide](#️-development-guide)
@@ -270,45 +271,103 @@ Create a `.env` file in the project root and enter the following variables:
 
 ---
 
+## 🧭 Which tool should I use?
+
+| Goal | Recommended tool | What you get |
+|---|---|---|
+| Summarize a video | `get_video_info` | Subtitles first; falls back to title, description, tags |
+| Get clean transcript text | `get_video_transcript` | Plain subtitle text, language, data source |
+| See structured metadata | `get_video_metadata` | Title, author, duration, publish date, tags, stats |
+| View audience reactions | `get_video_comments` | Popular comments, timestamped highlights, optional replies |
+
 ## 💡 Tool Call Examples
 
-AI assistants will call these tools using JSON:
+> Your AI client will automatically turn your natural-language intent into the corresponding JSON call.
+
+### `get_video_transcript`
+
+**Best for**: feeding video content into AI for summarization, note-taking, Q&A, or knowledge management.
+
+Request:
 
 ```json
-// Default language video info
-{
-  "name": "get_video_info",
-  "arguments": { "bvid_or_url": "BV1xx4x1x7xx" }
-}
-
-// 10 popular comments summary
-{
-  "name": "get_video_comments",
-  "arguments": { "bvid_or_url": "BV1xx4x1x7xx", "detail_level": "brief" }
-}
-
-// Transcript-only text (returns error if no subtitles)
 {
   "name": "get_video_transcript",
-  "arguments": { "bvid_or_url": "BV1xx4x1x7xx" }
-}
-
-// Video metadata
-{
-  "name": "get_video_metadata",
-  "arguments": { "bvid_or_url": "BV1xx4x1x7xx" }
-}
-
-// Comments with custom limit + sort
-{
-  "name": "get_video_comments",
-  "arguments": { "bvid_or_url": "BV1xx4x1x7xx", "limit": 5, "sort": "time", "include_replies": false }
+  "arguments": {
+    "bvid_or_url": "https://www.bilibili.com/video/BV1xx411c7mD",
+    "preferred_lang": "en",
+    "fallback_to_description": false
+  }
 }
 ```
 
+Returns: `bvid`, `title`, `language`, `transcript` (newline-joined), `data_source` (`subtitle` or `description`).
+
+> Returns `SUBTITLE_UNAVAILABLE` when no subtitles exist. Set `fallback_to_description: true` to fall back.
+
+### `get_video_metadata`
+
+**Best for**: quickly checking video basics without subtitles or comments.
+
+Request:
+
+```json
+{
+  "name": "get_video_metadata",
+  "arguments": {
+    "bvid_or_url": "BV1xx411c7mD"
+  }
+}
+```
+
+Returns: `bvid`, `title`, `author`, `duration`, `pubdate` / `pubdate_timestamp`, `description`, `tags`, and `stats` (views, likes, coins, favorites, shares, replies, danmaku).
+
+### `get_video_info`
+
+**Best for**: letting AI summarize a video -- attempts subtitles first, falls back to description and tags.
+
+Request:
+
+```json
+{
+  "name": "get_video_info",
+  "arguments": {
+    "bvid_or_url": "https://www.bilibili.com/video/BV1xx411c7mD",
+    "preferred_lang": "en"
+  }
+}
+```
+
+Returns: `data_source` (`subtitle` or `description`), `video_info` (title, description, tags, subtitle text, publish date).
+
+> Videos without subtitles automatically degrade to description and tags (`data_source: "description"`).
+
+### `get_video_comments`
+
+**Best for**: gauging audience sentiment and finding highlight timestamps.
+
+Request:
+
+```json
+{
+  "name": "get_video_comments",
+  "arguments": {
+    "bvid_or_url": "BV1xx411c7mD",
+    "detail_level": "detailed",
+    "limit": 10,
+    "sort": "hot",
+    "include_replies": true
+  }
+}
+```
+
+Returns: `comments[]` (author, content, likes, timestamp, has_timestamp), `summary` (total count, timestamp count).
+
+> Expired or missing cookies may result in empty comments. Use `sort: "time"` for newest comments, `include_replies: false` to skip replies.
+
 ---
 
-## 🛡️ API Rate Limiting
+## 🛡️ API Rate Limiting## 🛡️ API Rate Limiting
 
 Built-in strategies to ensure long-term availability:
 - **Interval**: 500ms (0.5s).
