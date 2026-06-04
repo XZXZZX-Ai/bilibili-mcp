@@ -44,7 +44,7 @@ Official npm docs state that trusted publishing requires npm CLI `11.5.1+` and N
 - Do not restore Smithery.
 - Do not add `NPM_TOKEN`, `NODE_AUTH_TOKEN`, or long-lived publish tokens unless the user explicitly rejects trusted publishing.
 - Do not print Cookie values or `.env` contents.
-- Do not push `v1.3.8` until the working tree is clean and the user confirms npm trusted publishing is configured.
+- Do not push `v1.4.0` until the working tree is clean and the user confirms npm trusted publishing is configured.
 - Do not create a GitHub Release before the npm publish workflow succeeds.
 - Do not treat `npm audit` legacy findings as release blockers unless they are new, severe, or directly publish-impacting.
 
@@ -116,19 +116,19 @@ chore: fix active plan tracking memory
 
 ## Task 4: Create And Push Release Tag
 
-- [ ] Confirm no local `v1.3.8` tag exists:
-  - `git tag --list v1.3.8`
-- [ ] Confirm remote does not already have `v1.3.8`:
-  - `git ls-remote --tags origin v1.3.8`
+- [ ] Confirm no local `v1.4.0` tag exists:
+  - `git tag --list v1.4.0`
+- [ ] Confirm remote does not already have `v1.4.0`:
+  - `git ls-remote --tags origin v1.4.0`
 - [ ] Create annotated tag:
-  - `git tag -a v1.3.8 -m "Release v1.3.8"`
+  - `git tag -a v1.4.0 -m "Release v1.4.0"`
 - [ ] Push tag:
-  - `git push origin v1.3.8`
+  - `git push origin v1.4.0`
 - [ ] Report the pushed tag and commit SHA.
 
 ## Task 5: Monitor Publish Workflow
 
-- [ ] Inspect GitHub Actions run triggered by `v1.3.8`.
+- [ ] Inspect GitHub Actions run triggered by `v1.4.0`.
 - [ ] Confirm workflow steps:
   - checkout
   - setup node
@@ -148,13 +148,13 @@ chore: fix active plan tracking memory
 - [ ] Verify npm published version:
   - `npm view @xzxzzx/bilibili-mcp version`
   - `npm view @xzxzzx/bilibili-mcp dist-tags`
-- [ ] Confirm package page or npm metadata shows `1.3.8`.
+- [ ] Confirm package page or npm metadata shows `1.4.0`.
 - [ ] Optionally verify provenance from npm package page or npm metadata if available.
 - [ ] Update `docs/agent-memory/verification-log.md` with release execution results.
 
 ## Task 7: GitHub Release
 
-- [ ] Create GitHub Release for `v1.3.8` only after npm publish succeeds.
+- [ ] Create GitHub Release for `v1.4.0` only after npm publish succeeds.
 - [ ] Use changelog content from `CHANGELOG.md` and `CHANGELOG_EN.md`.
 - [ ] Mention:
   - new MCP tools: `get_video_transcript`, `get_video_metadata`
@@ -170,10 +170,10 @@ chore: fix active plan tracking memory
 - Current memory/tracker fix is committed and pushed separately before release tagging.
 - `npm test`, `npm run build`, and `npm pack --dry-run` pass immediately before tagging.
 - npm trusted publishing configuration is confirmed by the user before tag push.
-- `v1.3.8` tag points at the intended release commit.
+- `v1.4.0` tag points at the intended release commit.
 - GitHub Actions publish workflow succeeds.
-- npm shows `@xzxzzx/bilibili-mcp@1.3.8`.
-- GitHub Release exists for `v1.3.8` after publish success.
+- npm shows `@xzxzzx/bilibili-mcp@1.4.0`.
+- GitHub Release exists for `v1.4.0` after publish success.
 - No secrets, Cookie values, `.env`, test files, Smithery artifacts, debug artifacts, `.claude/`, `.codex/`, or `docs/agent-memory/` are included in the npm package.
 
 ## Rollback And Failure Handling
@@ -184,5 +184,5 @@ chore: fix active plan tracking memory
   - do not delete or recreate the tag without explicit user approval
   - fix the cause in a new commit if needed
   - decide with the user whether to retag, bump patch, or rerun workflow
-- If npm reports duplicate version: do not overwrite; inspect whether `1.3.8` was already published.
+- If npm reports duplicate version: do not overwrite; inspect whether `1.4.0` was already published.
 - If workflow fails due to trusted publishing mismatch: fix npm package trusted publisher settings first, then rerun the workflow or decide whether a new tag is needed.
