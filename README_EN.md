@@ -420,16 +420,6 @@ Open-sourced under **GNU General Public License v3.0**.
 
 ---
 
-## 🛠️ Development Process
-
-This project is a crystal of AI-collaborative development, spanning from prototype to refinement:
-
-1.  **Initial Generation**: Core architecture and base logic were rapidly built by **Claude Code** (powered by **GLM-4.7** model).
-2.  **Debugging & Optimization**: Bugs were fixed and features enhanced using **Claude** and **Gemini** models within the **Antigravity** environment, ensuring stable subtitle extraction and comment analysis.
-3.  **Multi-IDE Compatibility**: Through iterative updates, it now seamlessly supports Cursor, Trae, Windsurf, Zed, and mainstream AI CLI tools.
-
----
-
 ## 💬 Feedback & Suggestions
 
 If you encounter any issues or have feature suggestions, feel free to reach out:
