@@ -4,129 +4,67 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![npm downloads](https://img.shields.io/npm/dm/@xzxzzx/bilibili-mcp.svg)](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp)
 
-## ✨ **Equip your AI assistant with "Bilibili Eyes"**: One-click extraction of video subtitles and popular comments for efficient information summarization 🚀
+MCP server that gives AI clients access to Bilibili video subtitles, transcripts, metadata, and popular comments.
+
+View in [简体中文](https://github.com/365903728-oss/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/365903728-oss/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.4.0](https://github.com/365903728-oss/bilibili-mcp/releases/tag/v1.4.0)
 
 > [!TIP]
-> ⚠️ **Quick Start**: Please make sure to configure your Bilibili Cookies before use, otherwise video subtitles and comments cannot be extracted. See [**⚙️ Credential Configuration**](#⚙️-credential-configuration)(Cookies are only stored locally and will not be uploaded anywhere).
+> ⚠️ Configure your Bilibili Cookies before use. Metadata may work without cookies, but subtitles/transcripts/comments require them. See [**Credential Configuration**](#-credential-configuration).
 
-View this document in [简体中文](./README.md)  
-📜 **[Changelog](./CHANGELOG_EN.md)**
+---
+
+## ⚡ Quick Start
+
+```bash
+# Run directly
+npx -y @xzxzzx/bilibili-mcp
+
+# Claude Code one-liner
+claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"
+```
+
+<details><summary><b>Claude Desktop config</b></summary>
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "env": {
+        "BILIBILI_SESSDATA": "YOUR_SESSDATA",
+        "BILIBILI_BILI_JCT": "YOUR_bili_jct",
+        "BILIBILI_DEDEUSERID": "YOUR_DedeUserID"
+      }
+    }
+  }
+}
+```
+</details>
+
+More client setups under [Installation](#-installation).
 
 ---
 
 ## 📑 Table of Contents
 
-- [Bilibili MCP Tool](#bilibili-mcp-tool)
-  - [✨ **Equip your AI assistant with "Bilibili Eyes"**: One-click extraction of video subtitles and popular comments for efficient information summarization 🚀](#-equip-your-ai-assistant-with-bilibili-eyes-one-click-extraction-of-video-subtitles-and-popular-comments-for-efficient-information-summarization-)
-  - [📑 Table of Contents](#-table-of-contents)
-  - [⚡ Pre-check](#-pre-check)
-  - [🌟 Features](#-features)
-    - [1. Video Summarization (`get_video_info`)](#1-video-summarization-get_video_info)
-    - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)
-    - [3. Video Transcript (`get_video_transcript`)](#3-video-transcript-get_video_transcript)
-    - [4. Video Metadata (`get_video_metadata`)](#4-video-metadata-get_video_metadata)
-    - [5. Behavior and Error Handling](#5-behavior-and-error-handling)
-  - [📋 Requirements](#-requirements)
-  - [🚀 Installation](#-installation)
-    - [🖱️ Cursor](#️-cursor)
-    - [Claude Code](#claude-code)
-      - [Method 1: Fast Installation via CLI (Recommended)](#method-1-fast-installation-via-cli-recommended)
-      - [Method 2: Manual Addition via Config File](#method-2-manual-addition-via-config-file)
-    - [Claude Desktop](#claude-desktop)
-      - [Method 1: Manual Addition via Config File](#method-1-manual-addition-via-config-file)
-      - [Method 2: Global npm Installation](#method-2-global-npm-installation)
-    - [🏗️ Trae (Official IDE by ByteDance)](#️-trae-official-ide-by-bytedance)
-    - [🌊 Windsurf (Official IDE by Codeium)](#-windsurf-official-ide-by-codeium)
-    - [⚡ Zed](#-zed)
-    - [♊ Gemini CLI (Official Google CLI)](#-gemini-cli-official-google-cli)
-    - [⌨️ Codex CLI (Official OpenAI CLI)](#️-codex-cli-official-openai-cli)
-    - [🪐 Antigravity (Official Google IDE)](#-antigravity-official-google-ide)
-    - [📦 OpenCode](#-opencode)
-  - [⚙️ Credential Configuration](#️-credential-configuration)
-    - [🔑 Step 1: Obtain Bilibili Cookies](#-step-1-obtain-bilibili-cookies)
-    - [📝 Step 2: Apply Credentials](#-step-2-apply-credentials)
-      - [Method A: CLI Wizard (Recommended, for global installations)](#method-a-cli-wizard-recommended-for-global-installations)
-      - [Method B: Manual Environment Variables (for local development or Docker)](#method-b-manual-environment-variables-for-local-development-or-docker)
-      - [🔒 Security Notice](#-security-notice)
-  - [💡 Usage Examples](#-usage-examples)
-  - [🛡️ API Rate Limiting](#️-api-rate-limiting)
-  - [🛠️ Development Guide](#️-development-guide)
-  - [⚖️ Safety and Disclaimer](#️-safety-and-disclaimer)
-    - [License](#license)
-  - [🛠️ Development Process](#️-development-process)
-  - [💬 Feedback \& Suggestions](#-feedback--suggestions)
+- [⚡ Quick Start](#-quick-start)
+- [🌟 Features](#-features)
+  - [1. Video Summarization (`get_video_info`)](#1-video-summarization-get_video_info)
+  - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)
+  - [3. Video Transcript (`get_video_transcript`)](#3-video-transcript-get_video_transcript)
+  - [4. Video Metadata (`get_video_metadata`)](#4-video-metadata-get_video_metadata)
+  - [5. Behavior and Error Handling](#5-behavior-and-error-handling)
+- [📋 Requirements](#-requirements)
+- [🚀 Installation](#-installation)
+- [⚙️ Credential Configuration](#-credential-configuration)
+- [💡 Tool Call Examples](#-tool-call-examples)
+- [🛡️ API Rate Limiting](#️-api-rate-limiting)
+- [🛠️ Development Guide](#️-development-guide)
+- [⚖️ Safety & Disclaimer](#️-safety--disclaimer)
+- [💬 Feedback & Suggestions](#-feedback--suggestions)
 
 ---
-
-## ⚡ Pre-check
-
-> [!IMPORTANT]
-> **This tool requires Bilibili Credentials (Cookies) to function fully.**
-> Without proper credentials, you may face issues retrieving subtitles, popular comments, or encounter frequent API rate limiting.
-
-Before proceeding with installation, please ensure you are familiar with [How to obtain and configure Cookies](#⚙️-credential-configuration).
-
----
-
-## 🌟 Features
-
-### 1. Video Summarization (`get_video_info`)
-- Prioritizes retrieving CC or AI subtitles.
-- Automatically falls back to video title, description, and tags if no subtitles are available.
-- Supports multi-language subtitle selection (defaults to Simplified Chinese).
-- Supports manual preference for subtitle languages (e.g., `en`, `zh-Hant`).
-
-### 2. Comment Summarization (`get_video_comments`)
-- Retrieves popular comments to help gauge video sentiment.
-- Filters emoji placeholders (e.g., `[doge]`) for cleaner text.
-- Prioritizes comments with timestamps (e.g., `05:20`) for quick highlight location.
-- Supports two levels of detail:
-  - `brief`: 10 popular comments summary.
-  - `detailed`: 20 popular comments + high-quality replies.
-- Optional parameters:
-  - `limit`: Explicit comment count `1-50`, overrides `detail_level` default.
-  - `sort`: Sort order `"hot"` (default) or `"time"`.
-  - `include_replies`: Whether to include top replies (default `true`).
-
-### 3. Video Transcript (`get_video_transcript`)
-- Returns clean subtitle text, joined by newlines.
-- Supports preferred language selection (defaults to `zh-Hans` > `ai-zh` > `zh-CN` > `zh-Hant` > `en` priority).
-- Optional parameters:
-  - `preferred_lang`: Preferred subtitle language code.
-  - `fallback_to_description`: Fall back to video description if subtitles unavailable (default `false`).
-- By default, returns `SUBTITLE_UNAVAILABLE` error when no subtitles exist.
-- Cookie expiration always returns `COOKIE_EXPIRED`, never silently falls back.
-
-### 4. Video Metadata (`get_video_metadata`)
-- Returns video title, author, duration, publish date, description, tags, and stats (views, likes, coins, etc.).
-- Does not fetch subtitles or comments.
-- Only requires the `bvid_or_url` parameter.
-
-### 5. Behavior and Error Handling
-
-- **Intelligent Cookie Expiration Detection**: Automatically verifies login status when subtitles are empty, distinguishing between "videos without subtitles" and "invalid credentials," and throwing a clear `COOKIE_EXPIRED` error to prevent silent degradation.
-
-#### Without Cookie
-
-- Some public video metadata (`get_video_metadata`) may work without authentication.
-- Subtitles (`get_video_info`, `get_video_transcript`) may be unavailable, incomplete, or fail without authentication.
-- Comments (`get_video_comments`) may be incomplete, empty, or rate-limited without authentication.
-- Do not rely on cookie-less mode for reliable subtitle or comment access.
-
-#### Credential Sources
-
-- Credentials should be supplied via `.env` file, environment variables, or the credential helper.
-- Supported environment variables: `BILIBILI_SESSDATA`, `BILIBILI_BILI_JCT`, `BILIBILI_DEDEUSERID`.
-- **Never** hard-code Cookie values in source code, scripts, docs, tests, logs, or examples.
-- If Cookie values were previously exposed in repository history, rotate them immediately via Bilibili account settings.
-
-#### Expected Error Codes
-
-| Code | Meaning | Caller Action |
-|------|---------|---------------|
-| `VALIDATION_ERROR` | Invalid input parameter | Fix the `bvid_or_url` or other parameter |
-| `COOKIE_EXPIRED` | Cookie expired or not logged in | User should refresh/rotate Bilibili credentials |
-| `SUBTITLE_UNAVAILABLE` | No subtitles available for this video | For `get_video_transcript`, retry with `fallback_to_description: true` |
 
 ## 📋 Requirements
 
@@ -414,7 +352,7 @@ Create a `.env` file in the project root and enter the following variables:
 
 ---
 
-## 💡 Usage Examples
+## 💡 Tool Call Examples
 
 AI assistants will call these tools using JSON:
 

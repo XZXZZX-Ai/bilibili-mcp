@@ -4,72 +4,65 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![npm downloads](https://img.shields.io/npm/dm/@xzxzzx/bilibili-mcp.svg)](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp)
 
-## ✨ **为你的 AI 助手装上 B 站的眼睛**：提取视频字幕、转录、元数据与热门评论，助力高效信息总结 🚀
-## ✨ **Equip your AI assistant with "Bilibili Eyes"**: One-click extraction of video subtitles and popular comments for efficient information summarization 🚀
-🌐 **[English Documentation](https://github.com/365903728-oss/bilibili-mcp/blob/master/README_EN.md)** (English read me version here)  
-📜 **[更新日志 (Changelog)](https://github.com/365903728-oss/bilibili-mcp/blob/master/CHANGELOG.md)**
+Bilibili MCP server — 让 AI 客户端获取 Bilibili 视频字幕、转录、元数据和热门评论。
+
+🌐 [English Documentation](https://github.com/365903728-oss/bilibili-mcp/blob/master/README_EN.md) · 📜 [更新日志](https://github.com/365903728-oss/bilibili-mcp/blob/master/CHANGELOG.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.4.0](https://github.com/365903728-oss/bilibili-mcp/releases/tag/v1.4.0)
 
 > [!TIP]
-> ⚠️ **提示**：使用前请务必配置您的 B 站 Cookie，否则将无法提取视频字幕与评论。详见 [**⚙️ 凭证配置**](#️-凭证配置)(凭证只会保存在本地，不会上传到任何地方)。
->
-> ⚠️ **Notice**: Please make sure to configure your Bilibili Cookies before use, otherwise video subtitles and comments cannot be extracted. See [**⚙️ Credential Configuration**](#️-credential-configuration) (Cookies are only stored locally and will not be uploaded anywhere).
+> ⚠️ 使用前请配置 B 站 Cookie。Metadata 可能无需 Cookie，但字幕/转录/评论建议配置。详见 [**凭证配置**](#️-凭证配置)。
 
+---
 
+## ⚡ 快速开始
+
+```bash
+# 直接运行
+npx -y @xzxzzx/bilibili-mcp
+
+# Claude Code 一键添加
+claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"
+```
+
+<details><summary><b>Claude Desktop 配置</b></summary>
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "env": {
+        "BILIBILI_SESSDATA": "你的_SESSDATA",
+        "BILIBILI_BILI_JCT": "你的_bili_jct",
+        "BILIBILI_DEDEUSERID": "你的_DedeUserID"
+      }
+    }
+  }
+}
+```
+</details>
+
+更多客户端配置见 [安装方式](#-安装方式)。
 
 ---
 
 ## 📑 目录
 
-- [Bilibili MCP Tool](#bilibili-mcp-tool)
-  - [✨ **为你的 AI 助手装上 B 站的眼睛**：一键提取视频字幕与热门评论，助力高效信息总结 🚀](#-为你的-ai-助手装上-b-站的眼睛一键提取视频字幕与热门评论助力高效信息总结-)
-  - [✨ **Equip your AI assistant with "Bilibili Eyes"**: One-click extraction of video subtitles and popular comments for efficient information summarization 🚀](#-equip-your-ai-assistant-with-bilibili-eyes-one-click-extraction-of-video-subtitles-and-popular-comments-for-efficient-information-summarization-)
-  - [📑 目录](#-目录)
-  - [⚡ 快速预检](#-快速预检)
-  - [🌟 功能特性](#-功能特性)
-    - [1. 视频总结 (`get_video_info`)](#1-视频总结-get_video_info)
-    - [2. 评论总结 (`get_video_comments`)](#2-评论总结-get_video_comments)
-    - [3. 视频转录 (`get_video_transcript`)](#3-视频转录-get_video_transcript)
-    - [4. 视频元数据 (`get_video_metadata`)](#4-视频元数据-get_video_metadata)
-    - [5. 行为说明与错误处理](#5-行为说明与错误处理)
-  - [📋 环境要求](#-环境要求)
-  - [🚀 安装方式](#-安装方式)
-    - [🖱️ Cursor](#️-cursor)
-    - [Claude Code](#claude-code)
-      - [方法一：通过 CLI 命令快速安装（推荐）](#方法一通过-cli-命令快速安装推荐)
-      - [方法二：通过配置文件手动添加（高级）](#方法二通过配置文件手动添加高级)
-    - [Claude Desktop (桌面客户端)](#claude-desktop-桌面客户端)
-      - [方法一：通过配置文件手动添加](#方法一通过配置文件手动添加)
-      - [方法二：通过 npm 全局安装](#方法二通过-npm-全局安装)
-    - [🏗️ Trae (字节跳动官方 IDE)](#️-trae-字节跳动官方-ide)
-    - [🌊 Windsurf (Codeium 官方 IDE)](#-windsurf-codeium-官方-ide)
-    - [⚡ Zed](#-zed)
-    - [♊ Gemini CLI (Google 官方命令行工具)](#-gemini-cli-google-官方命令行工具)
-    - [⌨️ Codex CLI (OpenAI 官方命令行工具)](#️-codex-cli-openai-官方命令行工具)
-    - [🪐 Antigravity (Google 官方 IDE)](#-antigravity-google-官方-ide)
-    - [📦 OpenCode](#-opencode)
-  - [⚙️ 凭证配置](#️-凭证配置)
-    - [🔑 第一步：获取 Bilibili Cookie](#-第一步获取-bilibili-cookie)
-    - [📝 第二步：应用凭证](#-第二步应用凭证)
-      - [方式 A：使用 CLI 向导（推荐，适用于全局安装）](#方式-a使用-cli-向导推荐适用于全局安装)
-      - [方式 B：手动配置环境变量（适用于本地开发或 Docker）](#方式-b手动配置环境变量适用于本地开发或-docker)
-      - [🔒 安全须知](#-安全须知)
-  - [💡 工具使用示例](#-工具使用示例)
-  - [🛡️ API 限流机制](#️-api-限流机制)
-  - [🛠️ 开发指南](#️-开发指南)
-  - [⚖️ 安全性与免责声明](#️-安全性与免责声明)
-    - [许可证](#许可证)
-  - [🛠️ 开发过程](#️-开发过程)
-  - [💬 反馈与建议](#-反馈与建议)
-
----
-
-## ⚡ 快速预检
-
-> [!IMPORTANT]
-> **本工具需要 Bilibili 凭证 (Cookie) 才能发挥完整功能。**
-> 如果没有正确配置凭证，您可能无法获取视频字幕、评论
-
-在开始安装前，请确保您已经了解[如何获取并配置 Cookie](#️-凭证配置)。
+- [⚡ 快速开始](#-快速开始)
+- [🌟 功能特性](#-功能特性)
+  - [1. 视频总结 (`get_video_info`)](#1-视频总结-get_video_info)
+  - [2. 评论总结 (`get_video_comments`)](#2-评论总结-get_video_comments)
+  - [3. 视频转录 (`get_video_transcript`)](#3-视频转录-get_video_transcript)
+  - [4. 视频元数据 (`get_video_metadata`)](#4-视频元数据-get_video_metadata)
+  - [5. 行为说明与错误处理](#5-行为说明与错误处理)
+- [📋 环境要求](#-环境要求)
+- [🚀 安装方式](#-安装方式)
+- [⚙️ 凭证配置](#️-凭证配置)
+- [💡 工具调用示例](#-工具调用示例)
+- [🛡️ API 限流机制](#️-api-限流机制)
+- [🛠️ 开发指南](#️-开发指南)
+- [⚖️ 安全性与免责声明](#️-安全性与免责声明)
+- [💬 反馈与建议](#-反馈与建议)
 
 ---
 
@@ -428,7 +421,7 @@ bilibili-mcp config
 
 ---
 
-## 💡 工具使用示例
+## 💡 工具调用示例
 
 在支持 MCP 的对话流中，你可以直接输入自然语言，底层会自动调用对应的 JSON 格式配置：
 
