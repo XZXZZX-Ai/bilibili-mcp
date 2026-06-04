@@ -17,21 +17,38 @@ View in [简体中文](https://github.com/365903728-oss/bilibili-mcp/blob/master
 
 Choose your AI client and jump directly to the detailed setup instructions:
 
-- [Codex app](#codex-app)
+- [Codex app / Codex CLI](#codex-app--codex-cli)
 - [Claude Code](#claude-code)
+- [OpenCode](#opencode)
+- [Pi](#pi)
+- [Oh My Pi](#oh-my-pi)
+- [Crush](#crush)
+- [DeepSeek-TUI](#deepseek-tui)
+- [Deep Code](#deep-code)
+- [Reasonix](#reasonix)
+- [Langcli](#langcli)
+- [GitHub Copilot CLI](#github-copilot-cli)
 - [OpenClaw](#openclaw)
 - [Hermes](#hermes)
+- [Cursor](#cursor)
+- [Cline](#cline)
+- [Kilo Code](#kilo-code)
+- [VS Code](#vs-code)
+- [GitHub Copilot (VS Code)](#github-copilot-vs-code)
 - [WorkBuddy](#workbuddy)
 - [CodeBuddy](#codebuddy)
+- [Trae SOLO CN](#trae-solo-cn)
+- [Trae SOLO International](#trae-solo-international)
+- [Trae CN](#trae-cn)
+- [Trae International](#trae-international)
 - [Claude Desktop](#claude-desktop)
-- [Cursor](#cursor)
 - [Windsurf](#windsurf)
 - [Zed](#zed)
-- [Codex CLI](#codex-cli)
-- [Gemini CLI](#gemini-cli)
-- [Trae](#trae)
-- [Antigravity](#antigravity)
-- [OpenCode](#opencode)
+- [Antigravity / Antigravity CLI](#antigravity--antigravity-cli)
+- [Cherry Studio](#cherry-studio)
+- [LobeHub / LobeChat](#lobehub--lobechat)
+- [AstrBot](#astrbot)
+- [nanobot](#nanobot)
 
 ---
 
@@ -128,22 +145,37 @@ Choose your AI client and jump directly to the detailed setup instructions:
 > [!NOTE]
 > Do not write real Cookie values in client config files. Prefer `bilibili-mcp config` or environment variables. See [⚙️ Credential Configuration](#-credential-configuration).
 
-### Codex app
+### Codex app / Codex CLI
 
-Open Codex app Settings → Integrations & MCP, then add a custom MCP server:
+Codex app, Codex CLI, and the Codex IDE extension share MCP configuration. Use either setup path:
+
+#### Codex app
+
+Open Settings → Integrations & MCP, then add a custom MCP server:
 
 - Command: `npx`
 - Arguments: `["-y", "@xzxzzx/bilibili-mcp"]`
 
-You can also edit the shared Codex configuration file at `~/.codex/config.toml`:
+#### Codex CLI
+
+```bash
+codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+```
+
+After setup, run `/mcp` in the Codex CLI TUI to inspect server status.
+
+#### Manual config
+
+You can also edit Codex configuration directly:
+
+- User-level: `~/.codex/config.toml`
+- Project-level: `.codex/config.toml` (loaded only when Codex trusts the project)
 
 ```toml
 [mcp_servers.bilibili-mcp]
 command = "npx"
 args = ["-y", "@xzxzzx/bilibili-mcp"]
 ```
-
-Codex app, Codex CLI, and the Codex IDE extension share this MCP configuration.
 
 ### Claude Code
 
@@ -160,6 +192,263 @@ claude mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
 ```
 
 You can also edit `~/.claude.json` and add the same JSON block shown for Claude Desktop under the matching project or user configuration.
+
+### OpenCode
+
+Edit the OpenCode config file at `~/.config/opencode/opencode.json` and add this local MCP server under `mcp`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "bilibili-mcp": {
+      "type": "local",
+      "command": ["npx", "-y", "@xzxzzx/bilibili-mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+OpenCode adds MCP tools to the available tool context. When prompting, explicitly ask OpenCode to use `bilibili-mcp` if needed.
+
+### Pi
+
+Pi uses MCP through `pi-mcp-adapter`. Install the adapter first:
+
+```bash
+pi install npm:pi-mcp-adapter
+```
+
+After restarting Pi, prefer project-level shared config:
+
+```text
+.mcp.json
+```
+
+Add:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+You can also use user-global shared config:
+
+```text
+~/.config/mcp/mcp.json
+```
+
+Pi also supports Pi-owned override files:
+
+- Global: `~/.pi/agent/mcp.json`
+- Project-level: `.pi/mcp.json`
+
+If you already configured MCP in Cursor, Claude Code, Codex, Windsurf, or similar clients, run `/mcp setup` in Pi to import or scaffold configuration. From the terminal, you can also run:
+
+```bash
+pi-mcp-adapter init
+```
+
+Pi connects MCP servers lazily by default, so a server starts only when a tool is actually used. In Pi, run `/mcp` to inspect server status and available tools. Do not write real Cookie values in Pi MCP config; configure credentials with `bilibili-mcp config` or environment variables.
+
+### Oh My Pi
+
+Oh My Pi (`omp`) supports MCP natively. Prefer OMP-owned config files:
+
+- Project-level: `.omp/mcp.json`
+- User-level: `~/.omp/agent/mcp.json`
+
+You can also use portable project-root config files shared by other MCP clients:
+
+- `mcp.json`
+- `.mcp.json`
+
+Add:
+
+```json
+{
+  "$schema": "https://raw.githubusercontent.com/can1357/oh-my-pi/main/packages/coding-agent/src/config/mcp-schema.json",
+  "mcpServers": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+You can also use guided setup from an OMP session:
+
+```text
+/mcp add
+```
+
+After changing config, use:
+
+```text
+/mcp reload
+/mcp list
+/mcp test bilibili-mcp
+```
+
+OMP supports `stdio`, `http`, and `sse` MCP. Do not write real Cookie values in `env`, `args`, or config files.
+
+### Crush
+
+Crush supports project-level and user-level JSON configuration. MCP servers live under the `mcp` object.
+
+Config precedence:
+
+- Project-level: `.crush.json`
+- Project-level: `crush.json`
+- User-level: `~/.config/crush/crush.json`
+
+Add:
+
+```json
+{
+  "$schema": "https://charm.land/crush.json",
+  "mcp": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+Crush also supports HTTP and SSE MCP. Do not put real Cookie values in `env` or `args`; configure credentials with this project's CLI wizard or environment variables.
+
+### DeepSeek-TUI
+
+DeepSeek-TUI is both an MCP client and an MCP server. As an MCP client, add this project with:
+
+```bash
+deepseek mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+```
+
+Or edit:
+
+```text
+~/.deepseek/mcp.json
+```
+
+Add:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+Use `deepseek mcp list` and `deepseek mcp validate` to check configuration. DeepSeek-TUI usually exposes MCP tools as `mcp_<server>_<tool>`.
+
+### Deep Code
+
+Deep Code configures MCP servers in `~/.deepcode/settings.json`. Add `bilibili-mcp` under `mcpServers`:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+Deep Code documents that it automatically prepends `-y` when `command` is `npx`. After saving the config, start `deepcode` and run `/mcp` to inspect server status and available tools.
+
+### Reasonix
+
+Reasonix supports native MCP. The fastest setup is the `--mcp` flag:
+
+```bash
+npx reasonix code --mcp "bilibili=npx -y @xzxzzx/bilibili-mcp"
+```
+
+You can also edit the global config:
+
+```text
+~/.reasonix/config.json
+```
+
+Add an entry to the `mcp` array:
+
+```json
+{
+  "mcp": [
+    "bilibili=npx -y @xzxzzx/bilibili-mcp"
+  ]
+}
+```
+
+Reasonix uses `name=command arg1 arg2` strings. Project-level overrides live under `.reasonix/`.
+
+### Langcli
+
+Langcli's current official documentation only clearly documents its built-in Chrome MCP flow. I did not find a reliable `mcpServers` or CLI configuration path for adding arbitrary stdio MCP servers, so this README does not present `bilibili-mcp` as a supported Langcli setup yet.
+
+If you only need Langcli's built-in Chrome MCP, start it with:
+
+```bash
+langcli --chrome
+```
+
+Then run this inside Langcli:
+
+```text
+/mcp
+```
+
+Use the MCP panel to manage `mcp-chrome`. Once Langcli documents a generic MCP server configuration path, add `npx -y @xzxzzx/bilibili-mcp` there.
+
+### GitHub Copilot CLI
+
+In GitHub Copilot CLI interactive mode, use `/mcp add`. Choose `STDIO` or `Local`, then fill in:
+
+- Server Name: `bilibili-mcp`
+- Command: `npx`
+- Args: `-y @xzxzzx/bilibili-mcp`
+
+You can also edit user-level config:
+
+```text
+~/.copilot/mcp-config.json
+```
+
+Add:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "type": "local",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "env": {},
+      "tools": ["*"]
+    }
+  }
+}
+```
+
+Project-level `.mcp.json` or `.github/mcp.json` takes precedence over same-named user-level servers. Use `/mcp show` in Copilot CLI to inspect status.
 
 ### OpenClaw
 
@@ -206,6 +495,167 @@ mcp_servers:
 
 If you already have a Hermes session running, use `/reload-mcp` to reload MCP configuration, or start a fresh Hermes session.
 
+### Cursor
+
+Cursor editor and Cursor CLI (`cursor-agent`) share the same `mcp.json` configuration. The CLI automatically detects MCP servers configured for the editor.
+
+#### Option 1: Cursor Editor
+
+Open MCP / MCP Servers from Cursor settings and add a custom stdio server. You can also edit the config file directly.
+
+Project-level config:
+
+```text
+.cursor/mcp.json
+```
+
+Global config:
+
+```text
+~/.cursor/mcp.json
+```
+
+Config:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+#### Option 2: Cursor CLI
+
+Cursor CLI uses the same `mcp.json`, so you do not need a second config file. Check the configured server with:
+
+```bash
+cursor-agent mcp list
+cursor-agent mcp list-tools bilibili-mcp
+```
+
+If an MCP server requires authentication, Cursor CLI uses:
+
+```bash
+cursor-agent mcp login bilibili-mcp
+```
+
+### Cline
+
+Cline supports local STDIO and remote MCP. Edit the Cline MCP config and add:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}
+```
+
+Cline CLI users can inspect or manage MCP settings as JSON:
+
+```bash
+cline config mcp --json
+```
+
+After setup, confirm the server is enabled in Cline's MCP panel. Do not write real Cookie values in Cline config.
+
+### Kilo Code
+
+Kilo Code stores MCP servers under the `mcp` object in its main config file.
+
+Config locations:
+
+- Global: `~/.config/kilo/kilo.jsonc`
+- Project-level: `kilo.jsonc`
+- Project-level: `.kilo/kilo.jsonc`
+
+Add:
+
+```jsonc
+{
+  "mcp": {
+    "bilibili-mcp": {
+      "type": "local",
+      "command": ["npx", "-y", "@xzxzzx/bilibili-mcp"],
+      "enabled": true,
+      "timeout": 10000
+    }
+  }
+}
+```
+
+You can also use Kilo Code Settings UI → Agent Behaviour → MCP Servers. Project-level config takes precedence over global config.
+
+### VS Code
+
+VS Code supports MCP configuration natively. Open workspace MCP configuration from the command palette:
+
+```text
+MCP: Open Workspace Folder MCP Configuration
+```
+
+This creates or opens:
+
+```text
+.vscode/mcp.json
+```
+
+Add:
+
+```json
+{
+  "servers": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+User-level config can be opened from the command palette:
+
+```text
+MCP: Open User Configuration
+```
+
+VS Code MCP also supports HTTP, SSE, Windows named pipes, and Unix sockets. After setup, use VS Code's MCP server list to start, stop, or inspect server status. Do not write real Cookie values in `.vscode/mcp.json`.
+
+### GitHub Copilot (VS Code)
+
+GitHub Copilot Chat in VS Code reads VS Code MCP configuration. Workspace config can be stored at:
+
+```text
+.vscode/mcp.json
+```
+
+Add:
+
+```json
+{
+  "servers": {
+    "bilibili-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+You can also open global MCP config from the command palette with `MCP: Open User Configuration`. After setup, use the server from Copilot Chat Agent Mode.
+
 ### WorkBuddy
 
 WorkBuddy's official docs recommend configuring MCP from the UI. Open Sidebar → Plugins → MCP Server → Configure MCP, then add:
@@ -229,6 +679,8 @@ You can also edit the scoped config file:
 
 ### CodeBuddy
 
+#### Option 1: CodeBuddy CLI
+
 CodeBuddy CLI can add this stdio MCP server directly:
 
 ```bash
@@ -242,7 +694,9 @@ codebuddy mcp list
 codebuddy mcp get bilibili-mcp
 ```
 
-You can also open CodeBuddy Settings → MCP → Add MCP from the top-right of the IDE chat panel, then add:
+#### Option 2: CodeBuddy IDE
+
+Open CodeBuddy Settings → MCP → Add MCP from the top-right of the IDE chat panel, then add:
 
 ```json
 {
@@ -257,14 +711,100 @@ You can also open CodeBuddy Settings → MCP → Add MCP from the top-right of t
 }
 ```
 
+If you use project-level `.mcp.json`, make sure CodeBuddy settings allow this project MCP server to be enabled.
+
+### Trae SOLO CN
+
+Trae SOLO CN is the SOLO workflow for Trae China. Public official docs do not show a standalone SOLO-specific MCP config file; use Trae's project-level MCP config, then use the server from SOLO Coder.
+
+Create `.trae/mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+Then confirm project config import is enabled in Trae's MCP management panel and use this MCP server from SOLO Coder.
+
+### Trae SOLO International
+
+Trae SOLO International exists; the official FAQ says international SOLO is available to Pro users. I did not find a separate SOLO-specific MCP JSON format, so use Trae International's MCP setup and call it from SOLO Coder / Builder with MCP.
+
+Project-level config also uses `.trae/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+If using the Trae International UI, open Settings → MCP from the top-right of the AI chat window and add the same `mcpServers` configuration manually.
+
+### Trae CN
+
+In Trae CN, open the settings entry in the top-right of the AI chat window, then go to MCP configuration. You can also edit the MCP config file directly.
+
+Common config paths:
+
+- Windows: `%APPDATA%\Trae\User\settings\mcp.json`
+- macOS: `~/Library/Application Support/Trae/User/settings/mcp.json`
+- Project scope: `.trae/mcp.json`
+
+Add:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+If you use project-level `.trae/mcp.json`, confirm project config import is enabled in Trae's MCP management panel.
+
+### Trae International
+
+In Trae International, open Settings → MCP from the top-right of the AI chat window, then choose Add or manually configure an MCP server.
+
+For project-level configuration, create `.trae/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+Trae supports stdio MCP servers; this project starts its stdio server with `npx`.
+
 ### Claude Desktop
 
-Open Settings → Developer → Edit Config, or directly edit:
+Open Claude Desktop Settings → Developer → Edit Config, or edit directly:
 
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
 - macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
+Add:
+
 ```json
 {
   "mcpServers": {
@@ -276,19 +816,31 @@ Open Settings → Developer → Edit Config, or directly edit:
 }
 ```
 
-### Cursor
-
-Settings → Features → MCP Servers → + Add New MCP Server:
-
-- Type: `command`
-
-- Command: `npx -y @xzxzzx/bilibili-mcp`
-
-Advanced users can also create `.cursor/mcp.json` in the project root.
+Save the file, then restart Claude Desktop. This setup is for local stdio MCP servers; do not write real Cookie values in `env`, `args`, or the config file.
 
 ### Windsurf
 
-Edit `~/.codeium/windsurf/mcp_config.json`:
+Windsurf MCP is used by Cascade. The official entry points are the `MCPs` icon in the top-right of the Cascade panel, or Windsurf Settings → Cascade → MCP Servers.
+
+#### Option 1: Cascade / MCP Servers UI
+
+Open MCP Marketplace or MCP Servers settings, then add a custom stdio MCP server:
+
+- Command: `npx`
+- Arguments: `["-y", "@xzxzzx/bilibili-mcp"]`
+
+Windsurf also supports MCP deeplinks. If you provide an install entry in docs or a web page, use `windsurf://windsurf-mcp-registry?serverName=<server-name>` to open the matching MCP registry page.
+
+#### Option 2: Raw config
+
+Edit:
+
+```text
+~/.codeium/windsurf/mcp_config.json
+```
+
+Add:
+
 ```json
 {
   "mcpServers": {
@@ -300,9 +852,28 @@ Edit `~/.codeium/windsurf/mcp_config.json`:
 }
 ```
 
+Windsurf/Cascade supports `stdio`, Streamable HTTP, and SSE MCP. This project uses a local stdio server, so do not write real Bilibili Cookie values in this config file; configure credentials with `bilibili-mcp config` or environment variables.
+
 ### Zed
 
-Edit `settings.json`, add `context_servers`:
+Zed configures MCP with `context_servers`, not `mcpServers`. You can add a custom server from the Agent Panel settings view, or edit `settings.json` directly.
+
+#### Option 1: Agent Panel UI
+
+Open the Agent Panel settings view, click Add Custom Server, then enter this project's stdio server configuration.
+
+After setup, check the indicator dot next to the server name in the Agent Panel settings view. Green means the server is active.
+
+#### Option 2: settings.json
+
+Open user settings with Zed's `zed: open settings` action. For project-level settings, use:
+
+```text
+.zed/settings.json
+```
+
+Add:
+
 ```json
 {
   "context_servers": {
@@ -314,59 +885,114 @@ Edit `settings.json`, add `context_servers`:
 }
 ```
 
-### Codex CLI
+#### Option 3: Zed extension
 
-```bash
-codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
-```
+Zed can also install MCP servers as extensions. For a generic custom server, `context_servers` is more direct; if this project later publishes a Zed MCP extension, use the extension path instead.
 
-Or edit `~/.codex/config.toml`:
-```toml
-[mcp_servers.bilibili-mcp]
-command = "npx"
-args = ["-y", "@xzxzzx/bilibili-mcp"]
-```
+Zed supports MCP Tools and Prompts, and it also supports remote MCP servers. Remote servers use `url` and optional `headers`. This project is a local stdio server, so do not write real Bilibili Cookie values in Zed configuration.
 
-### Gemini CLI
+### Antigravity / Antigravity CLI
 
-Edit `~/.gemini/settings.json`, add standard command+args config under `mcpServers`. Ensure HTTP_PROXY is configured for users in mainland China.
+Gemini CLI has migrated to Antigravity CLI. New MCP setup no longer lives in `~/.gemini/settings.json`; Antigravity uses a standalone `mcp_config.json`.
 
-### Trae
+In Antigravity IDE, open MCP Store → Manage MCP Servers → View raw config. In Antigravity CLI, use `/mcp` to manage MCP servers.
 
-Settings → AI → MCP → Add Server:
+Common config paths:
 
-- Type: `command` (stdio)
+- Antigravity IDE: `~/.gemini/antigravity/mcp_config.json`
+- Antigravity CLI global: `~/.gemini/antigravity-cli/mcp_config.json`
+- Antigravity CLI workspace: `.agents/mcp_config.json`
 
-- Command: `npx`
+Add:
 
-- Arguments: `["-y", "@xzxzzx/bilibili-mcp"\]
-
-### Antigravity
-
-Sidebar → MCP Store → Manage MCP Servers → View raw config, or manually edit:
-
-- Windows: `%USERPROFILE%\.gemini/antigravity\mcp_config.json`
-
-- macOS/Linux: `~/.gemini/antigravity/mcp_config.json`
-
-### OpenCode
-
-Edit `~/.config/opencode/opencode.json`:
 ```json
 {
-  "mcp": {
+  "mcpServers": {
     "bilibili-mcp": {
-      "type": "local",
-      "command": ["npx", "-y", "@xzxzzx/bilibili-mcp"],
-      "enabled": true
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
     }
   }
 }
 ```
 
+After saving, restart Antigravity / Antigravity CLI, or use `/mcp` in the CLI to check whether the server is loaded.
 
+### Cherry Studio
 
+Cherry Studio adds MCP servers from Settings → MCP Server. For this project, choose `STDIO`:
 
+- Name: `bilibili-mcp`
+- Type: `STDIO`
+- Command: `npx`
+- Parameters: `-y @xzxzzx/bilibili-mcp`
+
+After saving, Cherry Studio starts the MCP server. Enable it in the chat box before calling its tools.
+
+### LobeHub / LobeChat
+
+LobeChat Desktop can import MCP server JSON. Open:
+
+```text
+Settings → Default Agent → Plugin Settings → Custom Plugins → Quick JSON Configuration Import
+```
+
+Paste:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+After installing it, enable this MCP server in the target Agent's plugin settings. Do not write real Cookie values in LobeChat config; configure credentials with this project's CLI or environment variables.
+
+### AstrBot
+
+AstrBot manages MCP from its WebUI. Make sure the AstrBot runtime can use `npm` and `node`, then add this local MCP server from the MCP server management page:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+If AstrBot runs in Docker, install Node.js / npm inside the container and make sure the container has the network access needed by this MCP server.
+
+### nanobot
+
+nanobot's config file is:
+
+```text
+~/.nanobot/config.json
+```
+
+Add this under `tools.mcpServers`:
+
+```json
+{
+  "tools": {
+    "mcpServers": {
+      "bilibili-mcp": {
+        "command": "npx",
+        "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      }
+    }
+  }
+}
+```
+
+nanobot's MCP config is compatible with Claude Desktop / Cursor style config. It also supports remote MCP with `url` and `headers`. Credentials should still be managed by this project's CLI or environment variables, not written into nanobot config.
 
 ## ⚙️ Credential Configuration
 
