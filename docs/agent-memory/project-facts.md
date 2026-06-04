@@ -35,3 +35,17 @@
 - Fact: Controlled learning proposals are generated automatically but require user approval before promotion.
 - Evidence: `.codex/scripts/generate_learning_proposals.py` writes `docs/agent-memory/pending-learning-proposals.md`.
 - Impact: Pending proposals should be reviewed by Codex and promoted only after the user approves with `批准本轮 learning proposals`.
+
+## 2026-06-04
+
+- Fact: Phase 2 and Phase 3 work produced formal verification memory, while hook learning remained review-gated.
+- Evidence: `docs/agent-memory/verification-log.md` contains Phase 2 final verification, Phase 3 Task 1-8 verification, and active-plan tracking verification; `docs/agent-memory/pending-learning-proposals.md` currently reports no proposals above the promotion threshold.
+- Impact: Treat Phase 2/3 memory capture as successful, but do not assume absence of learning proposals means hooks failed.
+
+- Fact: The automatic active-plan tracker only tracks the stabilization roadmap and `*-implementation-plan.md` implementation plans.
+- Evidence: `.codex/scripts/plan_tracker.py` filters candidate plans and previous active plans through the same tracked-plan rule; `python .codex/scripts/plan_tracker.py` returns the Phase 4 implementation plan instead of the older unchecked `2026-05-27-agent-memory-learning-system.md`.
+- Impact: Phase-gated learning reminders no longer drift to non-implementation design/history plans, while future phase plans can be tracked automatically if they use the `*-implementation-plan.md` naming pattern.
+
+- Fact: Phase 4 completed source-level documentation and release workflow polish but did not perform an actual release.
+- Evidence: Phase 4 final verification records no tag, no GitHub release, and no npm publish; commit `f777980` was pushed to `origin/master` as source changes only.
+- Impact: Treat the next step as release execution, not another documentation-polish phase.

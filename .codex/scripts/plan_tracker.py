@@ -66,10 +66,15 @@ def plan_sort_key(path: Path) -> tuple[int, str]:
         return len(KNOWN_PLAN_ORDER), path.name
 
 
+def is_tracked_plan(path: Path) -> bool:
+    return path.name in KNOWN_PLAN_ORDER or path.name.endswith("-implementation-plan.md")
+
+
 def candidate_plans() -> list[Path]:
     if not PLANS_DIR.exists():
         return []
-    return sorted(PLANS_DIR.glob("*.md"), key=plan_sort_key)
+    plans = [path for path in PLANS_DIR.glob("*.md") if is_tracked_plan(path)]
+    return sorted(plans, key=plan_sort_key)
 
 
 def resolve_active_plan(previous_plan: str | None = None) -> Path:
@@ -77,7 +82,7 @@ def resolve_active_plan(previous_plan: str | None = None) -> Path:
         previous = Path(previous_plan)
         if not previous.is_absolute():
             previous = ROOT / previous
-        if is_incomplete_plan(previous):
+        if is_tracked_plan(previous) and is_incomplete_plan(previous):
             return previous
 
     incomplete = [path for path in candidate_plans() if is_incomplete_plan(path)]

@@ -570,3 +570,62 @@
 
 - Phase 4 plan: Tasks 1-7 all marked complete.
 - Remaining risks: No publish/tag/release has been performed. Trusted publishing OIDC setup on npm side must be configured before first publish. Workflow uses `npm install -g npm@latest` which is a moving target on CI.
+
+## 2026-06-04 Learning Sedimentation Review
+
+- Command: `Select-String -Path docs/agent-memory/verification-log.md -Pattern 'Phase 2|Phase 3|learning|hook|proposal|plan' -Context 1,3`
+- Result: Confirmed formal verification memory exists for Phase 2 final verification, Phase 3 Task 1-8 verification, and active-plan tracking.
+- Area: Project memory completeness.
+
+- Command: `Get-Content docs/agent-memory/pending-learning-proposals.md`
+- Result: Current generated queue reports `No Proposals`.
+- Area: Controlled learning proposal state.
+- Caveat: This means no runtime candidate currently meets the promotion threshold; it does not mean the learning pipeline failed.
+
+- Command: `Get-Content .claude/runtime/learning-proposal-phase-state.json` and `Get-Content C:\Users\ZX\.codex\memories\bilibili-mcp\runtime\learning-proposal-phase-state.json`
+- Result: Both Claude and Codex runtime state files exist and currently point at `docs/superpowers/plans/2026-05-27-agent-memory-learning-system.md`.
+- Area: Agent runtime learning state.
+- Caveat: The current active plan differs from Phase 2/3 because `plan_tracker.py` selects the first incomplete plan.
+
+- Command: `python .codex/scripts/plan_tracker.py`
+- Result: Returned `docs\superpowers\plans\2026-05-27-agent-memory-learning-system.md`.
+- Area: Active-plan tracking.
+- Caveat: Future phase-gated learning reminders should confirm this is the intended active plan before relying on reminder timing.
+
+- Formal memory updates: added 2026-06-04 entries to `project-facts.md` and `lessons-learned.md`.
+- Conclusion: Phase 2/3 memory capture worked. Controlled learning operated as review-gated proposal generation, and no automatic promotion occurred because no proposal currently met the threshold.
+
+## 2026-06-04 Active Plan Tracker Drift Fix
+
+- Command: `python .codex/scripts/plan_tracker.py`
+- Result: Returned `docs\superpowers\plans\2026-05-28-documentation-release-polish-implementation-plan.md`.
+- Area: Active-plan resolution.
+
+- Command: `python .codex/scripts/generate_learning_proposals.py --source codex` and `python .codex/scripts/generate_learning_proposals.py --source claude`
+- Result: Passed with JSON-safe stdout `{"suppressOutput": true}`.
+- Area: Controlled learning runtime state refresh.
+
+- Command: `Get-Content C:\Users\ZX\.codex\memories\bilibili-mcp\runtime\learning-proposal-phase-state.json` and `Get-Content .claude\runtime\learning-proposal-phase-state.json`
+- Result: Both state files now point at `docs/superpowers/plans/2026-05-28-documentation-release-polish-implementation-plan.md` with `completed_phase_count` 7.
+- Area: Codex and Claude Code learning state.
+
+- Command: Python UTF-8 read of `docs/agent-memory/pending-learning-proposals.md` approval phrase line.
+- Result: File content is `Approval phrase: `批准本轮 learning proposals`.`. PowerShell may display this line as mojibake, but the file itself is valid UTF-8.
+- Area: Encoding check.
+
+- Change: `.codex/scripts/plan_tracker.py` now filters candidate plans and previous active plans to the stabilization roadmap or `*-implementation-plan.md` files.
+- Conclusion: The active-plan drift is fixed. Non-implementation plans such as `2026-05-27-agent-memory-learning-system.md` and `2026-05-28-agent-hooks.md` no longer take over phase-gated learning reminders.
+
+## 2026-06-04 Phase 4 Learning Sedimentation
+
+- Source reviewed: Phase 4 verification entries in `docs/agent-memory/verification-log.md` and the Phase 4 final commit report.
+- Result: Added formal memory entries for Phase 4 release-polish lessons and current release status.
+- Area: Project learning sedimentation.
+
+- Fact promoted: Phase 4 completed source-level documentation and release workflow polish, but no tag, GitHub release, or npm publish has been performed.
+- Lesson promoted: npm trusted publishing and GitHub Actions OIDC guidance must be refreshed from official docs when workflow behavior is touched.
+- Lesson promoted: A publish workflow update is not a release execution; release execution needs separate gates for trusted publishing setup, final verification, tag push, Actions monitoring, and release notes.
+- Lesson promoted: `npm install -g npm@latest` is a moving CI target even though it was kept in Phase 4 for trusted publishing compatibility.
+
+- Files updated: `project-facts.md`, `lessons-learned.md`, and `verification-log.md`.
+- Conclusion: Phase 4 now has both verification memory and explicit reusable learning entries.
