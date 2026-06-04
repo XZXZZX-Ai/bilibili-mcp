@@ -4,7 +4,7 @@
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![npm downloads](https://img.shields.io/npm/dm/@xzxzzx/bilibili-mcp.svg)](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp)
 
-## ✨ **为你的 AI 助手装上 B 站的眼睛**：一键提取视频字幕与热门评论，助力高效信息总结 🚀
+## ✨ **为你的 AI 助手装上 B 站的眼睛**：提取视频字幕、转录、元数据与热门评论，助力高效信息总结 🚀
 ## ✨ **Equip your AI assistant with "Bilibili Eyes"**: One-click extraction of video subtitles and popular comments for efficient information summarization 🚀
 🌐 **[English Documentation](https://github.com/365903728-oss/bilibili-mcp/blob/master/README_EN.md)** (English read me version here)  
 📜 **[更新日志 (Changelog)](https://github.com/365903728-oss/bilibili-mcp/blob/master/CHANGELOG.md)**
@@ -377,8 +377,6 @@ OpenCode 用户可以通过编辑配置文件接入：
   }
 }
 ```
-
----
 
 ---
 
