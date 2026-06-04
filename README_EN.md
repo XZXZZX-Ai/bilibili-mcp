@@ -75,117 +75,53 @@ More client setups under [Installation](#-installation).
 
 ## 🚀 Installation
 
-### 🖱️ Cursor
+### Recommended
 
-Cursor supports MCP natively. You can add it via the UI:
+| Scenario | Command |
+|---|---|
+| Run directly | `npx -y @xzxzzx/bilibili-mcp` |
+| Global install | `npm install -g @xzxzzx/bilibili-mcp` |
+| Configure cookies | `bilibili-mcp config` |
+| Check config | `bilibili-mcp check` |
 
-1. Open Cursor Settings: `Cursor Settings` > `Features` > `MCP Servers`.
-2. Click **+ Add New MCP Server**.
-3. Fill in the following:
-   - **Name**: `bilibili-mcp`
-   - **Type**: Select `command`.
-   - **Command**: `npx -y @xzxzzx/bilibili-mcp` (If on Windows and facing path issues, try `cmd /k npx -y @xzxzzx/bilibili-mcp`).
-4. Click **Add**. You might need to click the refresh icon next to the server list to load tools.
+### Client Quick Reference
 
-> **Tip**: Advanced users can also create a `.cursor/mcp.json` in the project root.
+All clients use the same core config: `command: npx`, `args: ["-y", "@xzxzzx/bilibili-mcp"]`.
+
+| Client | Method | Config Path / Command |
+|---|---|---|
+| Claude Code | CLI | `claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"` |
+| Claude Desktop | JSON | Settings → Developer → Edit Config |
+| Cursor | UI / JSON | Settings → Features → MCP Servers |
+| Windsurf | JSON | `~/.codeium/windsurf/mcp_config.json` |
+| Zed | JSON | `settings.json` → `context_servers` |
+| Codex CLI | TOML | `codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp` |
+| Gemini CLI | JSON | `~/.gemini/settings.json` |
+| Trae | UI / JSON | Settings → AI → MCP |
+| Antigravity | UI / JSON | MCP Store → Manage MCP Servers |
+| OpenCode | JSON | `~/.config/opencode/opencode.json` |
+
+> [!NOTE]
+> Do not write real Cookie values in client config files. See [⚙️ Credential Configuration](#-credential-configuration).
+
+<details><summary><b>Expand for detailed per-client setup</b></summary>
 
 ### Claude Code
-
-#### Method 1: Fast Installation via CLI (Recommended)
-
-Run this command in your terminal:
 
 ```bash
 claude mcp add bilibili-mcp --command "npx" --args "-y" --args "@xzxzzx/bilibili-mcp"
 ```
 
-Restart Claude Code after completion.
-
-#### Method 2: Manual Addition via Config File
-
-1. Open Claude Code config (usually at `~/.claude.json`).
-2. Add the following to the `mcpServers` node:
-
-```json
-{
-  "mcpServers": {
-    "bilibili-mcp": {
-      "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
-    }
-  }
-}
-```
-3. Save and restart Claude Code.
+Alternatively, edit `~/.claude.json` and add the same JSON block shown for Claude Desktop under `mcpServers`.
 
 ### Claude Desktop
 
-Claude Desktop supports MCP servers via a global configuration file:
+Open Settings → Developer → Edit Config, or directly edit:
 
-#### Method 1: Manual Addition via Config File
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 
-1. Open the Claude Desktop configuration file:
-   - Windows Path: `%APPDATA%\Claude\claude_desktop_config.json`
-   - macOS Path: `~/Library/Application Support/Claude/claude_desktop_config.json`
-   - *Tip: You can also open this file by clicking **Edit Config** in **Settings** -> **Developer** within Claude Desktop.*
-2. Add the following to the `mcpServers` node:
+- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
 
-```json
-{
-  "mcpServers": {
-    "bilibili-mcp": {
-      "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"],
-      "env": {
-        "BILIBILI_SESSDATA": "<your_sessdata>",
-        "BILIBILI_BILI_JCT": "<your_bili_jct>",
-        "BILIBILI_DEDEUSERID": "<your_dedeuserid>"
-      }
-    }
-  }
-}
-```
-3. Save the file and restart Claude Desktop or start a new conversation to load the tools.
-
-#### Method 2: Global npm Installation
-
-Manage configuration via the CLI tool after installation:
-
-```bash
-npm install -g @xzxzzx/bilibili-mcp
-```
-
-Verification & Inspection:
-1. `bilibili-mcp --help` (View help)
-2. `bilibili-mcp config` (Interactive cookie configuration)
-3. `bilibili-mcp check` (Check configuration status)
-
-### 🏗️ Trae (Official IDE by ByteDance)
-
-Trae provides a very convenient UI for MCP integration:
-
-1. Open Trae Settings: Click the gear icon -> **Settings** (or `Cmd/Ctrl + ,`).
-2. Go to **AI** tab -> **MCP**.
-3. Click **Add Server**.
-4. Enter:
-   - **Name**: `bilibili-mcp`
-   - **Type**: Select `command` (stdio)
-   - **Command**: `npx`
-   - **Arguments**: `["-y", "@xzxzzx/bilibili-mcp"]`
-5. Click **Save**.
-
-> **Tip**: Trae also automatically recognizes `.trae/mcp_config.json` in the project root.
-
-### 🌊 Windsurf (Official IDE by Codeium)
-
-Windsurf supports integration via standard JSON config:
-
-1. Open Windsurf Settings: `Cmd/Ctrl + ,` -> Click **Advanced** -> **Cascade**.
-2. Click **Add custom server +** or **View raw config** (opens `mcp_config.json`).
-3. For manual editing, the path is usually:
-   - Windows: `%USERPROFILE%\.codeium\windsurf\mcp_config.json`
-   - macOS/Linux: `~/.codeium/windsurf/mcp_config.json`
-4. Add to the `mcpServers` node:
 ```json
 {
   "mcpServers": {
@@ -196,15 +132,34 @@ Windsurf supports integration via standard JSON config:
   }
 }
 ```
-5. Save and restart Windsurf.
 
-### ⚡ Zed
+### Cursor
 
-Zed uses the `context_servers` field in `settings.json`:
+Settings → Features → MCP Servers → + Add New MCP Server:
 
-1. Open Zed Settings: `Cmd + ,` (macOS) or `Ctrl + ,` (Windows/Linux).
-2. Add or modify the `context_servers` node:
+- Type: `command`
 
+- Command: `npx -y @xzxzzx/bilibili-mcp`
+
+Advanced users can also create `.cursor/mcp.json` in the project root.
+
+### Windsurf
+
+Edit `~/.codeium/windsurf/mcp_config.json`:
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+### Zed
+
+Edit `settings.json`, add `context_servers`:
 ```json
 {
   "context_servers": {
@@ -215,82 +170,47 @@ Zed uses the `context_servers` field in `settings.json`:
   }
 }
 ```
-3. Save the file. Zed will automatically restart the Context Server.
 
-### ♊ Gemini CLI (Official Google CLI)
+### Codex CLI
 
-Gemini CLI manages MCP via global or project-level `settings.json`:
-
-1. Locate global config:
-   - Windows: `%USERPROFILE%\.gemini\settings.json`
-   - macOS/Linux: `~/.gemini/settings.json`
-2. Add to the `mcpServers` node:
-
-```json
-{
-  "mcpServers": {
-    "bilibili-mcp": {
-      "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
-    }
-  }
-}
-```
-3. For project-level, create `.gemini/settings.json` in the project root.
-
-### ⌨️ Codex CLI (Official OpenAI CLI)
-
-Codex CLI uses TOML and supports quick addition via command line:
-
-**Method 1: CLI Addition (Recommended)**
-Run in terminal:
 ```bash
 codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
 ```
 
-**Method 2: Manual Edit**
-1. Locate config: `~/.codex/config.toml` (Global) or `.codex/config.toml` (Project).
-2. Add:
+Or edit `~/.codex/config.toml`:
 ```toml
 [mcp_servers.bilibili-mcp]
 command = "npx"
 args = ["-y", "@xzxzzx/bilibili-mcp"]
 ```
 
-### 🪐 Antigravity (Official Google IDE)
+### Gemini CLI
 
-Antigravity natively supports MCP. Add via UI or config file:
+Edit `~/.gemini/settings.json`, add standard command+args config under `mcpServers`. Ensure HTTP_PROXY is configured for users in mainland China.
 
-**Method 1: UI Addition (Recommended)**
-1. Click `...` in the sidebar -> **MCP Store**.
-2. Click **Manage MCP Servers -> View raw config**.
+### Trae
 
-**Method 2: Manual Edit**
-- Windows: `%USERPROFILE%\.gemini\antigravity\mcp_config.json`
+Settings → AI → MCP → Add Server:
+
+- Type: `command` (stdio)
+
+- Command: `npx`
+
+- Arguments: `["-y", "@xzxzzx/bilibili-mcp"\]
+
+### Antigravity
+
+Sidebar → MCP Store → Manage MCP Servers → View raw config, or manually edit:
+
+- Windows: `%USERPROFILE%\.gemini/antigravity\mcp_config.json`
+
 - macOS/Linux: `~/.gemini/antigravity/mcp_config.json`
 
-Add to `mcpServers` node:
+### OpenCode
+
+Edit `~/.config/opencode/opencode.json`:
 ```json
 {
-  "mcpServers": {
-    "bilibili-mcp": {
-      "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
-    }
-  }
-}
-```
-
-### 📦 OpenCode
-
-Edit the config file:
-
-1. Edit `~/.config/opencode/opencode.json`.
-2. Add to `mcp` node:
-
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
   "mcp": {
     "bilibili-mcp": {
       "type": "local",
@@ -301,9 +221,7 @@ Edit the config file:
 }
 ```
 
----
-
----
+</details>
 
 ## ⚙️ Credential Configuration
 
