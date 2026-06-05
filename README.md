@@ -17,6 +17,29 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 
 选择你正在使用的 AI 客户端，点击后可直接跳转到详细配置方法：
 
+### 用 agent 工具帮你安装
+
+如果你正在使用 Codex、Claude Code、Cursor、Qoder、Kimi Code、Antigravity、Windsurf、Cline 等带 agent 的工具，可以把下面这段话复制给你的 agent，让它先在本 README 中找到对应客户端的安装方式，再帮你写入 MCP 配置：
+
+```text
+请帮我安装 Bilibili MCP server：@xzxzzx/bilibili-mcp。
+
+请先阅读这个项目 README 的“快速开始”和“客户端接入方式”章节，找到我当前使用的 agent/客户端对应的 MCP 配置方式，然后按该客户端的官方配置位置添加这个 server。
+
+MCP server 配置要求：
+- server 名称：bilibili-mcp
+- command：npx
+- args：["-y", "@xzxzzx/bilibili-mcp"]
+
+不要把真实 Bilibili Cookie 写入 MCP 客户端配置文件、env、args 或聊天消息中。
+添加 MCP server 后，请继续引导我单独运行：
+
+npx -y @xzxzzx/bilibili-mcp config
+npx -y @xzxzzx/bilibili-mcp check
+
+连接 MCP server 后，如可用，请调用 get_credential_setup_instructions 或 check_bilibili_credentials，确认我完成 Cookie 配置。
+```
+
 - [Codex app / Codex CLI](#codex-app--codex-cli)
 - [Claude Code](#claude-code)
 - [Claude Desktop](#claude-desktop)

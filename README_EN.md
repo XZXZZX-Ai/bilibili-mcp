@@ -17,6 +17,29 @@ View in [简体中文](https://github.com/365903728-oss/bilibili-mcp/blob/master
 
 Choose your AI client and jump directly to the detailed setup instructions:
 
+### Install With Your Agent
+
+If you use an agent-based tool such as Codex, Claude Code, Cursor, Qoder, Kimi Code, Antigravity, Windsurf, or Cline, copy the prompt below to your agent. Ask it to find the matching client setup section in this README and write the MCP config for that client:
+
+```text
+Please help me install the Bilibili MCP server: @xzxzzx/bilibili-mcp.
+
+First read this project's README, especially the "Quick Start" and "Client Setup" sections. Find the MCP setup method that matches my current agent/client, then add this server in that client's official configuration location.
+
+MCP server config requirements:
+- server name: bilibili-mcp
+- command: npx
+- args: ["-y", "@xzxzzx/bilibili-mcp"]
+
+Do not write real Bilibili Cookie values into MCP client config files, env, args, or chat messages.
+After adding the MCP server, continue guiding me to run:
+
+npx -y @xzxzzx/bilibili-mcp config
+npx -y @xzxzzx/bilibili-mcp check
+
+After the MCP server is connected, if available, call get_credential_setup_instructions or check_bilibili_credentials to confirm that I completed Cookie setup.
+```
+
 - [Codex app / Codex CLI](#codex-app--codex-cli)
 - [Claude Code](#claude-code)
 - [Claude Desktop](#claude-desktop)
