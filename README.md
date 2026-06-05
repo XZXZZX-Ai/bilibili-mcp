@@ -1142,7 +1142,7 @@ npx -y @xzxzzx/bilibili-mcp config
 npx -y @xzxzzx/bilibili-mcp check
 ```
 
-如果你使用上方“用 agent 工具帮你安装”的提示词，agent 会在添加 MCP server 后引导你运行这两个命令。`config` 会把 Cookie 保存到本机凭证配置，MCP server 启动后会自动读取；不会写入 MCP 客户端配置或仓库。
+如果你使用上方“用 agent 工具帮你安装”的提示词，agent 会在添加 MCP server 后引导你运行这两个命令。`config` 输入不会在终端回显，会把 Cookie 保存到本机凭证配置；MCP server 启动后会自动读取，不会写入 MCP 客户端配置或仓库。
 
 如果已经全局安装，也可以运行：
 
@@ -1383,7 +1383,7 @@ npm run watch
 
 1.  **初版生成**：由 **Claude Code** (搭载 **GLM-4.7** 模型) 快速搭建核心架构与基础逻辑。
 2.  **调试与优化**：在 **Antigravity** 环境下，利用 **Claude** 和 **Gemini** 模型进行深度的 Bug 修复与功能增强，确保了字幕提取与评论分析的稳定性。
-3.  **迭代与扩展**：由 **Codex** 进行架构决策与计划分解，**Claude Code** 接入 **DeepSeek** 模型执行实现；目前覆盖 30+ AI 客户端的 MCP 接入配置、6 个 MCP 工具、122 个单元测试。
+3.  **迭代与扩展**：由 **Codex** 进行架构决策与计划分解，**Claude Code** 接入 **DeepSeek** 模型执行实现；目前覆盖 30+ AI 客户端的 MCP 接入配置、6 个 MCP 工具、124 个单元测试。
 
 ---
 

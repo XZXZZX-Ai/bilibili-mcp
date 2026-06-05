@@ -1142,7 +1142,7 @@ npx -y @xzxzzx/bilibili-mcp config
 npx -y @xzxzzx/bilibili-mcp check
 ```
 
-If you use the "Install With Your Agent" prompt above, the agent should guide you to run these commands after it adds the MCP server. `config` saves Cookies to the local credential config, which the MCP server reads automatically when it starts; it does not write Cookies into MCP client config or the repository.
+If you use the "Install With Your Agent" prompt above, the agent should guide you to run these commands after it adds the MCP server. `config` input is not echoed in the terminal and saves Cookies to the local credential config, which the MCP server reads automatically when it starts; it does not write Cookies into MCP client config or the repository.
 
 If the package is already installed globally, you can also run:
 
@@ -1380,7 +1380,7 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 
 1.  **Initial Generation**: Core architecture and base logic were rapidly built by **Claude Code** (powered by **GLM-4.7** model).
 2.  **Debugging & Optimization**: Bugs were fixed and features enhanced using **Claude** and **Gemini** models within the **Antigravity** environment, ensuring stable subtitle extraction and comment analysis.
-3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** with **DeepSeek** executes implementation; now covers 30+ AI client MCP configurations, 6 MCP tools, and 122 unit tests.
+3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** with **DeepSeek** executes implementation; now covers 30+ AI client MCP configurations, 6 MCP tools, and 124 unit tests.
 
 ---
 

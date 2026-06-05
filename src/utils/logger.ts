@@ -12,14 +12,59 @@ interface LogEntry {
   context?: Record<string, any>;
 }
 
+const SENSITIVE_KEY_PATTERN = /cookie|authorization|sessdata|bili_jct|dedeuserid|token|secret/i;
+
+function redactString(value: string): string {
+  return value
+    .replace(/(SESSDATA=)[^;\s",]+/gi, "$1***")
+    .replace(/(bili_jct=)[^;\s",]+/gi, "$1***")
+    .replace(/(DedeUserID=)[^;\s",]+/gi, "$1***")
+    .replace(/(BILIBILI_SESSDATA=)[^;\s",]+/gi, "$1***")
+    .replace(/(BILIBILI_BILI_JCT=)[^;\s",]+/gi, "$1***")
+    .replace(/(BILIBILI_DEDEUSERID=)[^;\s",]+/gi, "$1***");
+}
+
+export function redactSecrets(value: unknown, seen = new WeakSet<object>()): unknown {
+  if (typeof value === "string") {
+    return redactString(value);
+  }
+
+  if (value === null || typeof value !== "object") {
+    return value;
+  }
+
+  if (seen.has(value)) {
+    return "[Circular]";
+  }
+  seen.add(value);
+
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: redactString(value.message),
+    };
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => redactSecrets(item, seen));
+  }
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).map(([key, entryValue]) => [
+      key,
+      SENSITIVE_KEY_PATTERN.test(key) ? "***" : redactSecrets(entryValue, seen),
+    ]),
+  );
+}
+
 export class Logger {
   private static log(level: LogLevel, message: string, data?: any, context?: Record<string, any>) {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
-      message,
-      data,
-      context
+      message: redactString(message),
+      data: redactSecrets(data),
+      context: redactSecrets(context) as Record<string, any> | undefined
     };
 
     // 使用 console.error 确保输出到 stderr，避免干扰 MCP 协议

@@ -80,13 +80,18 @@ export class CredentialManager {
    */
   saveToFile(credentials: BilibiliCredentials): void {
     if (!fs.existsSync(GLOBAL_CONFIG_DIR)) {
-      fs.mkdirSync(GLOBAL_CONFIG_DIR, { recursive: true });
+      fs.mkdirSync(GLOBAL_CONFIG_DIR, { recursive: true, mode: 0o700 });
     }
     fs.writeFileSync(
       GLOBAL_CONFIG_FILE,
       JSON.stringify(credentials, null, 2),
-      "utf-8",
+      { encoding: "utf-8", mode: 0o600 },
     );
+    try {
+      fs.chmodSync(GLOBAL_CONFIG_FILE, 0o600);
+    } catch {
+      // Best-effort hardening; Windows ACL semantics may not map cleanly to POSIX modes.
+    }
   }
 
   /**

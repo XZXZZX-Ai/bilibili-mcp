@@ -4,6 +4,7 @@ import { fileURLToPath } from "url";
 import { dirname, resolve } from "path";
 import { server } from "./server.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { redactSecrets } from "./utils/logger.js";
 
 // 获取当前文件的目录
 const __filename = fileURLToPath(import.meta.url);
@@ -31,7 +32,7 @@ async function main() {
 // 检查是否作为主模块运行
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   main().catch((error) => {
-    console.error("Fatal error:", error);
+    console.error("Fatal error:", redactSecrets(error));
     process.exit(1);
   });
 }

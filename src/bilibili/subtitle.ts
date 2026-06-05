@@ -3,6 +3,7 @@ import { getVideoInfo, getVideoSubtitle, getSubtitleContent, checkLoginStatus } 
 import { extractBVId } from "../utils/bvid.js";
 import { cacheManager } from "../utils/cache.js";
 import { BilibiliAPIError, NoSubtitleError, PaidVideoError } from "../utils/errors.js";
+import { redactSecrets } from "../utils/logger.js";
 
 
 export interface SubtitleData {
@@ -353,7 +354,7 @@ export async function getVideoInfoWithSubtitle(
       return result;
     }
   } catch (error) {
-    console.error("Error getting video info with subtitle:", error);
+    console.error("Error getting video info with subtitle:", redactSecrets(error));
     throw error;
   }
 }

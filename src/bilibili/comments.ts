@@ -10,6 +10,7 @@ import {
 import { extractBVId } from "../utils/bvid.js";
 import { cacheManager } from "../utils/cache.js";
 import { CommentsDisabledError } from "../utils/errors.js";
+import { redactSecrets } from "../utils/logger.js";
 
 export interface CommentData {
   comments: ProcessedComment[];
@@ -202,7 +203,7 @@ export async function getVideoCommentsData(
       cacheManager.setCommentInfo(cacheKey, result);
       return result;
     }
-    console.error("Error getting video comments:", error);
+    console.error("Error getting video comments:", redactSecrets(error));
     throw error;
   }
 }

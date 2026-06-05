@@ -24,6 +24,7 @@ import {
   buildCredentialNextSteps,
 } from "./utils/credential-guidance.js";
 import { checkLoginStatus } from "./bilibili/http.js";
+import { redactSecrets } from "./utils/logger.js";
 
 // 创建 MCP 服务器实例
 export const server = new Server(
@@ -392,7 +393,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         throw new Error(`Unknown tool: ${name}`);
     }
   } catch (error) {
-    console.error(`Error processing tool ${name}:`, error);
+    console.error(`Error processing tool ${name}:`, redactSecrets(error));
     const payload: Record<string, unknown> = {
       error: true,
       message: error instanceof Error ? error.message : "Unknown error",
