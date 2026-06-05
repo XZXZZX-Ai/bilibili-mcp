@@ -1133,21 +1133,27 @@ nanobot 的 MCP 配置兼容 Claude Desktop / Cursor 风格；也支持远程 MC
 
 ## ⚙️ 凭证配置
 
-为了稳定获取字幕、转录和评论，建议配置 Bilibili Cookie。公开视频元数据可能无需 Cookie，但不要依赖无 Cookie 模式获取字幕或评论。
+如果你使用上方“用 agent 工具帮你安装”的提示词，agent 会引导你完成本节步骤；通常不需要手动阅读完整配置。这里用于说明 Cookie 保存位置、安全边界，以及 Docker、本地开发等手动场景。为了稳定获取字幕、转录和评论，建议配置 Bilibili Cookie；公开视频元数据可能无需 Cookie。
 
-### 推荐方式：CLI 向导
+### 推荐方式：让 agent 引导你配置
 
 ```bash
-npm install -g @xzxzzx/bilibili-mcp
+npx -y @xzxzzx/bilibili-mcp config
+npx -y @xzxzzx/bilibili-mcp check
+```
+
+如果你使用上方“用 agent 工具帮你安装”的提示词，agent 会在添加 MCP server 后引导你运行这两个命令。`config` 会把 Cookie 保存到本机凭证配置，MCP server 启动后会自动读取；不会写入 MCP 客户端配置或仓库。
+
+如果已经全局安装，也可以运行：
+
+```bash
 bilibili-mcp config
 bilibili-mcp check
 ```
 
-CLI 会把凭证保存在本地配置目录，不会写入仓库。
-
 ### 环境变量方式
 
-适合 Docker、本地开发或手动配置 MCP 客户端环境变量。
+适合 Docker、本地开发或你明确知道当前 MCP server 运行环境的情况。不要把真实 Cookie 写进可共享的 MCP 客户端配置文件。
 
 | 变量名 | 说明 |
 |---|---|

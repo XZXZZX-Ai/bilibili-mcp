@@ -1133,21 +1133,27 @@ nanobot's MCP config is compatible with Claude Desktop / Cursor style config. It
 
 ## ⚙️ Credential Configuration
 
-For reliable access to subtitles, transcripts, and comments, configure Bilibili Cookies. Public video metadata may work without cookies, but do not rely on cookieless mode for subtitles or comments.
+If you use the "Install With Your Agent" prompt above, the agent should guide you through this section; you usually do not need to read the full setup manually. This section explains where Cookies are stored, the safety boundary, and manual scenarios such as Docker or local development. For reliable subtitles, transcripts, and comments, configure Bilibili Cookies; public video metadata may work without cookies.
 
-### Recommended: CLI Wizard
+### Recommended: Agent-Guided Credential Setup
 
 ```bash
-npm install -g @xzxzzx/bilibili-mcp
+npx -y @xzxzzx/bilibili-mcp config
+npx -y @xzxzzx/bilibili-mcp check
+```
+
+If you use the "Install With Your Agent" prompt above, the agent should guide you to run these commands after it adds the MCP server. `config` saves Cookies to the local credential config, which the MCP server reads automatically when it starts; it does not write Cookies into MCP client config or the repository.
+
+If the package is already installed globally, you can also run:
+
+```bash
 bilibili-mcp config
 bilibili-mcp check
 ```
 
-The CLI saves credentials to a local config directory, outside the repository.
-
 ### Environment Variables
 
-For Docker, local development, or manual MCP client configuration.
+For Docker, local development, or cases where you explicitly control the MCP server runtime environment. Do not put real Cookies in shareable MCP client config files.
 
 | Variable | Description |
 |---|---|
