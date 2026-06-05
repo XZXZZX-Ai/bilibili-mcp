@@ -26,6 +26,8 @@ Thumbs.db
 # 临时文件
 *.tmp
 .cache/
+__pycache__/
+*.py[cod]
 .smithery/
 get_subtitle.py
 help.txt

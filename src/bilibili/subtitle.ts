@@ -250,7 +250,7 @@ export async function getVideoInfoWithSubtitle(
         const { isLogin } = await checkLoginStatus();
         if (!isLogin) {
           throw new BilibiliAPIError(
-            `视频 ${bvid} 的字幕获取为空，经核实当前 Bilibili Cookie 已失效（未登录），请更新 .env 中的 SESSDATA 等配置。`,
+            `Video ${bvid} returned an empty subtitle list and current Bilibili credentials are not logged in. Run "npx -y @xzxzzx/bilibili-mcp config", then "npx -y @xzxzzx/bilibili-mcp check", or update environment variables.`,
             'COOKIE_EXPIRED',
             undefined,
             { code: -101, bvid }

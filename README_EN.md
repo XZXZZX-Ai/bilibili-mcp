@@ -29,6 +29,8 @@ Choose your AI client and jump directly to the detailed setup instructions:
 - [Trae International](#trae-international)
 - [Trae SOLO CN](#trae-solo-cn)
 - [Trae SOLO International](#trae-solo-international)
+- [Qoder IDE / Qoder CLI / QoderWork](#qoder-ide--qoder-cli--qoderwork)
+- [Kimi Code / Kimi Code CLI](#kimi-code--kimi-code-cli)
 - [Antigravity / Antigravity CLI](#antigravity--antigravity-cli)
 - [Pi](#pi)
 - [Oh My Pi](#oh-my-pi)
@@ -36,7 +38,6 @@ Choose your AI client and jump directly to the detailed setup instructions:
 - [DeepSeek-TUI](#deepseek-tui)
 - [Deep Code](#deep-code)
 - [Reasonix](#reasonix)
-- [Langcli](#langcli)
 - [GitHub Copilot CLI](#github-copilot-cli)
 - [Cursor](#cursor)
 - [Cline](#cline)
@@ -60,7 +61,8 @@ Choose your AI client and jump directly to the detailed setup instructions:
   - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)
   - [3. Video Transcript (`get_video_transcript`)](#3-video-transcript-get_video_transcript)
   - [4. Video Metadata (`get_video_metadata`)](#4-video-metadata-get_video_metadata)
-  - [5. Behavior and Error Handling](#5-behavior-and-error-handling)
+  - [5. Credential Helper Tools](#5-credential-helper-tools)
+  - [6. Behavior and Error Handling](#6-behavior-and-error-handling)
 - [📋 Requirements](#-requirements)
 - [🚀 Client Setup](#-client-setup)
 - [⚙️ Credential Configuration](#-credential-configuration)
@@ -107,7 +109,12 @@ Choose your AI client and jump directly to the detailed setup instructions:
 - Does not fetch subtitles or comments.
 - Only requires the `bvid_or_url` parameter.
 
-### 5. Behavior and Error Handling
+### 5. Credential Helper Tools
+
+- `get_credential_setup_instructions`: Returns safe setup commands for Bilibili Cookie configuration. AI agents installing this MCP can call this tool to guide users through setup.
+- `check_bilibili_credentials`: Checks whether credentials are configured and logged in without returning Cookie values. Returns next steps when credentials are missing or invalid.
+
+### 6. Behavior and Error Handling
 
 - **Intelligent Cookie Expiration Detection**: Automatically verifies login status when subtitles are empty, distinguishing between "videos without subtitles" and "invalid credentials," and throwing a clear `COOKIE_EXPIRED` error to prevent silent degradation.
 
@@ -144,6 +151,25 @@ Choose your AI client and jump directly to the detailed setup instructions:
 
 > [!NOTE]
 > Do not write real Cookie values in client config files. Prefer `bilibili-mcp config` or environment variables. See [⚙️ Credential Configuration](#-credential-configuration).
+
+> [!IMPORTANT]
+> If you are an AI agent installing this MCP for a user: do not stop after writing the MCP client config. After adding the `bilibili-mcp` server, you must remind and guide the user to configure Bilibili Cookies separately. After connecting the MCP server, agents can also call `get_credential_setup_instructions` or `check_bilibili_credentials` to guide the user.
+>
+> Recommended commands:
+>
+> ```bash
+> npx -y @xzxzzx/bilibili-mcp config
+> npx -y @xzxzzx/bilibili-mcp check
+> ```
+>
+> If the package is already installed globally, use:
+>
+> ```bash
+> bilibili-mcp config
+> bilibili-mcp check
+> ```
+>
+> `config` collects `SESSDATA`, `bili_jct`, and `DedeUserID`; `check` verifies that credentials can be loaded. Do not ask users to paste Cookie values into Claude, Cursor, Codex, Qoder, Kimi, or any other MCP client configuration file.
 
 ### Codex app / Codex CLI
 
@@ -419,6 +445,112 @@ Project-level config also uses `.trae/mcp.json`:
 
 If using the Trae International UI, open Settings → MCP from the top-right of the AI chat window and add the same `mcpServers` configuration manually.
 
+### Qoder IDE / Qoder CLI / QoderWork
+
+Qoder has multiple surfaces, and each uses a slightly different MCP entry point: Qoder IDE configures MCP from settings, Qoder CLI uses `qodercli mcp`, and QoderWork adds servers from its MCP Servers page.
+
+#### Qoder IDE
+
+Open the top-right user icon → Qoder Settings → MCP. On the My Servers tab, click + Add, then add this local STDIO server:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+Qoder documents that Streamable HTTP can be configured like an SSE endpoint and auto-detected. This project is a local stdio server, so use the `command` / `args` setup above.
+
+#### Qoder CLI
+
+Qoder CLI can add this stdio MCP server directly:
+
+```bash
+qodercli mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+```
+
+Useful check:
+
+```bash
+qodercli mcp list
+```
+
+If Qoder CLI is already running, run `/mcp reload` in the session after adding or changing an MCP server. The default scope is local to the current project; use `-s user` for user-level config or `-s project` for project-level `.mcp.json`.
+
+Common config files:
+
+- User level: `~/.qoder/settings.json`
+- Local project-specific: `.qoder/settings.local.json`
+- Project-level shared: `.mcp.json`
+
+#### QoderWork
+
+Open QoderWork desktop app → Settings → MCP Servers, then click + Add.
+
+The fastest path is Paste JSON Config:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+You can also choose Fill in Config Manually, set Server Type to STDIO, and enter:
+
+- Server Name: `bilibili-mcp`
+- Command: `npx -y @xzxzzx/bilibili-mcp`
+
+After adding it, confirm the server is enabled under Custom Servers and expand it to inspect available tools. Do not write real Cookie values in Qoder / QoderWork MCP config; configure credentials with `bilibili-mcp config` or environment variables.
+
+### Kimi Code / Kimi Code CLI
+
+Kimi Code CLI can act as an MCP client for local stdio servers. Current Kimi Code docs recommend declaring MCP servers in `mcp.json`:
+
+- User level: `~/.kimi-code/mcp.json`
+- Project level: `.kimi-code/mcp.json`
+
+Add:
+
+```json
+{
+  "mcpServers": {
+    "bilibili-mcp": {
+      "command": "npx",
+      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+    }
+  }
+}
+```
+
+Project-level `.kimi-code/mcp.json` applies only to the current repository and overrides a same-named user-level server. Inside Kimi Code CLI, use:
+
+```text
+/mcp
+/mcp-config
+```
+
+`/mcp` shows server connection status and tools. `/mcp-config` opens the interactive MCP server manager for adding, editing, or deleting servers.
+
+Legacy Kimi CLI docs also documented `kimi mcp add`; if your installed version still supports it, you can use:
+
+```bash
+kimi mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+kimi mcp list
+kimi mcp test bilibili-mcp
+```
+
+Do not write real Cookie values in Kimi Code `mcp.json`, `env`, or command arguments. Configure credentials with `bilibili-mcp config` or environment variables.
+
 ### Antigravity / Antigravity CLI
 
 Gemini CLI has migrated to Antigravity CLI. New MCP setup no longer lives in `~/.gemini/settings.json`; Antigravity uses a standalone `mcp_config.json`.
@@ -633,24 +765,6 @@ Add an entry to the `mcp` array:
 ```
 
 Reasonix uses `name=command arg1 arg2` strings. Project-level overrides live under `.reasonix/`.
-
-### Langcli
-
-Langcli's current official documentation only clearly documents its built-in Chrome MCP flow. I did not find a reliable `mcpServers` or CLI configuration path for adding arbitrary stdio MCP servers, so this README does not present `bilibili-mcp` as a supported Langcli setup yet.
-
-If you only need Langcli's built-in Chrome MCP, start it with:
-
-```bash
-langcli --chrome
-```
-
-Then run this inside Langcli:
-
-```text
-/mcp
-```
-
-Use the MCP panel to manage `mcp-chrome`. Once Langcli documents a generic MCP server configuration path, add `npx -y @xzxzzx/bilibili-mcp` there.
 
 ### GitHub Copilot CLI
 
@@ -1173,7 +1287,7 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 
 1.  **Initial Generation**: Core architecture and base logic were rapidly built by **Claude Code** (powered by **GLM-4.7** model).
 2.  **Debugging & Optimization**: Bugs were fixed and features enhanced using **Claude** and **Gemini** models within the **Antigravity** environment, ensuring stable subtitle extraction and comment analysis.
-3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** with **DeepSeek** executes implementation; now covers 30+ AI client MCP configurations, 4 MCP tools, and 110 unit tests.
+3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** with **DeepSeek** executes implementation; now covers 30+ AI client MCP configurations, 6 MCP tools, and 122 unit tests.
 
 ---
 

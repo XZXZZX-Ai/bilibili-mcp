@@ -7,6 +7,8 @@ import fs from "fs";
 import path from "path";
 import os from "os";
 
+export type CredentialSource = "env" | "global_config" | "none";
+
 export interface BilibiliCredentials {
   sessdata: string;
   bili_jct: string;
@@ -147,6 +149,30 @@ export class CredentialManager {
     if (this.credentials) {
       this.credentials.expiresAt = Date.now() + 30 * 24 * 60 * 60 * 1000;
     }
+  }
+
+  getCredentialSource(): CredentialSource {
+    if (
+      process.env.BILIBILI_SESSDATA &&
+      process.env.BILIBILI_BILI_JCT &&
+      process.env.BILIBILI_DEDEUSERID
+    ) {
+      return "env";
+    }
+
+    if (fs.existsSync(GLOBAL_CONFIG_FILE)) {
+      try {
+        const raw = fs.readFileSync(GLOBAL_CONFIG_FILE, "utf-8");
+        const parsed = JSON.parse(raw) as Partial<BilibiliCredentials>;
+        if (parsed.sessdata && parsed.bili_jct && parsed.dedeuserid) {
+          return "global_config";
+        }
+      } catch {
+        return "none";
+      }
+    }
+
+    return "none";
   }
 
   /**

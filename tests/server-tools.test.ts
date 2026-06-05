@@ -31,8 +31,10 @@ describe("MCP tool list baseline", () => {
   beforeAll(async () => {
     toolsResult = await getListToolsResult();
   });
-  it("exposes all 4 tools", () => {
+  it("exposes all 6 tools", () => {
     const names = toolsResult.tools.map((t) => t.name);
+    expect(names).toContain("get_credential_setup_instructions");
+    expect(names).toContain("check_bilibili_credentials");
     expect(names).toContain("get_video_info");
     expect(names).toContain("get_video_comments");
     expect(names).toContain("get_video_transcript");
@@ -150,6 +152,36 @@ describe("MCP tool list baseline", () => {
         .fallback_to_description as { type?: string };
       expect(prop).toBeDefined();
       expect(prop.type).toBe("boolean");
+    });
+  });
+
+  describe("credential helper tools", () => {
+    it("registers get_credential_setup_instructions with no required input", () => {
+      const schema = toolsResult.tools.find(
+        (t) => t.name === "get_credential_setup_instructions",
+      )!;
+
+      expect(schema).toBeDefined();
+      expect(schema.inputSchema.required ?? []).toEqual([]);
+    });
+
+    it("registers check_bilibili_credentials with no required input", () => {
+      const schema = toolsResult.tools.find(
+        (t) => t.name === "check_bilibili_credentials",
+      )!;
+
+      expect(schema).toBeDefined();
+      expect(schema.inputSchema.required ?? []).toEqual([]);
+    });
+
+    it("points transcript users to credential setup instructions", () => {
+      const schema = toolsResult.tools.find(
+        (t) => t.name === "get_video_transcript",
+      ) as { description?: string };
+
+      expect(schema.description).toContain(
+        "get_credential_setup_instructions",
+      );
     });
   });
 
