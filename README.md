@@ -31,8 +31,8 @@ MCP server 配置要求：
 - command：npx
 - args：["-y", "@xzxzzx/bilibili-mcp"]
 
-不要把真实 Bilibili Cookie 写入 MCP 客户端配置文件、env、args 或聊天消息中。
-添加 MCP server 后，请继续引导我单独运行：
+不要把真实 Bilibili Cookie 写入 MCP 客户端配置文件、客户端配置里的 env 字段、args 或聊天消息中。
+添加 MCP server 后，请继续引导我单独运行下面的命令，把 Cookie 保存到本机凭证配置；MCP server 启动后会自动读取这些凭证：
 
 npx -y @xzxzzx/bilibili-mcp config
 npx -y @xzxzzx/bilibili-mcp check
@@ -173,7 +173,7 @@ npx -y @xzxzzx/bilibili-mcp check
 ## 🚀 客户端接入方式
 
 > [!NOTE]
-> 不要在客户端配置文件中写入真实 Cookie。建议先用 `bilibili-mcp config` 或环境变量配置凭证，详见 [⚙️ 凭证配置](#️-凭证配置)。
+> 不要在 MCP 客户端配置文件中写入真实 Cookie。建议先用 `bilibili-mcp config` 保存到本机凭证配置，或在运行环境中提供环境变量；MCP server 启动后会自动读取这些凭证。详见 [⚙️ 凭证配置](#️-凭证配置)。
 
 > [!IMPORTANT]
 > 如果你是正在帮用户安装本 MCP 的 AI agent：不要只写入 MCP 配置就结束。添加 `bilibili-mcp` server 后，必须继续提醒并引导用户完成 Bilibili Cookie 配置。连接 MCP server 后，agent 也可调用 `get_credential_setup_instructions` 或 `check_bilibili_credentials` 工具来引导用户。

@@ -31,8 +31,8 @@ MCP server config requirements:
 - command: npx
 - args: ["-y", "@xzxzzx/bilibili-mcp"]
 
-Do not write real Bilibili Cookie values into MCP client config files, env, args, or chat messages.
-After adding the MCP server, continue guiding me to run:
+Do not write real Bilibili Cookie values into MCP client config files, client-config env fields, args, or chat messages.
+After adding the MCP server, continue guiding me to run the commands below. They save Cookies to the local credential config; the MCP server will read those credentials automatically when it starts:
 
 npx -y @xzxzzx/bilibili-mcp config
 npx -y @xzxzzx/bilibili-mcp check
@@ -173,7 +173,7 @@ After the MCP server is connected, if available, call get_credential_setup_instr
 ## 🚀 Client Setup
 
 > [!NOTE]
-> Do not write real Cookie values in client config files. Prefer `bilibili-mcp config` or environment variables. See [⚙️ Credential Configuration](#-credential-configuration).
+> Do not write real Cookie values in MCP client config files. Prefer `bilibili-mcp config` to save credentials to the local credential config, or provide environment variables in the runtime environment; the MCP server will read those credentials automatically when it starts. See [⚙️ Credential Configuration](#-credential-configuration).
 
 > [!IMPORTANT]
 > If you are an AI agent installing this MCP for a user: do not stop after writing the MCP client config. After adding the `bilibili-mcp` server, you must remind and guide the user to configure Bilibili Cookies separately. After connecting the MCP server, agents can also call `get_credential_setup_instructions` or `check_bilibili_credentials` to guide the user.
