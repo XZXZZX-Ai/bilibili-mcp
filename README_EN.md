@@ -9,7 +9,7 @@ MCP server that gives AI clients access to Bilibili video subtitles, transcripts
 View in [简体中文](https://github.com/365903728-oss/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/365903728-oss/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.4.0](https://github.com/365903728-oss/bilibili-mcp/releases/tag/v1.4.0)
 
 > [!TIP]
-> ⚠️ Configure your Bilibili Cookies before use. Metadata may work without cookies, but subtitles/transcripts/comments require them. See [**Credential Configuration**](#-credential-configuration).
+> ⚠️ You can copy the "Install With Your Agent" prompt below to Codex, Claude Code, Cursor, or another agent and let it add this MCP server to your client and guide Cookie setup. For reliable subtitles, transcripts, and comments, you still need to configure Bilibili Cookies after installation; do not write Cookies into MCP client config. Metadata may work without cookies. See [**Credential Configuration**](#-credential-configuration).
 
 ---
 
