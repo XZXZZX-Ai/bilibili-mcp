@@ -17,3 +17,13 @@
 - Constraints: Preserve Cookie-based subtitle access, WBI-first subtitle retrieval, `/x/player/v2` fallback, MCP tool schemas, and compatibility exports from `src/bilibili/client.ts`.
 - Verification expected: Claude Code should execute the plan task-by-task, starting with mocked Vitest coverage for subtitle fallback behavior, then run `npm test`, `npm run build`, and `npm pack --dry-run`.
 - Unresolved risks: Current worktree still contains unrelated agent/hooks configuration changes; Phase 2 implementation should not mix those into the code refactor commit unless the user explicitly chooses to.
+
+## 2026-06-05
+
+- Owner: Codex planned and reviewed; Claude Code implemented the credential-guidance feature from the handoff.
+- Objective: Make agent-driven MCP installation able to discover and present Bilibili Cookie setup instructions without exposing Cookie values.
+- Files in scope: `src/server.ts`, `src/utils/credential-guidance.ts`, `src/utils/credentials.ts`, Bilibili credential error paths, README files, and focused Vitest coverage.
+- Constraints: Do not put Cookie values in MCP client config, logs, tests, or responses; preserve Cookie-based access through environment variables and the global credential helper.
+- Verification expected: `npm test`, `npm run build`, `npm pack --dry-run`, secret/stale-client scans, and review of generic `COOKIE_EXPIRED` error handling.
+- Result: Codex review added a missing generic-catch `COOKIE_EXPIRED` regression fix and confirmed the feature passed the expected verification commands.
+- Unresolved risks: Global config source is not directly covered by a dedicated unit test, and in-memory-only credentials are not currently reported as a credential source.

@@ -1,7 +1,7 @@
 # Context Budget Report
 
 Status: REVIEW
-Estimated always-relevant documentation tokens: 15617
+Estimated always-relevant documentation tokens: 15639
 Configured project hook entries: 8
 
 ## Files
@@ -10,7 +10,7 @@ Configured project hook entries: 8
 |---|---:|---:|
 | `AGENTS.md` | 332 | 4639 |
 | `CLAUDE.md` | 403 | 4812 |
-| `docs\agent-memory\README.md` | 63 | 612 |
+| `docs\agent-memory\README.md` | 63 | 634 |
 | `docs\superpowers\plans\2026-05-27-stabilization-roadmap.md` | 584 | 4185 |
 | `docs\superpowers\specs\2026-05-28-agent-hooks-design.md` | 179 | 1369 |
 

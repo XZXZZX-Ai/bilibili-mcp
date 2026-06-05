@@ -120,18 +120,29 @@ export async function getSubtitleContent(url: string): Promise<{
     content: string;
   }>;
 }> {
+  const allowedSubtitleHosts = new Set([
+    "aisubtitle.hdslb.com",
+    "subtitle.bilibili.com",
+  ]);
+  const fullUrl = new URL(url, "https://www.bilibili.com");
+  if (
+    fullUrl.protocol !== "https:" ||
+    !allowedSubtitleHosts.has(fullUrl.hostname)
+  ) {
+    throw new NetworkError(
+      "Unsupported subtitle URL host",
+      undefined,
+      fullUrl.toString(),
+    );
+  }
+
   return retryableFetch(async () => {
     return throttledFetch(async (controller) => {
       try {
-        // 字幕 URL 可能是相对路径，需要补全
-        const fullUrl = url.startsWith("http") ? url : `https:${url}`;
-
-        const authHeaders = credentialManager.getAuthHeaders();
-        const response = await fetch(fullUrl, {
+        const response = await fetch(fullUrl.toString(), {
           headers: {
             "User-Agent": config.userAgent,
             Referer: config.referer,
-            ...authHeaders,
           },
           signal: controller.signal,
         });

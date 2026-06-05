@@ -651,3 +651,56 @@
 
 - Previous recovery context: `v1.3.8` was already present on npm from 2026-03-11 and did not represent the current Phase 1-5 code. The current release was retargeted to `v1.4.0`; `v1.3.8` tag remains preserved for forensic trace and should not be deleted without explicit user approval.
 - Remaining release step: GitHub Release for `v1.4.0` has not been created yet.
+
+## 2026-06-05 Credential Guidance Verification
+
+- Scope: Agent-facing Bilibili Cookie setup guidance for MCP clients and credential-dependent tools.
+- Result: Added MCP tools for setup instructions and credential status, added credential `next_steps` to relevant error paths, and updated tool descriptions so agents can discover the credential dependency.
+- Area: MCP tool surface and credential UX.
+
+- Command: `npm test`
+- Result: Passed with 11 test files and 122 tests.
+- Area: Unit and server tool regression tests.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript build.
+
+- Command: `npm pack --dry-run`
+- Result: Passed. Dry-run package contents include the generated `dist/utils/credential-guidance.*` files.
+- Area: Package contents.
+
+- Command: `git diff --check`
+- Result: Passed with only line-ending warnings.
+- Area: Patch hygiene.
+
+- Command: Secret and stale-client scan over README, source, and tests for Cookie assignment patterns and unsupported client names.
+- Result: No real Cookie values found; README no longer contains Coze, Langcli, MiniMax, Mavis, or Kimi Work setup sections.
+- Area: Credential safety and documentation cleanup.
+
+- Review finding fixed: The generic `src/server.ts` catch path initially omitted structured `code` and `next_steps` for `BilibiliAPIError("COOKIE_EXPIRED")`; Codex added the fix and `tests/server-error-next-steps.test.ts`.
+- Remaining caveat: `getCredentialSource()` reports `env`, `global_config`, or `none`; it does not currently report in-memory-only credentials.
+
+## 2026-06-05 Agent Memory And Learning System Health Check
+
+- Command: JSON parse of `.codex/hooks.json` and `.claude/settings.local.json`.
+- Result: Both parsed successfully.
+- Area: Codex and Claude Code hook configuration.
+
+- Command: `python .codex/scripts/plan_tracker.py`
+- Result: Returned `docs\superpowers\plans\2026-06-04-release-execution-implementation-plan.md`.
+- Area: Active-plan tracking.
+
+- Command: `python .codex/scripts/context_budget.py`
+- Result: Passed and refreshed `docs/agent-memory/context-budget-report.md`.
+- Area: Context budget reporting.
+
+- Command: `python .codex/scripts/generate_learning_proposals.py --source claude` and `python .codex/scripts/generate_learning_proposals.py --source codex`.
+- Result: Both passed with JSON-safe stdout `{"suppressOutput": true}`.
+- Area: Controlled learning proposal generation.
+
+- Runtime state: Codex runtime files exist under `C:\Users\ZX\.codex\memories\bilibili-mcp\`; Claude runtime files exist under `.claude\memory\` and `.claude\runtime\`.
+- Result: Both sides had stop summaries and learning phase state updated on 2026-06-05.
+- Area: Runtime observation storage.
+
+- Conclusion: The Codex and Claude Code memory/learning systems are operational. Current `pending-learning-proposals.md` reports no proposals above threshold, which is a normal controlled-learning state rather than a failure.

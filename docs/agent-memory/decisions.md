@@ -67,3 +67,17 @@
 - Decision: Make controlled-learning reminders automatically track the current incomplete implementation plan instead of hard-coding the original stabilization roadmap.
 - Reason: After Phase 2, phase-gated learning reminders still pointed at the completed stabilization plan, so Phase 3/4 work would not trigger review reminders correctly.
 - Evidence: `.codex/scripts/plan_tracker.py`, `.codex/scripts/generate_learning_proposals.py`, `.codex/scripts/pre_compact.py`, and `.codex/scripts/session-start.ps1`.
+
+## 2026-06-05
+
+- Decision: Add credential setup guidance as explicit MCP tools plus actionable error `next_steps`, rather than relying only on README install instructions.
+- Reason: Most users install MCP servers through agents; the installing agent needs a machine-discoverable way to tell the user how to configure Cookies after registration.
+- Evidence: `get_credential_setup_instructions`, `check_bilibili_credentials`, `buildCredentialNextSteps()`, and the `COOKIE_EXPIRED` / `SUBTITLE_UNAVAILABLE` response paths in `src/server.ts`.
+
+- Decision: Keep Cookie values out of MCP client configuration examples and guide users to `npx -y @xzxzzx/bilibili-mcp config` followed by `npx -y @xzxzzx/bilibili-mcp check`.
+- Reason: MCP client config files are easy to share or commit accidentally; the project already has a safer credential helper and global credential flow.
+- Evidence: README credential notes, `buildCredentialSetupInstructions()`, and secret-oriented regression tests in `tests/credential-guidance.test.ts`.
+
+- Decision: Treat generated learning proposal files as review queues and Python bytecode caches as ignored local artifacts.
+- Reason: `pending-learning-proposals.md` is meaningful project state only as a generated queue, while `__pycache__` contains no durable learning.
+- Evidence: `docs/agent-memory/README.md` controlled-learning section and `.gitignore` entries for `__pycache__/` and `*.py[cod]`.

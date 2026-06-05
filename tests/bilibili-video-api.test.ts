@@ -169,9 +169,9 @@ describe("getVideoSubtitle", () => {
 });
 
 describe("getSubtitleContent", () => {
-  it("normalizes protocol-relative subtitle URLs", async () => {
+  it("normalizes protocol-relative Bilibili subtitle URLs without sending auth cookies", async () => {
     const fetchMock = vi.fn(async (url: string) => {
-      if (url === "https://example.test/subtitle.json") {
+      if (url === "https://aisubtitle.hdslb.com/subtitle.json") {
         return jsonResponse({
           body: [{ from: 0, to: 1, location: 2, content: "hello" }],
         });
@@ -182,11 +182,28 @@ describe("getSubtitleContent", () => {
 
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await getSubtitleContent("//example.test/subtitle.json");
+    const result = await getSubtitleContent("//aisubtitle.hdslb.com/subtitle.json");
 
     expect(result.body[0].content).toBe("hello");
     expect(getFetchCalls(fetchMock)[0].url).toBe(
-      "https://example.test/subtitle.json",
+      "https://aisubtitle.hdslb.com/subtitle.json",
     );
+    expect(getFetchCalls(fetchMock)[0].init?.headers).not.toHaveProperty(
+      "Cookie",
+    );
+  });
+
+  it("rejects non-Bilibili subtitle URLs before fetch", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      getSubtitleContent("http://127.0.0.1/subtitle.json"),
+    ).rejects.toThrow("Unsupported subtitle URL host");
+    await expect(
+      getSubtitleContent("//example.test/subtitle.json"),
+    ).rejects.toThrow("Unsupported subtitle URL host");
+
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 });
