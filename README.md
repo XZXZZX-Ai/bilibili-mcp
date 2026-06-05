@@ -1192,10 +1192,42 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 | 只想拿完整转录文本 | `get_video_transcript` | 纯字幕文本、语言、数据来源 |
 | 想查看标题、作者、播放量等结构化信息 | `get_video_metadata` | 标题、作者、时长、发布时间、标签、统计数据 |
 | 想看观众反馈和热门评论 | `get_video_comments` | 热门评论、时间戳评论、可选回复 |
+| 让 agent 引导用户配置 Cookie | `get_credential_setup_instructions` | 安全配置步骤、推荐命令、注意事项 |
+| 检查 Cookie 是否已配置/登录 | `check_bilibili_credentials` | configured、source、logged_in、next_steps |
 
 ## 💡 工具调用示例
 
 > AI 客户端会自动将你的自然语言意图转换为对应的 JSON 调用。
+
+### `get_credential_setup_instructions`
+
+**适合**：agent 安装 MCP server 后，引导用户完成 Cookie 配置。
+
+请求示例：
+
+```json
+{
+  "name": "get_credential_setup_instructions",
+  "arguments": {}
+}
+```
+
+返回内容：推荐配置命令、全局安装命令、所需 Cookie 字段和安全提醒；不会返回任何 Cookie 值。
+
+### `check_bilibili_credentials`
+
+**适合**：检查当前环境是否已配置 Cookie，以及是否处于登录状态。
+
+请求示例：
+
+```json
+{
+  "name": "check_bilibili_credentials",
+  "arguments": {}
+}
+```
+
+返回内容：`configured`、`source`（`env` / `global_config` / `none`）、`logged_in` 和 `next_steps`；不会返回任何 Cookie 值。
 
 ### `get_video_transcript`
 
@@ -1282,10 +1314,12 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 
 ## 🛡️ API 限流机制
 
-为保证工具长效可用并合规调用底层接口，已内置以下限流策略：
+为降低触发 Bilibili 风控和接口限流的概率，已内置以下请求控制策略：
 
-- **请求间隔**：500ms（0.5秒）
-- **执行方式**：加入队列顺序处理，禁止大并发请求。
+- **请求启动间隔**：默认 500ms（0.5 秒），可通过 `BILIBILI_RATE_LIMIT_MS` 调整。
+- **执行方式**：对 API 请求启动做节流，避免瞬时大并发；适合本地单用户 MCP 使用。
+- **重试策略**：对 408、429、5xx、网络错误和超时进行最多 3 次指数退避重试。
+- **超时控制**：默认 10 秒，可通过 `BILIBILI_REQUEST_TIMEOUT_MS` 调整。
 
 ---
 
@@ -1299,11 +1333,31 @@ cd bilibili-mcp
 # 2. 安装依赖包
 npm install
 
-# 3. 启动监听与实时编译
+# 3. 运行测试
+npm test
+
+# 4. 编译 TypeScript
+npm run build
+
+# 5. 启动监听与实时编译
 npm run watch
 ```
 
-本工具输出报错信息统一使用 `console.error`，以避免干扰 Stdio 协议数据。
+常用命令：
+
+| 命令 | 用途 |
+|---|---|
+| `npm run build` | 编译 TypeScript 到 `dist/` |
+| `npm test` | 运行 Vitest 单元测试 |
+| `npm run watch` | 开发时持续编译 |
+| `npm start` | 运行已编译的 stdio MCP server |
+| `npm pack --dry-run` | 检查 npm 包会包含哪些文件 |
+
+本地调试说明：
+
+- MCP server 的入口是 `dist/index.js`，CLI 入口是 `dist/cli.js`；修改源码后先运行 `npm run build`。
+- 启动 stdio MCP server 后，`stdout` 必须保留给 MCP 协议数据；调试日志和错误信息应写到 `stderr`，因此本项目使用 `console.error` 输出运行日志。
+- 不要在测试、日志、示例或提交内容中写入真实 Cookie。需要验证凭证时，使用 `npx -y @xzxzzx/bilibili-mcp check` 或本地环境变量。
 
 ---
 
@@ -1311,14 +1365,15 @@ npm run watch
 
 > **⚠️ 重要：使用本工具即代表您同意以下条款**
 
-- **商标声明**：Bilibili (哔哩哔哩) 是哔哩哔哩公司的注册商标。本项目为基于公开协议的第三方开源辅助工具。
-- **协议精神**：本项目**仅供个人学习、辅助阅读使用**。坚决抵制任何用于商业剥削、大规模滥用抓取等违规操作。
-- **责任归属**：所有请求均为用户本地发起。开发者不对由于高频使用等原因导致的账号风控或其他后果负责。
-- **隐私保护**：本工具严格保护用户隐私，所有凭证信息仅在本地加密/非加密存储，除与 Bilibili 官方接口通信外，无任何后台上传行为。
+- **非官方项目**：Bilibili（哔哩哔哩）是哔哩哔哩公司的注册商标。本项目是第三方开源辅助工具，不隶属于 Bilibili，也不代表 Bilibili 官方。
+- **使用边界**：本项目仅供个人学习、辅助阅读和内容理解使用。请遵守 Bilibili 用户协议、robots/接口访问规则和当地法律法规；不要用于商业剥削、大规模抓取、绕过权限或其他滥用场景。
+- **账号风险**：所有请求均由用户本机发起。高频调用、异常访问模式、Cookie 泄露或账号自身状态可能触发风控、限流或账号异常；相关后果由使用者自行承担。
+- **Cookie 安全**：不要把真实 Cookie 写入 MCP 客户端配置、公开聊天、Issue、PR、README、日志或测试文件。建议使用本项目的本机凭证配置、运行环境变量或本地 `.env` 管理 Cookie；Cookie 泄露后应立即在 Bilibili 账号侧失效旧登录状态。
+- **隐私说明**：本项目不会把 Cookie 上传到除 Bilibili 官方接口以外的第三方服务。凭证仅在本机按用户选择的方式保存或读取；当前本地配置文件不承诺系统级加密，请自行保护设备、账号和配置文件访问权限。
 
 ### 许可证
 
-基于 **GNU General Public License v3.0** 开源。
+本项目基于 **GNU General Public License v3.0** 开源。使用、复制、修改和分发本项目时，请遵守 GPL-3.0 的许可要求。
 
 ---
 
@@ -1337,7 +1392,7 @@ npm run watch
 如果您在使用过程中遇到任何问题，或者有好的功能建议，欢迎通过以下方式联系：
 
 - **提交 Issue**：[GitHub Issues](https://github.com/365903728-oss/bilibili-mcp/issues) —— **推荐方式**，我会定期查看并回复。
-- **项目讨论**：在 [GitHub Discussions](https://github.com/365903728-oss/bilibili-mcp/discussions)（如果已开启）中交流。
+- **项目讨论**：在 [GitHub Discussions](https://github.com/365903728-oss/bilibili-mcp/discussions) 中交流。
 
 感谢您的支持！
 

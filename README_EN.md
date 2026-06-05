@@ -1192,10 +1192,42 @@ Do not share cookies with others. Do not paste them into public chats, issues, P
 | Get clean transcript text | `get_video_transcript` | Plain subtitle text, language, data source |
 | See structured metadata | `get_video_metadata` | Title, author, duration, publish date, tags, stats |
 | View audience reactions | `get_video_comments` | Popular comments, timestamped highlights, optional replies |
+| Guide users through Cookie setup | `get_credential_setup_instructions` | Safe setup steps, recommended commands, security notes |
+| Check whether Cookies are configured/logged in | `check_bilibili_credentials` | configured, source, logged_in, next_steps |
 
 ## 💡 Tool Call Examples
 
 > Your AI client will automatically turn your natural-language intent into the corresponding JSON call.
+
+### `get_credential_setup_instructions`
+
+**Best for**: letting an agent guide Cookie setup after installing the MCP server.
+
+Request:
+
+```json
+{
+  "name": "get_credential_setup_instructions",
+  "arguments": {}
+}
+```
+
+Returns: recommended setup commands, global-install commands, required Cookie fields, and security notes; never returns Cookie values.
+
+### `check_bilibili_credentials`
+
+**Best for**: checking whether the current environment has Cookies configured and whether they are logged in.
+
+Request:
+
+```json
+{
+  "name": "check_bilibili_credentials",
+  "arguments": {}
+}
+```
+
+Returns: `configured`, `source` (`env` / `global_config` / `none`), `logged_in`, and `next_steps`; never returns Cookie values.
 
 ### `get_video_transcript`
 
@@ -1282,31 +1314,63 @@ Returns: `comments[]` (author, content, likes, timestamp, has_timestamp), `summa
 
 ## 🛡️ API Rate Limiting
 
-Built-in strategies to ensure long-term availability:
-- **Interval**: 500ms (0.5s).
-- **Execution**: Sequential queue, no concurrency.
+Built-in request controls reduce the chance of triggering Bilibili risk checks or API rate limits:
+
+- **Request start interval**: defaults to 500ms (0.5s), configurable with `BILIBILI_RATE_LIMIT_MS`.
+- **Execution model**: throttles API request starts to avoid burst concurrency; intended for local single-user MCP usage.
+- **Retry strategy**: retries 408, 429, 5xx, network errors, and timeouts up to 3 times with exponential backoff.
+- **Timeout**: defaults to 10 seconds, configurable with `BILIBILI_REQUEST_TIMEOUT_MS`.
 
 ---
 
 ## 🛠️ Development Guide
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/365903728-oss/bilibili-mcp.git
 cd bilibili-mcp
+
+# 2. Install dependencies
 npm install
+
+# 3. Run tests
+npm test
+
+# 4. Build TypeScript
+npm run build
+
+# 5. Watch and rebuild during development
 npm run watch
 ```
+
+Common commands:
+
+| Command | Purpose |
+|---|---|
+| `npm run build` | Compile TypeScript into `dist/` |
+| `npm test` | Run the Vitest unit tests |
+| `npm run watch` | Continuously compile during development |
+| `npm start` | Run the compiled stdio MCP server |
+| `npm pack --dry-run` | Inspect which files would be included in the npm package |
+
+Local debugging notes:
+
+- The MCP server entry point is `dist/index.js`, and the CLI entry point is `dist/cli.js`; run `npm run build` after changing source files.
+- For stdio MCP servers, `stdout` must be reserved for MCP protocol data. Runtime logs and errors should go to `stderr`, so this project uses `console.error` for operational logs.
+- Do not put real Cookies in tests, logs, examples, or commits. To verify credentials, use `npx -y @xzxzzx/bilibili-mcp check` or local environment variables.
 
 ---
 
 ## ⚖️ Safety and Disclaimer
 
-- **Trademark**: Bilibili is a registered trademark of Bilibili Inc. This is a third-party open-source tool.
-- **Liability**: Requests originate locally. Developers are not responsible for account restrictions.
-- **Privacy**: No back-end uploading; credentials stored locally.
+- **Unofficial project**: Bilibili is a registered trademark of Bilibili Inc. This is a third-party open-source helper tool. It is not affiliated with, endorsed by, or representative of Bilibili.
+- **Usage boundary**: This project is intended for personal learning, assisted reading, and content understanding. Follow Bilibili's terms, robots/interface access rules, and applicable laws. Do not use it for commercial exploitation, large-scale scraping, permission bypassing, or other abusive scenarios.
+- **Account risk**: Requests are initiated from the user's local machine. High-frequency access, abnormal request patterns, Cookie leaks, or account-specific state may trigger risk controls, rate limits, or account issues. Users are responsible for their own usage and consequences.
+- **Cookie safety**: Do not put real Cookies in MCP client config, public chats, issues, PRs, READMEs, logs, or test files. Prefer this project's local credential config, runtime environment variables, or a local `.env` file. If Cookies leak, invalidate the old Bilibili login session immediately.
+- **Privacy**: This project does not upload Cookies to any third-party service other than Bilibili's official API. Credentials are stored or read locally according to the user's chosen setup. The current local config file does not promise system-level encryption; protect your device, account, and config file permissions.
 
 ### License
-Open-sourced under **GNU General Public License v3.0**.
+Open-sourced under **GNU General Public License v3.0**. When using, copying, modifying, or distributing this project, follow the GPL-3.0 license requirements.
 
 ---
 
@@ -1325,6 +1389,6 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 If you encounter any issues or have feature suggestions, feel free to reach out:
 
 - **Submit an Issue**: [GitHub Issues](https://github.com/365903728-oss/bilibili-mcp/issues) — **Recommended**, I check and respond regularly.
-- **Discussions**: Join our [GitHub Discussions](https://github.com/365903728-oss/bilibili-mcp/discussions) (if enabled) for general chat.
+- **Discussions**: Join our [GitHub Discussions](https://github.com/365903728-oss/bilibili-mcp/discussions) for general chat.
 
 Thank you for your support!
