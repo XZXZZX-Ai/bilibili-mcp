@@ -24,7 +24,7 @@ If you use an agent-based tool such as Codex, Claude Code, Cursor, Qoder, Kimi C
 ```text
 Please help me install the Bilibili MCP server: @xzxzzx/bilibili-mcp.
 
-First read this project's README, especially the "Quick Start" and "Client Setup" sections. Find the MCP setup method that matches my current agent/client, then add this server in that client's official configuration location.
+First go to https://github.com/365903728-oss/bilibili-mcp and read the project's README, especially the "Quick Start" and "Client Setup" sections. Find the MCP setup method that matches my current agent/client, then add this server in that client's official configuration location.
 
 MCP server config requirements:
 - server name: bilibili-mcp

@@ -24,7 +24,7 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 ```text
 请帮我安装 Bilibili MCP server：@xzxzzx/bilibili-mcp。
 
-请先阅读这个项目 README 的“快速开始”和“客户端接入方式”章节，找到我当前使用的 agent/客户端对应的 MCP 配置方式，然后按该客户端的官方配置位置添加这个 server。
+请先到 https://github.com/365903728-oss/bilibili-mcp 阅读项目 README 的“快速开始”和“客户端接入方式”章节，找到我当前使用的 agent/客户端对应的 MCP 配置方式，然后按该客户端的官方配置位置添加这个 server。
 
 MCP server 配置要求：
 - server 名称：bilibili-mcp
