@@ -6,7 +6,7 @@
 
 MCP server that gives AI clients access to Bilibili video subtitles, transcripts, metadata, and popular comments.
 
-View in [简体中文](https://github.com/365903728-oss/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/365903728-oss/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.4.0](https://github.com/365903728-oss/bilibili-mcp/releases/tag/v1.4.0)
+View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.4.5](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.4.5)
 
 > [!TIP]
 > ⚠️ You can copy the "Install With Your Agent" prompt below to Codex, Claude Code, Cursor, or another agent and let it add this MCP server to your client and guide Cookie setup. For reliable subtitles, transcripts, and comments, you still need to configure Bilibili Cookies after installation; do not write Cookies into MCP client config. Metadata may work without cookies. See [**Credential Configuration**](#-credential-configuration).
@@ -24,7 +24,7 @@ If you use an agent-based tool such as Codex, Claude Code, Cursor, Qoder, Kimi C
 ```text
 Please help me install the Bilibili MCP server: @xzxzzx/bilibili-mcp.
 
-First go to https://github.com/365903728-oss/bilibili-mcp and read the project's README, especially the "Quick Start" and "Client Setup" sections. Find the MCP setup method that matches my current agent/client, then add this server in that client's official configuration location.
+First go to https://github.com/XZXZZX-Ai/bilibili-mcp and read the project's README, especially the "Quick Start" and "Client Setup" sections. Find the MCP setup method that matches my current agent/client, then add this server in that client's official configuration location.
 
 MCP server config requirements:
 - server name: bilibili-mcp
@@ -1327,7 +1327,7 @@ Built-in request controls reduce the chance of triggering Bilibili risk checks o
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/365903728-oss/bilibili-mcp.git
+git clone https://github.com/XZXZZX-Ai/bilibili-mcp.git
 cd bilibili-mcp
 
 # 2. Install dependencies
@@ -1388,7 +1388,7 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 
 If you encounter any issues or have feature suggestions, feel free to reach out:
 
-- **Submit an Issue**: [GitHub Issues](https://github.com/365903728-oss/bilibili-mcp/issues) — **Recommended**, I check and respond regularly.
-- **Discussions**: Join our [GitHub Discussions](https://github.com/365903728-oss/bilibili-mcp/discussions) for general chat.
+- **Submit an Issue**: [GitHub Issues](https://github.com/XZXZZX-Ai/bilibili-mcp/issues) — **Recommended**, I check and respond regularly.
+- **Discussions**: Join our [GitHub Discussions](https://github.com/XZXZZX-Ai/bilibili-mcp/discussions) for general chat.
 
 Thank you for your support!

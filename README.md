@@ -6,7 +6,7 @@
 
 Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取 Bilibili 视频字幕、转录、元数据和热门评论的 MCP server。
 
-🌐 [English Documentation](https://github.com/365903728-oss/bilibili-mcp/blob/master/README_EN.md) · 📜 [更新日志](https://github.com/365903728-oss/bilibili-mcp/blob/master/CHANGELOG.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.4.0](https://github.com/365903728-oss/bilibili-mcp/releases/tag/v1.4.0)
+🌐 [English Documentation](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README_EN.md) · 📜 [更新日志](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.4.5](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.4.5)
 
 > [!TIP]
 > ⚠️ 你可以把下方“用 agent 工具帮你安装”的提示词复制给 Codex、Claude Code、Cursor 等 agent，让它帮你完成 MCP 客户端接入和 Cookie 配置引导。为了稳定获取字幕、转录和评论，安装后仍需配置 B 站 Cookie(agent会引导你)；不要把 Cookie 写进 MCP 客户端配置。Metadata 可能无需 Cookie。详见 [**凭证配置**](#️-凭证配置)。
@@ -24,7 +24,7 @@ Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取
 ```text
 请帮我安装 Bilibili MCP server：@xzxzzx/bilibili-mcp。
 
-请先到 https://github.com/365903728-oss/bilibili-mcp 阅读项目 README 的“快速开始”和“客户端接入方式”章节，找到我当前使用的 agent/客户端对应的 MCP 配置方式，然后按该客户端的官方配置位置添加这个 server。
+请先到 https://github.com/XZXZZX-Ai/bilibili-mcp 阅读项目 README 的“快速开始”和“客户端接入方式”章节，找到我当前使用的 agent/客户端对应的 MCP 配置方式，然后按该客户端的官方配置位置添加这个 server。
 
 MCP server 配置要求：
 - server 名称：bilibili-mcp
@@ -1327,7 +1327,7 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/365903728-oss/bilibili-mcp.git
+git clone https://github.com/XZXZZX-Ai/bilibili-mcp.git
 cd bilibili-mcp
 
 # 2. 安装依赖包
@@ -1391,8 +1391,8 @@ npm run watch
 
 如果您在使用过程中遇到任何问题，或者有好的功能建议，欢迎通过以下方式联系：
 
-- **提交 Issue**：[GitHub Issues](https://github.com/365903728-oss/bilibili-mcp/issues) —— **推荐方式**，我会定期查看并回复。
-- **项目讨论**：在 [GitHub Discussions](https://github.com/365903728-oss/bilibili-mcp/discussions) 中交流。
+- **提交 Issue**：[GitHub Issues](https://github.com/XZXZZX-Ai/bilibili-mcp/issues) —— **推荐方式**，我会定期查看并回复。
+- **项目讨论**：在 [GitHub Discussions](https://github.com/XZXZZX-Ai/bilibili-mcp/discussions) 中交流。
 
 感谢您的支持！
 

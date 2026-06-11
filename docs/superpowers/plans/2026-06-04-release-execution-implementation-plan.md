@@ -30,7 +30,7 @@ Before pushing `v1.4.0`, the user must confirm npm trusted publishing is configu
 
 - Package: `@xzxzzx/bilibili-mcp`
 - Publisher: GitHub Actions
-- Organization/user: `365903728-oss`
+- Organization/user: `XZXZZX-Ai`
 - Repository: `bilibili-mcp`
 - Workflow filename: `publish.yml`
 - Allowed action: `npm publish`
@@ -108,7 +108,7 @@ chore: fix active plan tracking memory
 
 - [x] Stop and ask the user to confirm npm trusted publishing is configured.
 - [x] User must confirm the npm package trusted publisher details match:
-  - GitHub org/user: `365903728-oss`
+  - GitHub org/user: `XZXZZX-Ai`
   - repository: `bilibili-mcp`
   - workflow filename: `publish.yml`
   - allowed action includes `npm publish`
@@ -121,7 +121,7 @@ chore: fix active plan tracking memory
 - [x] Confirm remote does not already have `v1.4.0`:
   - `git ls-remote --tags origin v1.4.0`
 - [x] Create annotated tag:
-  - `git tag -a v1.4.0 -m "Release v1.4.0"`
+  - `git tag -a v1.4.0 -m "Release v1.4.5"`
 - [x] Push tag:
   - `git push origin v1.4.0`
 - [x] Report the pushed tag and commit SHA.
