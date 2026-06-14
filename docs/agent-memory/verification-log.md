@@ -704,3 +704,47 @@
 - Area: Runtime observation storage.
 
 - Conclusion: The Codex and Claude Code memory/learning systems are operational. Current `pending-learning-proposals.md` reports no proposals above threshold, which is a normal controlled-learning state rather than a failure.
+
+## 2026-06-14 Active Plan Sync
+
+- Command: `gh release view v1.4.0 --json tagName,name,url,publishedAt,isDraft,isPrerelease`
+- Result: GitHub Release `v1.4.0` exists, is not draft or prerelease, and was published at `2026-06-04T10:02:43Z`.
+- Area: Release execution plan synchronization.
+
+- Command: `gh release view v1.4.0 --json body --jq .body`
+- Result: Release notes mention the new transcript and metadata tools, expanded comment controls, client module split, Smithery removal, 110-test baseline, and npm package link.
+- Area: GitHub Release acceptance criteria.
+
+- Command: `npm test -- tests/credential-guidance.test.ts tests/server-credential-tools.test.ts tests/server-error-next-steps.test.ts tests/server-tools.test.ts`
+- Result: Passed. 4 test files, 29 tests.
+- Area: Credential guidance focused regression.
+- Caveat: The no-credential tests now hide the local global credential config so a developer machine with configured Cookies does not contaminate the `source: none` branch.
+
+- Command: `npm test`
+- Result: Passed. 12 test files, 125 tests.
+- Area: Full regression suite after active-plan synchronization.
+
+- Command: `npm run build`
+- Result: Passed.
+- Area: TypeScript build after active-plan synchronization.
+
+- Command: `npm pack --dry-run`
+- Result: Passed for `@xzxzzx/bilibili-mcp@1.4.6`, 102 files.
+- Area: Package contents sanity check.
+
+- Command: `python .codex/scripts/plan_tracker.py`
+- Result: Returned `docs\superpowers\plans\2026-06-05-credential-guidance-mcp-tools-implementation-plan.md`.
+- Area: Active-plan tracking.
+
+- Command: `python .codex/scripts/generate_learning_proposals.py --source codex` and `python .codex/scripts/generate_learning_proposals.py --source claude`
+- Result: Both passed with JSON-safe stdout `{"suppressOutput": true}`; both runtime `learning-proposal-phase-state.json` files now point to the credential guidance implementation plan with `completed_phase_count` 8.
+- Area: Codex and Claude Code learning proposal state.
+
+- Change: Marked completed/verified checkboxes in the release execution and credential guidance implementation plans so phase-gated reminders no longer treat old release work as active.
+- Conclusion: Active plan tracking and both Codex/Claude learning states are synchronized to the latest completed implementation plan. `pending-learning-proposals.md` still reports no proposals above threshold, which is expected.
+
+## 2026-06-14 Task 1 Package Dependency Health
+
+- Commands: `npm audit --json`; `npm test`; `npm run build`; `npm pack --dry-run`; package/workflow secret scan with `rg`.
+- Result: `package-lock.json` root version matches `package.json` version `1.4.6`, `esbuild` is outside the audited vulnerable range, tests/build/package dry-run pass, and no package-surface secret leak was found.
+- Caveat: No npm publish, tag, push, or GitHub release was performed.
