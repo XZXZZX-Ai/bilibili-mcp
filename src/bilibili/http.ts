@@ -155,20 +155,14 @@ export async function fetchWithWBI(
           ...additionalHeaders,
         };
 
-        // 构建安全的headers日志（隐藏敏感信息）
-        const safeHeaders: Record<string, string> = {};
-        Object.entries(finalHeaders).forEach(([key, value]) => {
-          if (key === "Cookie") {
-            safeHeaders[key] = "***";
-          } else {
-            safeHeaders[key] = value;
-          }
-        });
-
-        console.error("发送WBI请求:", {
-          url: url.toString(),
-          headers: safeHeaders,
-        });
+        logger.debug(
+          "Sending WBI request",
+          {
+            url: url.toString(),
+            headers: finalHeaders,
+          },
+          { type: "bilibili-http", operation: "fetchWithWBI" },
+        );
 
         const response = await fetch(url.toString(), {
           headers: finalHeaders,
@@ -177,12 +171,16 @@ export async function fetchWithWBI(
 
         if (!response.ok) {
           const errorMsg = `HTTP ${response.status}: ${response.statusText}`;
-          console.error("❌ WBI请求失败:", {
-            error: errorMsg,
-            url: url.toString(),
-            status: response.status,
-            statusText: response.statusText,
-          });
+          logger.warn(
+            "WBI request failed",
+            {
+              error: errorMsg,
+              url: url.toString(),
+              status: response.status,
+              statusText: response.statusText,
+            },
+            { type: "bilibili-http", operation: "fetchWithWBI" },
+          );
           throw new NetworkError(errorMsg, undefined, url.toString());
         }
 
@@ -191,9 +189,11 @@ export async function fetchWithWBI(
         if (data.code !== 0) {
           // Detect specific error types
           if (data.code === -101) {
-            console.error("❌ 检测到 Bilibili Cookie 已过期或失效 (-101):", {
-              url: url.toString(),
-            });
+            logger.warn(
+              "Bilibili credentials appear expired",
+              { url: url.toString(), code: data.code },
+              { type: "bilibili-http", code: "COOKIE_EXPIRED" },
+            );
             throw new BilibiliAPIError(
               "Current Bilibili credentials are expired or not logged in. Run \"npx -y @xzxzzx/bilibili-mcp config\", then \"npx -y @xzxzzx/bilibili-mcp check\", or update environment variables.",
               "COOKIE_EXPIRED",
@@ -203,23 +203,31 @@ export async function fetchWithWBI(
           }
 
           if (data.code === -404 && data.message === "啥都木有") {
-            console.error("❌ 评论API返回错误:", {
-              code: data.code,
-              message: data.message,
-              url: url.toString(),
-              params,
-            });
+            logger.warn(
+              "Bilibili API returned an error",
+              {
+                code: data.code,
+                message: data.message,
+                url: url.toString(),
+                params,
+              },
+              { type: "bilibili-http", operation: "fetchWithWBI" },
+            );
             throw new CommentsDisabledError(
               "该视频的评论功能已被禁用或限制访问",
             );
           }
           if (data.code === -403) {
-            console.error("❌ API返回权限错误(-403):", {
-              code: data.code,
-              message: data.message,
-              url: url.toString(),
-              params,
-            });
+            logger.warn(
+              "Bilibili API returned an error",
+              {
+                code: data.code,
+                message: data.message,
+                url: url.toString(),
+                params,
+              },
+              { type: "bilibili-http", operation: "fetchWithWBI" },
+            );
             throw new BilibiliAPIError(
               data.message || "访问权限不足，请检查登录凭证是否有效",
               "ACCESS_DENIED",
@@ -228,12 +236,16 @@ export async function fetchWithWBI(
             );
           }
 
-          console.error("❌ 评论API返回错误:", {
-            code: data.code,
-            message: data.message,
-            url: url.toString(),
-            params,
-          });
+          logger.warn(
+            "Bilibili API returned an error",
+            {
+              code: data.code,
+              message: data.message,
+              url: url.toString(),
+              params,
+            },
+            { type: "bilibili-http", operation: "fetchWithWBI" },
+          );
           throw new BilibiliAPIError(
             data.message || "Unknown error",
             "API_ERROR",
@@ -250,12 +262,16 @@ export async function fetchWithWBI(
           tempUrl.searchParams.append(key, String(value));
         });
 
-        console.error("❌ WBI请求异常:", {
-          error: error instanceof Error ? error.message : String(error),
-          path,
-          params,
-          url: tempUrl.toString(),
-        });
+        logger.error(
+          "WBI request threw",
+          {
+            error: error instanceof Error ? error.message : String(error),
+            path,
+            params,
+            url: tempUrl.toString(),
+          },
+          { type: "bilibili-http", operation: "fetchWithWBI" },
+        );
 
         logger.error(
           `Error fetching ${path}`,
@@ -276,7 +292,11 @@ export async function fetchWithoutWBI(
   params?: Record<string, string | number>,
   additionalHeaders: Record<string, string> = {},
 ): Promise<unknown> {
-  console.error(`[DEBUG] fetchWithoutWBI: ${path}`, params);
+  logger.debug(
+    "fetchWithoutWBI request",
+    { path, params },
+    { type: "bilibili-http", operation: "fetchWithoutWBI" },
+  );
   return retryableFetch(async () => {
     return throttledFetch(async (controller) => {
       try {
@@ -286,7 +306,11 @@ export async function fetchWithoutWBI(
             url.searchParams.append(key, String(value));
           });
         }
-        console.error(`[DEBUG] Fetching URL: ${url.toString()}`);
+        logger.debug(
+          "fetchWithoutWBI URL",
+          { url: url.toString() },
+          { type: "bilibili-http", operation: "fetchWithoutWBI" },
+        );
 
         const response = await fetch(url.toString(), {
           headers: {
@@ -311,9 +335,11 @@ export async function fetchWithoutWBI(
         if (data.code !== 0) {
           // Detect specific error types
           if (data.code === -101) {
-            console.error("❌ 检测到 Bilibili Cookie 已过期或失效 (-101):", {
-              url: url.toString(),
-            });
+            logger.warn(
+              "Bilibili credentials appear expired",
+              { url: url.toString(), code: data.code },
+              { type: "bilibili-http", code: "COOKIE_EXPIRED" },
+            );
             throw new BilibiliAPIError(
               "Current Bilibili credentials are expired or not logged in. Run \"npx -y @xzxzzx/bilibili-mcp config\", then \"npx -y @xzxzzx/bilibili-mcp check\", or update environment variables.",
               "COOKIE_EXPIRED",

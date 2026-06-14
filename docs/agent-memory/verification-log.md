@@ -748,3 +748,9 @@
 - Commands: `npm audit --json`; `npm test`; `npm run build`; `npm pack --dry-run`; package/workflow secret scan with `rg`.
 - Result: `package-lock.json` root version matches `package.json` version `1.4.6`, `esbuild` is outside the audited vulnerable range, tests/build/package dry-run pass, and no package-surface secret leak was found.
 - Caveat: No npm publish, tag, push, or GitHub release was performed.
+
+## 2026-06-14 Task 2 Logging Debug Output Cleanup
+
+- Commands: `npm test -- tests/logger-redaction.test.ts tests/bilibili-video-api.test.ts tests/bilibili-transcript.test.ts tests/bilibili-comments-tool.test.ts`; `npm test`; `npm run build`; logger debug smoke check; logging and secret scans with `rg`.
+- Result: Debug logs are silent unless `BILIBILI_MCP_DEBUG=1`, debug output remains redacted when enabled, Bilibili API diagnostics route through the redacting logger, tests/build pass, and no real credential value was found.
+- Caveat: No MCP tool contract, credential loading behavior, package metadata, tag, push, publish, or GitHub release was changed.

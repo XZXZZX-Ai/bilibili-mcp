@@ -84,8 +84,10 @@ export async function getVideoSubtitle(bvid: string, cid: number) {
   }
 
   // WBI 接口返回空字幕，降级到非 WBI 接口重试
-  console.error(
-    `[getVideoSubtitle] WBI 接口返回空字幕，降级到 /x/player/v2 重试 (bvid=${bvid}, cid=${cid})`,
+  logger.debug(
+    "WBI subtitle API returned empty subtitles, falling back to /x/player/v2",
+    { bvid, cid },
+    { type: "video-api", operation: "getVideoSubtitle" },
   );
   const fallbackResult = (await fetchWithoutWBI(
     "/x/player/v2",
@@ -97,12 +99,16 @@ export async function getVideoSubtitle(bvid: string, cid: number) {
     fallbackResult?.subtitle?.subtitles &&
     fallbackResult.subtitle.subtitles.length > 0
   ) {
-    console.error(
-      `[getVideoSubtitle] 降级成功，/x/player/v2 返回 ${fallbackResult.subtitle.subtitles.length} 个字幕`,
+    logger.info(
+      "Subtitle fallback succeeded",
+      { bvid, cid, subtitleCount: fallbackResult.subtitle.subtitles.length },
+      { type: "video-api", operation: "getVideoSubtitle" },
     );
   } else {
-    console.error(
-      `[getVideoSubtitle] 降级后仍无字幕 (bvid=${bvid})，视频可能确实无字幕`,
+    logger.info(
+      "Subtitle fallback also returned no subtitles",
+      { bvid, cid },
+      { type: "video-api", operation: "getVideoSubtitle" },
     );
   }
 

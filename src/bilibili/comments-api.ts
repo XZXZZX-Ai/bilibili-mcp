@@ -1,5 +1,6 @@
 // B站 评论 API
 import { credentialManager } from "../utils/credentials.js";
+import { logger } from "../utils/logger.js";
 import { getBuvid } from "./fingerprint.js";
 import { fetchWithWBI, fetchWithoutWBI } from "./http.js";
 import { getVideoInfo } from "./video-api.js";
@@ -63,16 +64,20 @@ export async function getVideoComments(
     mode: "3",
   };
 
-  console.error("获取视频评论:", {
-    bvid,
-    oid: Number(oid),
-    type,
-    page,
-    pageSize,
-    sort,
-    includeReplies,
-    isBangumi,
-  });
+  logger.debug(
+    "Fetching video comments",
+    {
+      bvid,
+      oid: Number(oid),
+      type,
+      page,
+      pageSize,
+      sort,
+      includeReplies,
+      isBangumi,
+    },
+    { type: "comments-api" },
+  );
 
   // 构建自定义headers，包含标准Referer
   const customHeaders = {
@@ -110,7 +115,7 @@ export async function getVideoComments(
   try {
     // 优先尝试带WBI签名的评论API（需要有效的登录Cookie）
     const wbiPath = "/x/v2/reply/wbi/main";
-    console.error("尝试使用WBI评论API:", wbiPath);
+    logger.debug("Trying WBI comments API", { path: wbiPath }, { type: "comments-api" });
 
     const mainResult = (await fetchWithWBI(
       wbiPath,
@@ -124,8 +129,10 @@ export async function getVideoComments(
       mainResult &&
       (!mainResult.replies || mainResult.replies.length === 0)
     ) {
-      console.error(
-        "WBI评论API返回空评论，降级到普通评论API（无需登录）",
+      logger.debug(
+        "WBI comments API returned empty comments, falling back to plain comments API",
+        { bvid, oid: Number(oid) },
+        { type: "comments-api" },
       );
       return await fetchCommentsWithFallback();
     }
@@ -133,7 +140,11 @@ export async function getVideoComments(
     return mainResult;
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error("❌ WBI评论API失败，降级到普通评论API:", errorMsg);
+    logger.warn(
+      "WBI comments API failed, falling back to plain comments API",
+      { error: errorMsg, bvid, oid: Number(oid) },
+      { type: "comments-api" },
+    );
 
     // 降级到无需WBI签名的普通评论API（携带 buvid 以规避 -352 风控）
     try {
@@ -143,11 +154,11 @@ export async function getVideoComments(
         fallbackError instanceof Error
           ? fallbackError.message
           : String(fallbackError);
-      console.error("❌ 普通评论API也失败:", {
-        error: fallbackErrorMsg,
-        bvid,
-        oid: Number(oid),
-      });
+      logger.error(
+        "Plain comments API also failed",
+        { error: fallbackErrorMsg, bvid, oid: Number(oid) },
+        { type: "comments-api" },
+      );
       throw fallbackError;
     }
   }

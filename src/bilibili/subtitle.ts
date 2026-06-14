@@ -3,7 +3,7 @@ import { getVideoInfo, getVideoSubtitle, getSubtitleContent, checkLoginStatus } 
 import { extractBVId } from "../utils/bvid.js";
 import { cacheManager } from "../utils/cache.js";
 import { BilibiliAPIError, NoSubtitleError, PaidVideoError } from "../utils/errors.js";
-import { redactSecrets } from "../utils/logger.js";
+import { logger, redactSecrets } from "../utils/logger.js";
 
 
 export interface SubtitleData {
@@ -214,11 +214,11 @@ export async function getVideoInfoWithSubtitle(
     // 尝试从缓存获取
     const cachedData = cacheManager.getVideoInfo(cacheKey);
     if (cachedData) {
-      console.error(`Cache hit for video ${bvid}`);
+      logger.debug("Video cache hit", { bvid, cacheKey }, { type: "subtitle" });
       return cachedData;
     }
 
-    console.error(`Cache miss for video ${bvid}, fetching from API`);
+    logger.debug("Video cache miss", { bvid, cacheKey }, { type: "subtitle" });
 
     // 获取视频基本信息
     const videoData = await getVideoInfo(bvid) as any;
@@ -247,7 +247,11 @@ export async function getVideoInfoWithSubtitle(
         // 通过核实登录状态，我们可以区分两种情况：
         //   1. 已登录但视频确实无字幕 → 合法降级
         //   2. 未登录（Cookie 过期）→ 抛出明确错误，拒绝静默降级
-        console.error(`No subtitles for video ${bvid}. Verifying login status...`);
+        logger.warn(
+          "Video returned no subtitles; verifying login status",
+          { bvid },
+          { type: "subtitle" },
+        );
         const { isLogin } = await checkLoginStatus();
         if (!isLogin) {
           throw new BilibiliAPIError(
@@ -259,7 +263,11 @@ export async function getVideoInfoWithSubtitle(
         }
 
         // 已登录但视频本身无字幕，使用简介降级
-        console.error(`No subtitles available for video ${bvid} (logged in, video has no subtitles)`);
+        logger.info(
+          "Video has no subtitles while credentials are logged in",
+          { bvid },
+          { type: "subtitle" },
+        );
 
         const result: SubtitleData = {
           data_source: "description",
@@ -272,7 +280,11 @@ export async function getVideoInfoWithSubtitle(
           },
         };
         // 不缓存无字幕结果，以便下次重试时能拉取最新生成的字幕
-        console.error(`Not caching fallback result for video ${bvid} to allow future retries.`);
+        logger.debug(
+          "Not caching fallback result to allow future retries",
+          { bvid },
+          { type: "subtitle" },
+        );
         return result;
       }
 
@@ -291,7 +303,11 @@ export async function getVideoInfoWithSubtitle(
           },
         };
         // 不缓存无字幕结果，以便下次重试时能拉取最新生成的字幕
-        console.error(`Not caching fallback result for video ${bvid} to allow future retries.`);
+        logger.debug(
+          "Not caching fallback result to allow future retries",
+          { bvid },
+          { type: "subtitle" },
+        );
         return result;
       }
 
@@ -310,7 +326,11 @@ export async function getVideoInfoWithSubtitle(
           },
         };
         // 不缓存无字幕结果，以便下次重试时能拉取最新生成的字幕
-        console.error(`Not caching fallback result for video ${bvid} to allow future retries.`);
+        logger.debug(
+          "Not caching fallback result to allow future retries",
+          { bvid },
+          { type: "subtitle" },
+        );
         return result;
       }
 
@@ -337,7 +357,11 @@ export async function getVideoInfoWithSubtitle(
         throw error;
       }
       // 其他字幕获取失败，使用简介作为降级方案
-      console.error(`Failed to fetch subtitles for video ${bvid}, using description as fallback:`, error instanceof Error ? error.message : error);
+      logger.warn(
+        "Failed to fetch subtitles, using description fallback",
+        { bvid, error: error instanceof Error ? error.message : error },
+        { type: "subtitle" },
+      );
 
       const result: SubtitleData = {
         data_source: "description",
@@ -354,7 +378,11 @@ export async function getVideoInfoWithSubtitle(
       return result;
     }
   } catch (error) {
-    console.error("Error getting video info with subtitle:", redactSecrets(error));
+    logger.error(
+      "Error getting video info with subtitle",
+      { error: redactSecrets(error) },
+      { type: "subtitle" },
+    );
     throw error;
   }
 }

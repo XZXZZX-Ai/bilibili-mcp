@@ -8,8 +8,8 @@ interface LogEntry {
   timestamp: string;
   level: LogLevel;
   message: string;
-  data?: any;
-  context?: Record<string, any>;
+  data?: unknown;
+  context?: Record<string, unknown>;
 }
 
 const SENSITIVE_KEY_PATTERN = /cookie|authorization|sessdata|bili_jct|dedeuserid|token|secret/i;
@@ -58,32 +58,40 @@ export function redactSecrets(value: unknown, seen = new WeakSet<object>()): unk
 }
 
 export class Logger {
-  private static log(level: LogLevel, message: string, data?: any, context?: Record<string, any>) {
+  private static log(
+    level: LogLevel,
+    message: string,
+    data?: unknown,
+    context?: Record<string, unknown>,
+  ) {
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
       message: redactString(message),
       data: redactSecrets(data),
-      context: redactSecrets(context) as Record<string, any> | undefined
+      context: redactSecrets(context) as Record<string, unknown> | undefined,
     };
 
     // 使用 console.error 确保输出到 stderr，避免干扰 MCP 协议
     console.error(JSON.stringify(entry));
   }
 
-  static info(message: string, data?: any, context?: Record<string, any>) {
+  static info(message: string, data?: unknown, context?: Record<string, unknown>) {
     this.log('info', message, data, context);
   }
 
-  static warn(message: string, data?: any, context?: Record<string, any>) {
+  static warn(message: string, data?: unknown, context?: Record<string, unknown>) {
     this.log('warn', message, data, context);
   }
 
-  static error(message: string, data?: any, context?: Record<string, any>) {
+  static error(message: string, data?: unknown, context?: Record<string, unknown>) {
     this.log('error', message, data, context);
   }
 
-  static debug(message: string, data?: any, context?: Record<string, any>) {
+  static debug(message: string, data?: unknown, context?: Record<string, unknown>) {
+    if (process.env.BILIBILI_MCP_DEBUG !== '1') {
+      return;
+    }
     this.log('debug', message, data, context);
   }
 
@@ -93,7 +101,7 @@ export class Logger {
   static logAPIRequest(
     method: string,
     url: string,
-    params?: Record<string, any>,
+    params?: Record<string, unknown>,
     duration?: number
   ) {
     this.info('API Request', {
@@ -128,7 +136,7 @@ export class Logger {
   /**
    * 记录 MCP 工具调用
    */
-  static logToolCall(toolName: string, args?: Record<string, any>, duration?: number) {
+  static logToolCall(toolName: string, args?: Record<string, unknown>, duration?: number) {
     this.info('Tool Call', {
       toolName,
       args,
@@ -153,29 +161,29 @@ export class Logger {
   /**
    * 创建带上下文的新 Logger 实例
    */
-  static withContext(context: Record<string, any>): Logger {
+  static withContext(context: Record<string, unknown>): Logger {
     return new Logger(context);
   }
 
-  private context: Record<string, any>;
+  private context: Record<string, unknown>;
 
-  constructor(context: Record<string, any> = {}) {
+  constructor(context: Record<string, unknown> = {}) {
     this.context = context;
   }
 
-  info(message: string, data?: any) {
+  info(message: string, data?: unknown) {
     Logger.info(message, data, this.context);
   }
 
-  warn(message: string, data?: any) {
+  warn(message: string, data?: unknown) {
     Logger.warn(message, data, this.context);
   }
 
-  error(message: string, data?: any) {
+  error(message: string, data?: unknown) {
     Logger.error(message, data, this.context);
   }
 
-  debug(message: string, data?: any) {
+  debug(message: string, data?: unknown) {
     Logger.debug(message, data, this.context);
   }
 }

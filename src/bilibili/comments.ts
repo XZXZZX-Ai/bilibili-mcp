@@ -10,7 +10,7 @@ import {
 import { extractBVId } from "../utils/bvid.js";
 import { cacheManager } from "../utils/cache.js";
 import { CommentsDisabledError } from "../utils/errors.js";
-import { redactSecrets } from "../utils/logger.js";
+import { logger, redactSecrets } from "../utils/logger.js";
 
 export interface CommentData {
   comments: ProcessedComment[];
@@ -122,11 +122,11 @@ export async function getVideoCommentsData(
     // 尝试从缓存获取
     const cachedData = cacheManager.getCommentInfo(cacheKey);
     if (cachedData) {
-      console.error(`Cache hit for comments ${bvid}`);
+      logger.debug("Comments cache hit", { bvid, cacheKey }, { type: "comments" });
       return cachedData;
     }
 
-    console.error(`Cache miss for comments ${bvid}, fetching from API`);
+    logger.debug("Comments cache miss", { bvid, cacheKey }, { type: "comments" });
 
     // 获取视频基本信息以获取 CID
     const videoData = await getVideoInfo(bvid);
@@ -191,7 +191,7 @@ export async function getVideoCommentsData(
     return result;
   } catch (error) {
     if (error instanceof CommentsDisabledError) {
-      console.error(`Comments disabled for video ${bvid}`);
+      logger.warn("Comments disabled for video", { bvid }, { type: "comments" });
       const result: CommentData = {
         comments: [],
         summary: {
@@ -203,7 +203,11 @@ export async function getVideoCommentsData(
       cacheManager.setCommentInfo(cacheKey, result);
       return result;
     }
-    console.error("Error getting video comments:", redactSecrets(error));
+    logger.error(
+      "Error getting video comments",
+      { error: redactSecrets(error) },
+      { type: "comments" },
+    );
     throw error;
   }
 }
