@@ -1,4 +1,5 @@
-import { afterEach, describe, expect, it } from "vitest";
+import fs from "fs";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   buildCredentialSetupInstructions,
@@ -8,8 +9,13 @@ import {
 } from "../src/utils/credential-guidance.js";
 import { credentialManager } from "../src/utils/credentials.js";
 
+function hideGlobalCredentialConfig() {
+  vi.spyOn(fs, "existsSync").mockReturnValue(false);
+}
+
 describe("credential guidance", () => {
   afterEach(() => {
+    vi.restoreAllMocks();
     credentialManager.clearCredentials();
     delete process.env.BILIBILI_SESSDATA;
     delete process.env.BILIBILI_BILI_JCT;
@@ -63,6 +69,8 @@ describe("credential status", () => {
   });
 
   it("reports none when no credentials are configured", async () => {
+    hideGlobalCredentialConfig();
+
     const result = await buildCredentialStatus(async () => ({ isLogin: false }));
 
     expect(result.configured).toBe(false);

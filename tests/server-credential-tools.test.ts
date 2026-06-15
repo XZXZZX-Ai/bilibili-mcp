@@ -1,7 +1,12 @@
-import { afterEach, describe, expect, it } from "vitest";
+import fs from "fs";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { getMcpHandler } from "./helpers/mcp.js";
 import { credentialManager } from "../src/utils/credentials.js";
+
+function hideGlobalCredentialConfig() {
+  vi.spyOn(fs, "existsSync").mockReturnValue(false);
+}
 
 function getCallToolHandler() {
   return getMcpHandler<
@@ -30,6 +35,7 @@ async function callTool(name: string) {
 
 describe("credential MCP tools", () => {
   afterEach(() => {
+    vi.restoreAllMocks();
     credentialManager.clearCredentials();
     delete process.env.BILIBILI_SESSDATA;
     delete process.env.BILIBILI_BILI_JCT;
@@ -48,6 +54,8 @@ describe("credential MCP tools", () => {
   });
 
   it("returns safe credential status when credentials are missing", async () => {
+    hideGlobalCredentialConfig();
+
     const response = await callTool("check_bilibili_credentials");
     const payload = JSON.parse(response.content[0].text);
 
