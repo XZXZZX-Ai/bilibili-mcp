@@ -766,3 +766,9 @@
 - Commands: `npm test -- tests/cache.test.ts tests/bilibili-metadata.test.ts tests/bilibili-comments-tool.test.ts tests/bilibili-transcript.test.ts`; `npm test`; `npm run build`; type-hardening scan with `rg`.
 - Result: `CacheManager` now uses generic value types and preserves cache key/stat behavior, selected Bilibili wrapper casts are replaced with typed response interfaces, focused behavior tests and full tests/build pass.
 - Caveat: No cache key format, MCP public contract, credential loading, logging behavior, source encoding, package metadata, tag, push, publish, or GitHub release was changed.
+
+## 2026-06-14 Active Plan Tracker Commit-Boundary Fix
+
+- Commands: `python .codex/scripts/plan_tracker.py`; `python .codex/scripts/generate_learning_proposals.py --source codex`; `python .codex/scripts/generate_learning_proposals.py --source claude`; `python -m py_compile .codex/scripts/plan_tracker.py .codex/scripts/generate_learning_proposals.py`.
+- Result: Active plan tracking now ignores unchecked commit-boundary steps that require explicit user approval, so Task 1 no longer blocks phase-gated learning after implementation verification is complete. Codex and Claude runtime phase state both point to `docs/superpowers/plans/2026-06-14-task3-mcp-server-handler-refactor-implementation-plan.md` with completed phase count 6.
+- Caveat: This does not mark a commit as completed and does not stage, commit, push, or modify Task 3 source behavior.

@@ -21,12 +21,22 @@ def checkbox_counts(plan_path: Path) -> tuple[int, int]:
     total = 0
     for raw_line in plan_path.read_text(encoding="utf-8", errors="ignore").splitlines():
         line = raw_line.strip()
-        if not line.startswith("- ["):
+        if not is_tracked_checkbox(line):
             continue
         total += 1
         if line.startswith("- [x]") or line.startswith("- [X]"):
             completed += 1
     return completed, total
+
+
+def is_tracked_checkbox(line: str) -> bool:
+    if not line.startswith("- ["):
+        return False
+
+    normalized = line.lower()
+    if "commit" in normalized and "explicit user approval" in normalized:
+        return False
+    return True
 
 
 def task_section_completed_count(plan_path: Path) -> int:
@@ -48,7 +58,11 @@ def task_section_completed_count(plan_path: Path) -> int:
 
     completed = 0
     for section in sections:
-        boxes = [line.strip() for line in section if line.strip().startswith("- [")]
+        boxes = [
+            line.strip()
+            for line in section
+            if is_tracked_checkbox(line.strip())
+        ]
         if boxes and all(line.startswith("- [x]") or line.startswith("- [X]") for line in boxes):
             completed += 1
     return completed
