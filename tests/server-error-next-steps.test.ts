@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { getMcpHandler } from "./helpers/mcp.js";
+
 const mockGetVideoInfoWithSubtitle = vi.fn();
 
 vi.mock("../src/bilibili/subtitle.js", () => ({
@@ -20,24 +22,21 @@ vi.mock("../src/bilibili/http.js", () => ({
   checkLoginStatus: vi.fn(async () => ({ isLogin: false })),
 }));
 
-const { server } = await import("../src/server.js");
 const { BilibiliAPIError } = await import("../src/utils/errors.js");
 
 function getCallToolHandler() {
-  const handlers = (server as any)._requestHandlers as Map<string, unknown>;
-  const handlerEntry = handlers.get("tools/call");
-  if (!handlerEntry) {
-    throw new Error("tools/call handler not registered");
-  }
-  return handlerEntry as (request: {
-    method: "tools/call";
-    jsonrpc: "2.0";
-    id: number;
-    params: { name: string; arguments?: Record<string, unknown> };
-  }) => Promise<{
-    content: Array<{ type: string; text: string }>;
-    isError?: boolean;
-  }>;
+  return getMcpHandler<
+    {
+      method: "tools/call";
+      jsonrpc: "2.0";
+      id: number;
+      params: { name: string; arguments?: Record<string, unknown> };
+    },
+    {
+      content: Array<{ type: string; text: string }>;
+      isError?: boolean;
+    }
+  >("tools/call");
 }
 
 describe("generic MCP error credential next_steps", () => {

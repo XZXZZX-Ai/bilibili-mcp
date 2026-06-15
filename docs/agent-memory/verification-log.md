@@ -778,3 +778,9 @@
 - Commands: UTF-8 source/metadata scan with Python; `node -e` package metadata check; `npm run build`; `npm test`; behavior-neutral diff review.
 - Result: Scoped source comments and package metadata were verified as clean UTF-8 or already acceptable; no source or package metadata cleanup was required.
 - Caveat: PowerShell terminal mojibake was not treated as file corruption; only UTF-8 file reads were used for encoding judgment.
+
+## 2026-06-15 Task 6 MCP Integration Test Hardening
+
+- Commands: `npm run build`; `npm test -- tests/server-tools.test.ts tests/server-credential-tools.test.ts tests/server-error-next-steps.test.ts tests/server-handler-sanitization.test.ts tests/mcp-server-smoke.test.ts`; `npm test`; `npm pack --dry-run`; MCP test helper scan with `rg`.
+- Result: MCP server tests now share a single registered-handler helper, stdio entrypoint smoke coverage verifies startup logging stays on stderr, public tool-list smoke coverage remains stable, and build/tests/package dry-run pass.
+- Caveat: One Task 6 scoped exception — `src/index.ts:16` now passes `quiet: true` to dotenv to stop dotenv 17 from polluting MCP stdio stdout with `[dotenv@...] injecting env` log; without this 1-line production fix the stdio smoke `stdout === ""` assertion cannot pass and real MCP clients would see non-JSON output on the JSON-RPC channel. No MCP public contract, credential loading, logger behavior, cache behavior, package metadata, release workflow, tag, push, publish, or GitHub release was changed.

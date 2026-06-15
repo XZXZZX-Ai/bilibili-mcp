@@ -1,23 +1,21 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { server } from "../src/server.js";
+import { getMcpHandler } from "./helpers/mcp.js";
 import { credentialManager } from "../src/utils/credentials.js";
 
 function getCallToolHandler() {
-  const handlers = (server as any)._requestHandlers as Map<string, unknown>;
-  const handlerEntry = handlers.get("tools/call");
-  if (!handlerEntry) {
-    throw new Error("tools/call handler not registered");
-  }
-  return handlerEntry as (request: {
-    method: "tools/call";
-    jsonrpc: "2.0";
-    id: number;
-    params: { name: string; arguments?: Record<string, unknown> };
-  }) => Promise<{
-    content: Array<{ type: string; text: string }>;
-    isError?: boolean;
-  }>;
+  return getMcpHandler<
+    {
+      method: "tools/call";
+      jsonrpc: "2.0";
+      id: number;
+      params: { name: string; arguments?: Record<string, unknown> };
+    },
+    {
+      content: Array<{ type: string; text: string }>;
+      isError?: boolean;
+    }
+  >("tools/call");
 }
 
 async function callTool(name: string) {

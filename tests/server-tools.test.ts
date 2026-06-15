@@ -1,27 +1,20 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
-import { server } from "../src/server.js";
+import { getMcpHandler } from "./helpers/mcp.js";
 
-// server.ts registers the ListTools handler on import.
-// Access the private handler store to invoke it directly.
 function getListToolsResult() {
-  const handlers = (server as any)._requestHandlers as Map<string, unknown>;
-  const handlerEntry = handlers.get("tools/list");
-  if (!handlerEntry) {
-    throw new Error("tools/list handler not registered");
-  }
-  // The handler expects an MCP JSON-RPC request.
-  // Pass a minimal valid request matching the schema.
   const fakeRequest = {
     method: "tools/list",
     jsonrpc: "2.0" as const,
     id: 1,
   };
-  const handler = handlerEntry as (
-    req: typeof fakeRequest,
-  ) => Promise<{
-    tools: Array<{ name: string; inputSchema: Record<string, unknown> }>;
-  }>;
+  const handler = getMcpHandler<
+    typeof fakeRequest,
+    {
+      tools: Array<{ name: string; inputSchema: Record<string, unknown> }>;
+    }
+  >("tools/list");
+
   return handler(fakeRequest);
 }
 
