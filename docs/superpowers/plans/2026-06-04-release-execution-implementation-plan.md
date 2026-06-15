@@ -146,21 +146,21 @@ chore: fix active plan tracking memory
   - `npm view @xzxzzx/bilibili-mcp version`
   - `npm view @xzxzzx/bilibili-mcp dist-tags`
 - [x] Confirm package page or npm metadata shows `1.4.0`.
-- [ ] Optionally verify provenance from npm package page or npm metadata if available.
+- [x] Optional provenance verification left out of the release gate; npm publication was verified through registry metadata.
 - [x] Update `docs/agent-memory/verification-log.md` with release execution results.
 
 ## Task 7: GitHub Release
 
-- [ ] Create GitHub Release for `v1.4.0` only after npm publish succeeds.
-- [ ] Use changelog content from `CHANGELOG.md` and `CHANGELOG_EN.md`.
-- [ ] Mention:
+- [x] Create GitHub Release for `v1.4.0` only after npm publish succeeds.
+- [x] Use changelog content from `CHANGELOG.md` and `CHANGELOG_EN.md`.
+- [x] Mention:
   - new MCP tools: `get_video_transcript`, `get_video_metadata`
   - expanded `get_video_comments` controls
   - client module split
   - package metadata and publish workflow hardening
   - Smithery removal
   - test baseline: 110 tests
-- [ ] Do not claim npm publish succeeded unless Task 5/6 verified it.
+- [x] Do not claim npm publish succeeded unless Task 5/6 verified it.
 
 ## Acceptance Criteria
 

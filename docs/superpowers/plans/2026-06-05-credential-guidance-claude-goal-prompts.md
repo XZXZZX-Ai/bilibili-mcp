@@ -4,7 +4,7 @@ Use this file with:
 
 - Plan: `docs/superpowers/plans/2026-06-05-credential-guidance-mcp-tools-implementation-plan.md`
 - Repository: `C:\Users\ZX\bilibili-mcp`
-- Execution model requested by user: Claude Code with DeepSeek V4
+- Execution model: Claude Code. The concrete model is chosen by the user or current runtime and may change over time.
 
 Do not write the model choice into repository config, scripts, package metadata, README, or source files. It is only the user-selected execution environment.
 
@@ -222,4 +222,3 @@ MCP compatibility:
 Skipped checks or risks:
 - ...
 ```
-

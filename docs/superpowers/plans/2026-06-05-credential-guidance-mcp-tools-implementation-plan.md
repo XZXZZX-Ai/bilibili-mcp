@@ -92,7 +92,7 @@ Other AI agents often install MCP servers by copying a client config snippet and
 - Read/Use: `src/utils/credentials.ts`
 - Read/Use: future `src/utils/credential-guidance.ts`
 
-- [ ] **Step 1: Write failing helper tests**
+- [x] **Step 1: Write failing helper tests**
 
 Create `tests/credential-guidance.test.ts`:
 
@@ -153,7 +153,7 @@ describe("credential guidance", () => {
 });
 ```
 
-- [ ] **Step 2: Run helper tests to verify they fail**
+- [x] **Step 2: Run helper tests to verify they fail**
 
 Run:
 
@@ -168,7 +168,7 @@ Expected: FAIL because `src/utils/credential-guidance.ts` does not exist.
 **Files:**
 - Create: `src/utils/credential-guidance.ts`
 
-- [ ] **Step 1: Add helper implementation**
+- [x] **Step 1: Add helper implementation**
 
 Create `src/utils/credential-guidance.ts`:
 
@@ -221,7 +221,7 @@ export function hasSecretLikeValue(value: string): boolean {
 }
 ```
 
-- [ ] **Step 2: Run helper tests**
+- [x] **Step 2: Run helper tests**
 
 Run:
 
@@ -238,7 +238,7 @@ Expected: PASS.
 - Modify: `src/utils/credential-guidance.ts`
 - Modify: `tests/credential-guidance.test.ts`
 
-- [ ] **Step 1: Write failing source/status tests**
+- [x] **Step 1: Write failing source/status tests**
 
 Append to `tests/credential-guidance.test.ts`:
 
@@ -282,7 +282,7 @@ describe("credential status", () => {
 });
 ```
 
-- [ ] **Step 2: Run source/status tests to verify they fail**
+- [x] **Step 2: Run source/status tests to verify they fail**
 
 Run:
 
@@ -292,7 +292,7 @@ npm test -- tests/credential-guidance.test.ts
 
 Expected: FAIL because `buildCredentialStatus` and source detection are not implemented.
 
-- [ ] **Step 3: Add source detection to `CredentialManager`**
+- [x] **Step 3: Add source detection to `CredentialManager`**
 
 Modify `src/utils/credentials.ts` minimally. Add the type and method near the class:
 
@@ -328,7 +328,7 @@ Inside `CredentialManager`, add:
   }
 ```
 
-- [ ] **Step 4: Add status builder**
+- [x] **Step 4: Add status builder**
 
 Extend `src/utils/credential-guidance.ts`:
 
@@ -367,7 +367,7 @@ export async function buildCredentialStatus(
 
 If the import conflicts with the local `CredentialSource` type from Task 2, remove the local type in `credential-guidance.ts` and import it from `credentials.ts`.
 
-- [ ] **Step 5: Run helper/status tests**
+- [x] **Step 5: Run helper/status tests**
 
 Run:
 
@@ -383,7 +383,7 @@ Expected: PASS.
 - Modify: `src/server.ts`
 - Modify: `tests/server-tools.test.ts`
 
-- [ ] **Step 1: Write failing tool-list tests**
+- [x] **Step 1: Write failing tool-list tests**
 
 Modify `tests/server-tools.test.ts`:
 
@@ -433,7 +433,7 @@ Add near the end of the same file:
   });
 ```
 
-- [ ] **Step 2: Run tool-list tests to verify they fail**
+- [x] **Step 2: Run tool-list tests to verify they fail**
 
 Run:
 
@@ -443,7 +443,7 @@ npm test -- tests/server-tools.test.ts
 
 Expected: FAIL because the two new tools are not registered yet.
 
-- [ ] **Step 3: Register the tools in `src/server.ts`**
+- [x] **Step 3: Register the tools in `src/server.ts`**
 
 Add imports:
 
@@ -492,7 +492,7 @@ Also update `get_video_info` and `get_video_comments` descriptions with a shorte
 For credential help, call get_credential_setup_instructions.
 ```
 
-- [ ] **Step 4: Add `CallToolRequestSchema` cases**
+- [x] **Step 4: Add `CallToolRequestSchema` cases**
 
 In `src/server.ts`, add switch cases before `get_video_info`:
 
@@ -525,7 +525,7 @@ In `src/server.ts`, add switch cases before `get_video_info`:
       }
 ```
 
-- [ ] **Step 5: Run tool-list tests**
+- [x] **Step 5: Run tool-list tests**
 
 Run:
 
@@ -541,7 +541,7 @@ Expected: PASS.
 - Create: `tests/server-credential-tools.test.ts`
 - Modify if needed: `src/server.ts`
 
-- [ ] **Step 1: Write MCP call handler tests**
+- [x] **Step 1: Write MCP call handler tests**
 
 Create `tests/server-credential-tools.test.ts`:
 
@@ -612,7 +612,7 @@ describe("credential MCP tools", () => {
 });
 ```
 
-- [ ] **Step 2: Run MCP credential tool tests**
+- [x] **Step 2: Run MCP credential tool tests**
 
 Run:
 
@@ -628,7 +628,7 @@ Expected: PASS if Task 4 implementation is complete. If it fails because `check_
 - Modify: `src/server.ts`
 - Modify: `tests/server-credential-tools.test.ts` or create focused server error tests
 
-- [ ] **Step 1: Write failing payload tests for next_steps**
+- [x] **Step 1: Write failing payload tests for next_steps**
 
 Append to `tests/server-credential-tools.test.ts`:
 
@@ -648,7 +648,7 @@ describe("credential next_steps in error payloads", () => {
 
 If Claude Code can safely mock `getVideoTranscriptData` without module cache issues, add a direct `get_video_transcript` error test that expects `next_steps` in the returned JSON. If mocking is brittle, cover this through helper tests plus code review.
 
-- [ ] **Step 2: Add `next_steps` in `src/server.ts`**
+- [x] **Step 2: Add `next_steps` in `src/server.ts`**
 
 Import:
 
@@ -681,7 +681,7 @@ In the generic catch block, if the error is `BilibiliAPIError` with `code === "C
 
 Keep other errors unchanged unless necessary.
 
-- [ ] **Step 3: Update Bilibili API error messages that mention only `.env`**
+- [x] **Step 3: Update Bilibili API error messages that mention only `.env`**
 
 In `src/bilibili/subtitle.ts`, replace the `.env`-only message with:
 
@@ -697,7 +697,7 @@ In `src/bilibili/http.ts`, replace both `COOKIE_EXPIRED` messages with:
 
 Use ASCII text to avoid adding mojibake.
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 Run:
 
@@ -713,7 +713,7 @@ Expected: PASS.
 - Modify: `README.md`
 - Modify: `README_EN.md`
 
-- [ ] **Step 1: Add the new tools to tool surface docs**
+- [x] **Step 1: Add the new tools to tool surface docs**
 
 In both README files, update the MCP tool list / feature section to mention:
 
@@ -729,7 +729,7 @@ The wording should be concise:
 - `check_bilibili_credentials`: checks whether credentials are configured and logged in without returning Cookie values.
 ```
 
-- [ ] **Step 2: Update agent installer note**
+- [x] **Step 2: Update agent installer note**
 
 In the existing `Client Setup` important note, add:
 
@@ -739,7 +739,7 @@ After connecting the MCP server, agents can also call `get_credential_setup_inst
 
 Use equivalent clean Chinese in `README.md`.
 
-- [ ] **Step 3: Run docs scan**
+- [x] **Step 3: Run docs scan**
 
 Run:
 
@@ -754,7 +754,7 @@ Expected: new tool names are present; secret-like patterns only appear in safe v
 **Files:**
 - All touched files
 
-- [ ] **Step 1: Run full test suite**
+- [x] **Step 1: Run full test suite**
 
 Run:
 
@@ -764,7 +764,7 @@ npm test
 
 Expected: PASS. Current expected baseline before this change was 8 test files / 110 tests; after this change the count should increase.
 
-- [ ] **Step 2: Run build**
+- [x] **Step 2: Run build**
 
 Run:
 
@@ -774,7 +774,7 @@ npm run build
 
 Expected: PASS.
 
-- [ ] **Step 3: Run package dry run**
+- [x] **Step 3: Run package dry run**
 
 Run:
 
@@ -784,7 +784,7 @@ npm pack --dry-run
 
 Expected: PASS. Confirm `dist/`, `README.md`, `README_EN.md`, `LICENSE`, and `package.json` are included; tests, `.env`, `.claude/`, `.codex/`, and `docs/agent-memory/` are excluded.
 
-- [ ] **Step 4: Secret and stale-client scan**
+- [x] **Step 4: Secret and stale-client scan**
 
 Run:
 
@@ -794,7 +794,7 @@ rg -n "SESSDATA=|bili_jct=|DedeUserID=|npm_[A-Za-z0-9]|ghp_[A-Za-z0-9]|Coze|Lang
 
 Expected: no real secrets. Removed unsupported client names should not reappear in README. Variable names may appear only in safe explanatory text, not with real values.
 
-- [ ] **Step 5: Report changed files and unresolved risks**
+- [x] **Step 5: Report changed files and unresolved risks**
 
 Claude Code should report:
 
@@ -833,7 +833,7 @@ Claude Code should report:
 
 ## Claude Code Execution Steps
 
-Use Claude Code with DeepSeek V4 for implementation, but do not write any model choice into repository files.
+Use Claude Code for implementation. Do not assume or write any concrete model choice into repository files.
 
 Recommended Claude Code subagent:
 

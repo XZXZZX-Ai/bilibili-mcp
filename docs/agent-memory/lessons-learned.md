@@ -59,3 +59,9 @@
 - Lesson: Credential source reporting currently covers environment variables and global config, not in-memory-only credentials.
 - Evidence: `CredentialManager.getCredentialSource()` returns `env`, `global_config`, or `none` based on environment and global config file state.
 - Future behavior: If a future MCP login flow creates in-memory credentials, update credential status reporting so it does not falsely report `none`.
+
+## 2026-06-14
+
+- Lesson: Credential-status tests that assert `source: none` must hide the developer machine's global Bilibili config.
+- Evidence: Focused credential guidance tests failed on a machine with global credentials configured because `credentialManager.clearCredentials()` only clears in-memory state and does not remove `~/.bilibili-mcp/config.json`.
+- Future behavior: Mock or isolate global config file detection when testing the no-credential branch; do not depend on a developer machine having no configured Cookies.

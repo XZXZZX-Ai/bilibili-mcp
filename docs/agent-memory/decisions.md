@@ -81,3 +81,29 @@
 - Decision: Treat generated learning proposal files as review queues and Python bytecode caches as ignored local artifacts.
 - Reason: `pending-learning-proposals.md` is meaningful project state only as a generated queue, while `__pycache__` contains no durable learning.
 - Evidence: `docs/agent-memory/README.md` controlled-learning section and `.gitignore` entries for `__pycache__/` and `*.py[cod]`.
+
+## 2026-06-14
+
+- Decision: Add fixed invocation triggers for recurring Codex and Claude Code project work.
+- Reason: The user wants predictable skill and subagent use in stable scenarios instead of ad hoc capability selection.
+- Evidence: `AGENTS.md` and `CLAUDE.md` now define fixed triggers for tests, credentials/secrets, build failures, package maintenance, release verification, GitHub Actions, Git workflows, risk review, and project memory updates.
+
+- Decision: Add fixed MCP/tool connector triggers for recurring remote-state, documentation, registry, and local MCP verification work.
+- Reason: The user wants Codex and Claude Code to consistently verify live external state and current docs in stable scenarios instead of relying on memory.
+- Evidence: `AGENTS.md` and `CLAUDE.md` now define fixed MCP/tool triggers for live GitHub state, failing Actions checks, GitHub Actions/npm publishing docs, OpenAI/Codex/MCP SDK docs, npm registry metadata, local MCP server behavior, remote owner/name changes, and explicitly requested external app workflows.
+
+- Decision: Add fixed CLI triggers and CLI-vs-MCP boundaries for recurring repository work.
+- Reason: The user wants Codex and Claude Code to consistently choose CLI for local authoritative facts and MCP/connectors for live platform or structured external workflows.
+- Evidence: `AGENTS.md` and `CLAUDE.md` now define CLI triggers for local git facts, local file/code inspection, npm/node/tsc/vitest verification, npm registry metadata, quick GitHub checks through `gh`, project hook health scripts, MCP package credential smoke tests, and external service CLIs only when explicitly in scope.
+
+- Decision: Plan the next optimization cycle as six separate phases instead of one broad refactor.
+- Reason: Package health, logging, MCP handler structure, type/cache hardening, encoding cleanup, and MCP integration tests have different risks and verification gates.
+- Evidence: `docs/superpowers/plans/2026-06-14-project-optimization-roadmap.md` defines one independently verifiable task per optimization direction, with capability triggers, commands, acceptance gates, and rollback points.
+
+- Decision: Use Markdown files as the default Codex-to-Claude communication channel for substantial implementation work.
+- Reason: The user wants Codex and Claude Code to coordinate through durable Markdown artifacts instead of relying on transient chat context.
+- Evidence: `docs/agent-memory/agent-communication.md` defines the handoff/report protocol and templates; `AGENTS.md` and `CLAUDE.md` require file-backed handoffs for release, package, credential, MCP tool, and multi-file implementation work.
+
+- Decision: Do not name DeepSeek V4 as the fixed Claude Code execution model.
+- Reason: The user clarified that Claude Code may no longer be using DeepSeek V4, and the concrete model can change by user choice or runtime configuration.
+- Evidence: `AGENTS.md` and older planning prompts were updated to describe Claude Code as the implementation tool without hard-coding a model.

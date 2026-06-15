@@ -268,6 +268,17 @@ This repository is manually orchestrated by the user.
 - Do not switch tools automatically.
 - If the implementation direction is unclear, stop and report the decision point.
 
+## Markdown Agent Communication
+
+Codex and Claude Code should communicate substantial implementation work through Markdown handoffs and reports.
+
+- Read `docs/agent-memory/agent-communication.md` when receiving or writing a file-backed handoff/report.
+- Prefer Codex handoffs under `docs/agent-memory/handoffs/YYYY-MM-DD-<topic>-codex-to-claude.md` for release, package, credential, MCP tool, and multi-file implementation work.
+- Return a Markdown report using the template in `agent-communication.md`; if writing a file, use `docs/agent-memory/handoffs/YYYY-MM-DD-<topic>-claude-report.md`.
+- A Claude report must include files changed, commands run, command results, skipped checks, unresolved risks, decision points, and suggested Codex review focus.
+- If the handoff is missing required context, ask for clarification or report the missing context instead of guessing.
+- Do not include secrets, full Cookie values, `.env` contents, npm tokens, GitHub tokens, or private credentials in handoff/report Markdown.
+
 ## Capability Invocation Rules
 
 Use skills, MCP/tools, and subagents explicitly and predictably.
@@ -294,12 +305,50 @@ MCP/tool usage:
 - Use docs-grounded tools or installed documentation skills for GitHub Actions, npm publishing, MCP SDK, OpenAI/Codex behavior, or any external behavior likely to have changed.
 - Do not guess remote state, current documentation, or MCP behavior from memory when a tool or official source can verify it.
 
+Fixed MCP/tool triggers:
+
+- For live GitHub repository facts, pull requests, issues, releases, review comments, remote branches, and Actions run state, use GitHub tooling, `gh`, or installed GitHub skills before making claims.
+- For concrete failing GitHub Actions, npm publish, or PR checks, use `gh-fix-ci` or inspect the actual `gh run` logs before proposing a fix.
+- For GitHub Actions workflow syntax, OIDC permissions, npm trusted publishing, npm provenance, runner behavior, caching, artifacts, or publish workflow design, use `github-actions-docs` and current official documentation.
+- For OpenAI, Codex, OpenAI SDK/API, or MCP SDK behavior, use the relevant official documentation or installed docs skill before giving implementation guidance when behavior may have changed.
+- For npm registry state, published versions, dist-tags, provenance, or package metadata, query the live registry with npm tooling; do not rely on `package.json` alone.
+- For local MCP server behavior, tool lists, schemas, package metadata, tests, builds, and pack contents, use local shell commands from this worktree as the authority.
+- For current remote repository identity after owner/name changes, verify with `git remote -v`, `gh repo view`, or equivalent GitHub tooling before editing README, package metadata, publish trust guidance, or release instructions.
+- For Lark/Feishu, Canva, Hugging Face, or other external app workflows, use the matching installed connector/skill only when the user explicitly asks for that external system or provides that system's link/context.
+
+If a fixed MCP/tool trigger applies but the connector is unavailable or unauthenticated, report that state, use the closest safe CLI or official-doc fallback, and avoid presenting unverified remote state as fact.
+
+Fixed CLI triggers:
+
+- Use `git` CLI for local worktree facts: status, diff, log, branches, tags, remotes, staging, commits, and pushes requested by the user. Use GitHub tooling only when the question depends on remote GitHub state.
+- Use `rg`, shell file listing, and file reads for local code, docs, tests, and config inspection. Do not use MCP or external tools for facts already authoritative in the checked-out worktree.
+- Use `npm`, `node`, `tsc`, and `vitest` commands for package metadata, scripts, tests, builds, and `npm pack --dry-run`; these local commands are more authoritative than MCP for this repository's current source state.
+- Use `npm view` for npm registry versions, dist-tags, package metadata, and publish availability. Use documentation skills for rules and requirements, not registry state.
+- Use `gh` CLI for quick authenticated GitHub checks when local auth exists and a copied GitHub skill or connector workflow is unnecessary: `gh repo view`, `gh run list/view`, `gh release view`, `gh pr view`, and `gh issue view`. Use GitHub skills when the task is specifically a PR, CI, review-comment, or GitHub workflow task.
+- Use project Python hook scripts directly for memory-system health checks: `.codex/scripts/plan_tracker.py`, `.codex/scripts/generate_learning_proposals.py`, `.codex/scripts/context_budget.py`, and related hook scripts. Do not infer learning state from memory alone when these scripts can refresh it.
+- Use local CLI smoke tests for the MCP package, such as `npx -y @xzxzzx/bilibili-mcp config` and `npx -y @xzxzzx/bilibili-mcp check`, when verifying installed-user credential guidance. Do not print Cookie values from any CLI output.
+- Use external service CLIs, such as `lark-cli`, only when the matching external workflow is explicitly requested or already in scope; otherwise keep this repository's work local.
+
 Subagent usage:
 
 - Use a project subagent when the user asks, Codex handoff names it, or the task clearly matches `.claude/agents/<name>.md`.
 - Use only one focused subagent by default. Do not create subagent trees or multi-agent workflows unless the user explicitly asks.
 - If a subagent reports a decision point, stop and return the decision point to the user or Codex.
 - In the final report, include the subagent name used, or state that no subagent was used and why.
+
+Fixed invocation triggers:
+
+- For tests, test helpers, fixtures, Vitest configuration, or diagnosing test failures, use the `vitest` skill. Use `test-baseline-builder` when adding or maintaining deterministic test coverage.
+- For credential, Cookie, `.env`, token, redaction, package-secret, pre-commit secret, or pre-publish secret-risk work, use `secret-scanning`. Use `credential-sanitizer` for credential cleanup and `risk-reviewer` for post-change leak review.
+- For `npm run build`, TypeScript, Node ESM, import/export, MCP compilation, or failing build output, use `build-error-resolver`.
+- For `package.json`, `package-lock.json`, npm scripts, package entry points, package contents, `npm pack --dry-run`, or Smithery cleanup, use `package-maintainer`.
+- For release, tag, npm publish, GitHub Release, provenance, trusted publishing, or final release readiness work, use `release-verifier` before reporting completion. Use `github-actions-docs` for workflow/OIDC/npm documentation questions.
+- For completed changes that affect MCP tools, credentials, package publishing, release workflow, or shared Bilibili API behavior, use `risk-reviewer` before reporting the change as accepted.
+- For GitHub Actions, npm publishing workflow YAML, OIDC, permissions, secrets, runners, artifacts, or caching, use `github-actions-docs`; for concrete failed checks or publish runs, use `gh-fix-ci`.
+- For local commit only, use `git-local-commit`; for commit plus push, use `git-publish`; for branch plus draft PR workflow, use `yeet` only when explicitly requested.
+- For substantial planning, roadmap synchronization, handoffs, verification records, or durable project rules, use `bilibili-mcp-memory` and update the matching `docs/agent-memory/` file when a verified durable fact, decision, lesson, handoff, or verification result is produced.
+
+If a fixed trigger applies but the named skill or subagent is unavailable, report the missing capability and use the closest installed fallback. If multiple triggers apply, use the smallest focused set and name it in the report.
 
 ## Handoff Awareness
 
