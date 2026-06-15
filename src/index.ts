@@ -13,7 +13,7 @@ const __dirname = dirname(__filename);
 // 尝试加载.env文件
 const envPath = resolve(__dirname, "../.env");
 try {
-  config({ path: envPath });
+  config({ path: envPath, quiet: true });
 } catch (e) {
   // .env is optional
 }
