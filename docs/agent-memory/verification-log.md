@@ -772,3 +772,9 @@
 - Commands: `python .codex/scripts/plan_tracker.py`; `python .codex/scripts/generate_learning_proposals.py --source codex`; `python .codex/scripts/generate_learning_proposals.py --source claude`; `python -m py_compile .codex/scripts/plan_tracker.py .codex/scripts/generate_learning_proposals.py`.
 - Result: Active plan tracking now ignores unchecked commit-boundary steps that require explicit user approval, so Task 1 no longer blocks phase-gated learning after implementation verification is complete. Codex and Claude runtime phase state both point to `docs/superpowers/plans/2026-06-14-task3-mcp-server-handler-refactor-implementation-plan.md` with completed phase count 6.
 - Caveat: This does not mark a commit as completed and does not stage, commit, push, or modify Task 3 source behavior.
+
+## 2026-06-15 Task 5 Source Comment And Metadata Encoding Cleanup
+
+- Commands: UTF-8 source/metadata scan with Python; `node -e` package metadata check; `npm run build`; `npm test`; behavior-neutral diff review.
+- Result: Scoped source comments and package metadata were verified as clean UTF-8 or already acceptable; no source or package metadata cleanup was required.
+- Caveat: PowerShell terminal mojibake was not treated as file corruption; only UTF-8 file reads were used for encoding judgment.
