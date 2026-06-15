@@ -9,9 +9,9 @@ interface CacheOptions {
   maxAge: number;
 }
 
-export class CacheManager {
-  private videoCache: QuickLRU<string, any>;
-  private commentCache: QuickLRU<string, any>;
+export class CacheManager<VideoValue = unknown, CommentValue = unknown> {
+  private videoCache: QuickLRU<string, VideoValue>;
+  private commentCache: QuickLRU<string, CommentValue>;
   private cacheStats = {
     hits: 0,
     misses: 0,
@@ -39,7 +39,7 @@ export class CacheManager {
   }
 
   // 视频信息缓存
-  getVideoInfo(key: string): any {
+  getVideoInfo(key: string): VideoValue | undefined {
     const value = this.videoCache.get(key);
     if (value) {
       this.cacheStats.hits++;
@@ -49,7 +49,7 @@ export class CacheManager {
     return value;
   }
 
-  setVideoInfo(key: string, value: any): void {
+  setVideoInfo(key: string, value: VideoValue): void {
     this.videoCache.set(key, value);
     this.cacheStats.sets++;
   }
@@ -60,7 +60,7 @@ export class CacheManager {
   }
 
   // 评论缓存
-  getCommentInfo(key: string): any {
+  getCommentInfo(key: string): CommentValue | undefined {
     const value = this.commentCache.get(key);
     if (value) {
       this.cacheStats.hits++;
@@ -70,7 +70,7 @@ export class CacheManager {
     return value;
   }
 
-  setCommentInfo(key: string, value: any): void {
+  setCommentInfo(key: string, value: CommentValue): void {
     this.commentCache.set(key, value);
     this.cacheStats.sets++;
   }
@@ -98,9 +98,14 @@ export class CacheManager {
   }
 
   // 生成缓存键
-  generateKey(prefix: string, ...args: any[]): string {
-    const keyParts = [prefix, ...args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg))];
-    return keyParts.join(':');
+  generateKey(prefix: string, ...args: unknown[]): string {
+    const keyParts = [
+      prefix,
+      ...args.map((arg) =>
+        typeof arg === "object" && arg !== null ? JSON.stringify(arg) : String(arg),
+      ),
+    ];
+    return keyParts.join(":");
   }
 }
 

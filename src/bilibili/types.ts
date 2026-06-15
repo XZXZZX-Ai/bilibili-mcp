@@ -26,26 +26,37 @@ export interface VideoInfo {
   tag?: { tag_name: string }[];
 }
 
+export interface BilibiliVideoInfoData extends VideoInfo {
+  bvid?: string;
+  aid?: number;
+  need_login_subtitle?: boolean;
+  preview_toast?: string;
+}
+
+export interface BilibiliSubtitleItem {
+  id: number;
+  lan: string;
+  lan_doc: string;
+  subtitle_url: string;
+}
+
 // 字幕信息类型
 export interface SubtitleInfo {
   subtitle: {
-    subtitles: Array<{
-      id: number;
-      lan: string;
-      lan_doc: string;
-      subtitle_url: string;
-    }>;
+    subtitles: BilibiliSubtitleItem[];
   };
+}
+
+export interface SubtitleBodyItem {
+  from: number;
+  to: number;
+  location?: number;
+  content: string;
 }
 
 // 字幕内容类型
 export interface SubtitleContent {
-  body: Array<{
-    from: number;
-    to: number;
-    location: number;
-    content: string;
-  }>;
+  body: SubtitleBodyItem[];
 }
 
 // 评论类型

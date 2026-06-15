@@ -2,6 +2,7 @@
 import { credentialManager } from "../utils/credentials.js";
 import { logger } from "../utils/logger.js";
 import { getBuvid } from "./fingerprint.js";
+import type { CommentsResponse } from "./types.js";
 import { fetchWithWBI, fetchWithoutWBI } from "./http.js";
 import { getVideoInfo } from "./video-api.js";
 
@@ -121,7 +122,7 @@ export async function getVideoComments(
       wbiPath,
       params,
       customHeaders,
-    )) as any;
+    )) as CommentsResponse;
 
     // 如果WBI接口成功但返回空评论（可能是Cookie过期导致未登录），
     // 则自动降级到无需鉴权的普通接口

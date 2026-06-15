@@ -4,6 +4,12 @@ import { extractBVId } from "../utils/bvid.js";
 import { cacheManager } from "../utils/cache.js";
 import { BilibiliAPIError, NoSubtitleError, PaidVideoError } from "../utils/errors.js";
 import { logger, redactSecrets } from "../utils/logger.js";
+import type {
+  BilibiliSubtitleItem,
+  BilibiliVideoInfoData,
+  SubtitleBodyItem,
+  VideoTranscriptData,
+} from "./types.js";
 
 
 export interface SubtitleData {
@@ -37,9 +43,9 @@ function formatPublishDate(timestamp: number): string {
  * 选择最佳字幕语言
  */
 function selectBestSubtitle(
-  subtitles: Array<{ id: number; lan: string; lan_doc: string; subtitle_url: string }>,
-  preferredLang?: string
-): { id: number; lan: string; lan_doc: string; subtitle_url: string } | null {
+  subtitles: BilibiliSubtitleItem[],
+  preferredLang?: string,
+): BilibiliSubtitleItem | null {
   if (!subtitles || subtitles.length === 0) {
     return null;
   }
@@ -68,7 +74,7 @@ function selectBestSubtitle(
  * 合并字幕内容为文本
  */
 function mergeSubtitleText(
-  body: Array<{ from: number; to: number; content: string }>
+  body: SubtitleBodyItem[]
 ): string {
   return body.map((item) => item.content).join("\n");
 }
@@ -76,9 +82,9 @@ function mergeSubtitleText(
 /**
  * 提取视频标签
  */
-function extractTags(videoData: any): string[] {
-  const tags = videoData.tag || [];
-  return tags.map((tag: { tag_name: string }) => tag.tag_name);
+function extractTags(videoData: BilibiliVideoInfoData): string[] {
+  const tags = videoData.tag ?? [];
+  return tags.map((tag) => tag.tag_name);
 }
 
 /**
@@ -93,9 +99,9 @@ export async function getVideoTranscriptData(
   bvidOrUrl: string,
   preferredLang?: string,
   fallbackToDescription = false,
-): Promise<import("./types.js").VideoTranscriptData> {
+): Promise<VideoTranscriptData> {
   const bvid = extractBVId(bvidOrUrl);
-  const videoData = (await getVideoInfo(bvid)) as any;
+  const videoData = (await getVideoInfo(bvid)) as BilibiliVideoInfoData;
   const title = videoData.title;
   const description = videoData.desc || "";
   const cid = videoData.cid;
@@ -212,7 +218,7 @@ export async function getVideoInfoWithSubtitle(
     const cacheKey = cacheManager.generateKey('video', bvid, preferredLang);
     
     // 尝试从缓存获取
-    const cachedData = cacheManager.getVideoInfo(cacheKey);
+    const cachedData = cacheManager.getVideoInfo(cacheKey) as SubtitleData | undefined;
     if (cachedData) {
       logger.debug("Video cache hit", { bvid, cacheKey }, { type: "subtitle" });
       return cachedData;
@@ -221,7 +227,7 @@ export async function getVideoInfoWithSubtitle(
     logger.debug("Video cache miss", { bvid, cacheKey }, { type: "subtitle" });
 
     // 获取视频基本信息
-    const videoData = await getVideoInfo(bvid) as any;
+    const videoData = (await getVideoInfo(bvid)) as BilibiliVideoInfoData;
 
     const title = videoData.title;
     const description = videoData.desc || "";

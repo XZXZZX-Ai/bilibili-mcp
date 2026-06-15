@@ -120,7 +120,7 @@ export async function getVideoCommentsData(
 
   try {
     // 尝试从缓存获取
-    const cachedData = cacheManager.getCommentInfo(cacheKey);
+    const cachedData = cacheManager.getCommentInfo(cacheKey) as CommentData | undefined;
     if (cachedData) {
       logger.debug("Comments cache hit", { bvid, cacheKey }, { type: "comments" });
       return cachedData;

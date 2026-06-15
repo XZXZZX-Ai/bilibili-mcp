@@ -760,3 +760,9 @@
 - Commands: `npm test -- tests/server-tools.test.ts tests/server-credential-tools.test.ts tests/server-error-next-steps.test.ts tests/server-handler-sanitization.test.ts`; `npm test`; `npm run build`; server contract scan with `rg`.
 - Result: `src/server.ts` now only constructs/registers the MCP server, tool schemas and handlers are extracted, public tool order/schema/error contracts remain covered by tests, sanitized inputs are passed downstream without changing URL-to-BVID extraction ownership, and tests/build pass.
 - Caveat: No MCP tool was added, removed, renamed, or intentionally changed; no package, README, credential loading, release, tag, push, or publish action was performed.
+
+## 2026-06-14 Task 4 Type And Cache Hardening
+
+- Commands: `npm test -- tests/cache.test.ts tests/bilibili-metadata.test.ts tests/bilibili-comments-tool.test.ts tests/bilibili-transcript.test.ts`; `npm test`; `npm run build`; type-hardening scan with `rg`.
+- Result: `CacheManager` now uses generic value types and preserves cache key/stat behavior, selected Bilibili wrapper casts are replaced with typed response interfaces, focused behavior tests and full tests/build pass.
+- Caveat: No cache key format, MCP public contract, credential loading, logging behavior, source encoding, package metadata, tag, push, publish, or GitHub release was changed.
