@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
-import { describe, expect, it } from "vitest";
+import { execSync } from "node:child_process";
+import { beforeAll, describe, expect, it } from "vitest";
 
 import { getMcpHandler } from "./helpers/mcp.js";
 
@@ -14,6 +15,10 @@ type ListToolsResponse = {
 };
 
 describe("MCP stdio entrypoint", () => {
+  beforeAll(() => {
+    execSync("npm run build", { stdio: "pipe" });
+  });
+
   it("starts the built stdio server and logs startup to stderr", async () => {
     const child = spawn(process.execPath, ["dist/index.js"], {
       stdio: ["pipe", "pipe", "pipe"],
