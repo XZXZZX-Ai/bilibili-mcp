@@ -28,6 +28,8 @@ export interface SubtitleData {
  * 字幕语言优先级
  */
 const LANGUAGE_PRIORITY = ["zh-Hans", "ai-zh", "zh-CN", "zh-Hant", "en"];
+const MAX_SUBTITLE_BODY_ITEMS = 5_000;
+const MAX_SUBTITLE_TEXT_LENGTH = 500_000;
 
 /**
  * 将 Unix 时间戳转换为 ISO 8601 格式日期字符串
@@ -76,7 +78,26 @@ function selectBestSubtitle(
 function mergeSubtitleText(
   body: SubtitleBodyItem[]
 ): string {
-  return body.map((item) => item.content).join("\n");
+  if (body.length > MAX_SUBTITLE_BODY_ITEMS) {
+    throw new Error("Subtitle body item count exceeds maximum limit");
+  }
+
+  const parts: string[] = [];
+  let totalLength = 0;
+
+  for (const item of body) {
+    const content = item.content ?? "";
+    totalLength += content.length;
+    if (parts.length > 0) {
+      totalLength += 1;
+    }
+    if (totalLength > MAX_SUBTITLE_TEXT_LENGTH) {
+      throw new Error("Subtitle text exceeds maximum length");
+    }
+    parts.push(content);
+  }
+
+  return parts.join("\n");
 }
 
 /**

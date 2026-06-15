@@ -1,3 +1,5 @@
+import { redactSecrets } from "./logger.js";
+
 /**
  * 重试机制模块
  * 提供带指数退避的请求重试功能
@@ -79,7 +81,10 @@ class RetryManager {
           throw error;
         }
 
-        console.error(`Attempt ${attempt} failed, will retry:`, error.message);
+        console.error(
+          `Attempt ${attempt} failed, will retry:`,
+          redactSecrets(error.message),
+        );
       }
     }
 

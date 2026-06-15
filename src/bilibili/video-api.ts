@@ -1,7 +1,7 @@
 // B站 视频/字幕 API
 import { config } from "../config.js";
 import { credentialManager } from "../utils/credentials.js";
-import { NetworkError } from "../utils/errors.js";
+import { NetworkError, ValidationError } from "../utils/errors.js";
 import { logger } from "../utils/logger.js";
 import { getBuvid } from "./fingerprint.js";
 import {
@@ -10,6 +10,8 @@ import {
   retryableFetch,
   throttledFetch,
 } from "./http.js";
+
+const MAX_SUBTITLE_RESPONSE_BYTES = 1_000_000;
 
 /**
  * 获取视频基本信息
@@ -135,11 +137,47 @@ export async function getSubtitleContent(url: string): Promise<{
     fullUrl.protocol !== "https:" ||
     !allowedSubtitleHosts.has(fullUrl.hostname)
   ) {
-    throw new NetworkError(
+    throw new ValidationError(
       "Unsupported subtitle URL host",
-      undefined,
-      fullUrl.toString(),
     );
+  }
+
+  async function readSubtitleResponse(response: Response): Promise<string> {
+    const contentLength = response.headers.get("content-length");
+    if (
+      contentLength !== null &&
+      Number.isFinite(Number(contentLength)) &&
+      Number(contentLength) > MAX_SUBTITLE_RESPONSE_BYTES
+    ) {
+      throw new ValidationError("Subtitle response is too large");
+    }
+
+    if (!response.body) {
+      const text = await response.text();
+      if (new TextEncoder().encode(text).byteLength > MAX_SUBTITLE_RESPONSE_BYTES) {
+        throw new ValidationError("Subtitle response is too large");
+      }
+      return text;
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    const chunks: string[] = [];
+    let receivedBytes = 0;
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      receivedBytes += value.byteLength;
+      if (receivedBytes > MAX_SUBTITLE_RESPONSE_BYTES) {
+        await reader.cancel();
+        throw new ValidationError("Subtitle response is too large");
+      }
+      chunks.push(decoder.decode(value, { stream: true }));
+    }
+
+    chunks.push(decoder.decode());
+    return chunks.join("");
   }
 
   return retryableFetch(async () => {
@@ -150,8 +188,13 @@ export async function getSubtitleContent(url: string): Promise<{
             "User-Agent": config.userAgent,
             Referer: config.referer,
           },
+          redirect: "manual",
           signal: controller.signal,
         });
+
+        if (response.status >= 300 && response.status < 400) {
+          throw new ValidationError("Unsupported subtitle URL redirect");
+        }
 
         if (!response.ok) {
           throw new NetworkError(
@@ -161,7 +204,8 @@ export async function getSubtitleContent(url: string): Promise<{
           );
         }
 
-        return await response.json();
+        const responseText = await readSubtitleResponse(response);
+        return JSON.parse(responseText);
       } catch (error) {
         logger.error(
           "Error fetching subtitle content",

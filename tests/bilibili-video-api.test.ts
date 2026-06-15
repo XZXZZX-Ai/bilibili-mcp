@@ -18,6 +18,13 @@ function jsonResponse(data: unknown, status = 200): Response {
   });
 }
 
+function textResponse(text: string, status = 200): Response {
+  return new Response(text, {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+}
+
 function getFetchCalls(fetchMock: ReturnType<typeof vi.fn>): FetchCall[] {
   return fetchMock.mock.calls.map(([url, init]) => ({
     url: String(url),
@@ -191,6 +198,7 @@ describe("getSubtitleContent", () => {
     expect(getFetchCalls(fetchMock)[0].init?.headers).not.toHaveProperty(
       "Cookie",
     );
+    expect(getFetchCalls(fetchMock)[0].init?.redirect).toBe("manual");
   });
 
   it("rejects non-Bilibili subtitle URLs before fetch", async () => {
@@ -205,5 +213,31 @@ describe("getSubtitleContent", () => {
     ).rejects.toThrow("Unsupported subtitle URL host");
 
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("does not allow subtitle fetch redirects to bypass the host allowlist", async () => {
+    const fetchMock = vi.fn(async () => new Response(null, {
+      status: 302,
+      headers: { location: "http://127.0.0.1/metadata" },
+    }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      getSubtitleContent("//aisubtitle.hdslb.com/redirect.json"),
+    ).rejects.toThrow("Unsupported subtitle URL redirect");
+
+    expect(getFetchCalls(fetchMock)[0].init?.redirect).toBe("manual");
+  });
+
+  it("rejects oversized subtitle responses before JSON parsing", async () => {
+    const oversizedBody = JSON.stringify({
+      body: [{ from: 0, to: 1, location: 2, content: "x".repeat(1_000_001) }],
+    });
+    const fetchMock = vi.fn(async () => textResponse(oversizedBody));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      getSubtitleContent("//aisubtitle.hdslb.com/huge.json"),
+    ).rejects.toThrow("Subtitle response is too large");
   });
 });

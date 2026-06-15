@@ -117,6 +117,34 @@ describe("getVideoTranscriptData - fallback disabled (default)", () => {
       getVideoTranscriptData("BV1T6PQzQErF"),
     ).rejects.toThrow(NoSubtitleError);
   });
+
+  it("rejects oversized merged subtitle text", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 1, content: "x".repeat(500_001) },
+      ]),
+    );
+
+    await expect(
+      getVideoTranscriptData("BV1T6PQzQErF"),
+    ).rejects.toThrow("Subtitle text exceeds maximum length");
+  });
+
+  it("rejects excessive subtitle body item counts", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent(
+        Array.from({ length: 5_001 }, (_, index) => ({
+          from: index,
+          to: index + 1,
+          content: "x",
+        })),
+      ),
+    );
+
+    await expect(
+      getVideoTranscriptData("BV1T6PQzQErF"),
+    ).rejects.toThrow("Subtitle body item count exceeds maximum limit");
+  });
 });
 
 describe("getVideoTranscriptData - fallback enabled", () => {

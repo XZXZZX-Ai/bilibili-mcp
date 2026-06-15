@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { logger, redactSecrets } from "../src/utils/logger.js";
+import { withRetry } from "../src/utils/retry.js";
 
 function restoreDebugEnv(previous: string | undefined) {
   if (previous === undefined) {
@@ -89,6 +90,34 @@ describe("logger secret redaction", () => {
       expect(output).not.toContain("real-env");
     } finally {
       restoreDebugEnv(previous);
+      spy.mockRestore();
+    }
+  });
+
+  it("redacts retryable error messages before writing to stderr", async () => {
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const error = new Error(
+      "boom SESSDATA=real-sess; bili_jct=real-jct; DedeUserID=123456",
+    );
+    error.name = "NetworkError";
+
+    try {
+      await withRetry(
+        async () => {
+          throw error;
+        },
+        { maxRetries: 1, baseDelay: 1, maxDelay: 1 },
+      ).catch(() => {});
+
+      const output = spy.mock.calls.map((call) => call.join(" ")).join("\n");
+
+      expect(output).toContain("SESSDATA=***");
+      expect(output).toContain("bili_jct=***");
+      expect(output).toContain("DedeUserID=***");
+      expect(output).not.toContain("real-sess");
+      expect(output).not.toContain("real-jct");
+      expect(output).not.toContain("123456");
+    } finally {
       spy.mockRestore();
     }
   });
