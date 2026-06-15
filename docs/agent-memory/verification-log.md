@@ -754,3 +754,9 @@
 - Commands: `npm test -- tests/logger-redaction.test.ts tests/bilibili-video-api.test.ts tests/bilibili-transcript.test.ts tests/bilibili-comments-tool.test.ts`; `npm test`; `npm run build`; logger debug smoke check; logging and secret scans with `rg`.
 - Result: Debug logs are silent unless `BILIBILI_MCP_DEBUG=1`, debug output remains redacted when enabled, Bilibili API diagnostics route through the redacting logger, tests/build pass, and no real credential value was found.
 - Caveat: No MCP tool contract, credential loading behavior, package metadata, tag, push, publish, or GitHub release was changed.
+
+## 2026-06-14 Task 3 MCP Server Handler Refactor
+
+- Commands: `npm test -- tests/server-tools.test.ts tests/server-credential-tools.test.ts tests/server-error-next-steps.test.ts tests/server-handler-sanitization.test.ts`; `npm test`; `npm run build`; server contract scan with `rg`.
+- Result: `src/server.ts` now only constructs/registers the MCP server, tool schemas and handlers are extracted, public tool order/schema/error contracts remain covered by tests, sanitized inputs are passed downstream without changing URL-to-BVID extraction ownership, and tests/build pass.
+- Caveat: No MCP tool was added, removed, renamed, or intentionally changed; no package, README, credential loading, release, tag, push, or publish action was performed.

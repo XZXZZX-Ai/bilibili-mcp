@@ -41,6 +41,35 @@ describe("MCP tool list baseline", () => {
     expect(names).toContain("get_video_metadata");
   });
 
+  it("keeps the public tool order stable", () => {
+    expect(toolsResult.tools.map((tool) => tool.name)).toEqual([
+      "get_credential_setup_instructions",
+      "check_bilibili_credentials",
+      "get_video_info",
+      "get_video_comments",
+      "get_video_transcript",
+      "get_video_metadata",
+    ]);
+  });
+
+  it("keeps all public tool required fields stable", () => {
+    const requiredByTool = Object.fromEntries(
+      toolsResult.tools.map((tool) => [
+        tool.name,
+        tool.inputSchema.required ?? [],
+      ]),
+    );
+
+    expect(requiredByTool).toEqual({
+      get_credential_setup_instructions: [],
+      check_bilibili_credentials: [],
+      get_video_info: ["bvid_or_url"],
+      get_video_comments: ["bvid_or_url"],
+      get_video_transcript: ["bvid_or_url"],
+      get_video_metadata: ["bvid_or_url"],
+    });
+  });
+
   describe("get_video_info schema", () => {
     let schema: { name: string; inputSchema: Record<string, unknown> };
 
