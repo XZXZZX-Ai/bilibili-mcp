@@ -24,10 +24,11 @@ describe("MCP tool list baseline", () => {
   beforeAll(async () => {
     toolsResult = await getListToolsResult();
   });
-  it("exposes all 6 tools", () => {
+  it("exposes all 7 tools", () => {
     const names = toolsResult.tools.map((t) => t.name);
     expect(names).toContain("get_credential_setup_instructions");
     expect(names).toContain("check_bilibili_credentials");
+    expect(names).toContain("check_mcp_update");
     expect(names).toContain("get_video_info");
     expect(names).toContain("get_video_comments");
     expect(names).toContain("get_video_transcript");
@@ -38,6 +39,7 @@ describe("MCP tool list baseline", () => {
     expect(toolsResult.tools.map((tool) => tool.name)).toEqual([
       "get_credential_setup_instructions",
       "check_bilibili_credentials",
+      "check_mcp_update",
       "get_video_info",
       "get_video_comments",
       "get_video_transcript",
@@ -56,6 +58,7 @@ describe("MCP tool list baseline", () => {
     expect(requiredByTool).toEqual({
       get_credential_setup_instructions: [],
       check_bilibili_credentials: [],
+      check_mcp_update: [],
       get_video_info: ["bvid_or_url"],
       get_video_comments: ["bvid_or_url"],
       get_video_transcript: ["bvid_or_url"],
@@ -193,6 +196,16 @@ describe("MCP tool list baseline", () => {
       )!;
 
       expect(schema).toBeDefined();
+      expect(schema.inputSchema.required ?? []).toEqual([]);
+    });
+
+    it("registers check_mcp_update with no required input", () => {
+      const schema = toolsResult.tools.find(
+        (t) => t.name === "check_mcp_update",
+      )!;
+
+      expect(schema).toBeDefined();
+      expect(schema.description).toContain("npm latest");
       expect(schema.inputSchema.required ?? []).toEqual([]);
     });
 

@@ -25,8 +25,8 @@ export function buildCredentialSetupInstructions(): CredentialSetupInstructions 
     summary:
       "For reliable Bilibili subtitles, transcripts, and comments, configure Cookies outside the MCP client config.",
     recommended_commands: [
-      "npx -y @xzxzzx/bilibili-mcp config",
-      "npx -y @xzxzzx/bilibili-mcp check",
+      "npx -y @xzxzzx/bilibili-mcp@latest config",
+      "npx -y @xzxzzx/bilibili-mcp@latest check",
     ],
     global_install_commands: [
       "bilibili-mcp config",
@@ -43,8 +43,8 @@ export function buildCredentialSetupInstructions(): CredentialSetupInstructions 
 
 export function buildCredentialNextSteps(): string[] {
   return [
-    "Run: npx -y @xzxzzx/bilibili-mcp config",
-    "Then run: npx -y @xzxzzx/bilibili-mcp check",
+    "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
+    "Then run: npx -y @xzxzzx/bilibili-mcp@latest check",
     "Do not paste Cookie values into MCP client config files.",
   ];
 }

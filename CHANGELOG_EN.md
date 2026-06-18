@@ -4,6 +4,22 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.6.0] - 2026-06-18
+
+### Added
+- Added `check_mcp_update`, a safe MCP tool that reports the local package version, npm latest version, update availability, and recommended update commands.
+- Added `bilibili-mcp check-update` for CLI-based package freshness checks.
+
+### Changed
+- MCP client setup examples now prefer `npx -y @xzxzzx/bilibili-mcp@latest` so new client sessions resolve the latest npm release.
+- Credential setup guidance and credential-related error next steps now use the `@latest` package spec.
+- README status text now reflects 7 MCP tools and 145 unit tests.
+
+### Tests
+- Added package update guidance tests and updated MCP tool-list contract tests for the new public tool.
+
+---
+
 ## [1.4.1] - 2026-06-04
 
 ### 🔧 Changed

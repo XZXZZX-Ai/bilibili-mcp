@@ -6,7 +6,7 @@
 
 MCP server that gives AI clients access to Bilibili video subtitles, transcripts, metadata, and popular comments.
 
-View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.5.3](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.5.3)
+View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.6.0](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.6.0)
 
 > [!TIP]
 > ⚠️ You can copy the "Install With Your Agent" prompt below to Codex, Claude Code, Cursor, or another agent and let it add this MCP server to your client and guide Cookie setup. For reliable subtitles, transcripts, and comments, you still need to configure Bilibili Cookies after installation; do not write Cookies into MCP client config. Metadata may work without cookies. See [**Credential Configuration**](#-credential-configuration).
@@ -29,15 +29,15 @@ First go to https://github.com/XZXZZX-Ai/bilibili-mcp and read the project's REA
 MCP server config requirements:
 - server name: bilibili-mcp
 - command: npx
-- args: ["-y", "@xzxzzx/bilibili-mcp"]
+- args: ["-y", "@xzxzzx/bilibili-mcp@latest"]
 
 Do not write real Bilibili Cookie values into MCP client config files, client-config env fields, args, or chat messages.
 After adding the MCP server, continue guiding me to run the commands below. They save Cookies to the local credential config; the MCP server will read those credentials automatically when it starts:
 
-npx -y @xzxzzx/bilibili-mcp config
-npx -y @xzxzzx/bilibili-mcp check
+npx -y @xzxzzx/bilibili-mcp@latest config
+npx -y @xzxzzx/bilibili-mcp@latest check
 
-After the MCP server is connected, if available, call get_credential_setup_instructions or check_bilibili_credentials to confirm that I completed Cookie setup.
+After the MCP server is connected, if available, call get_credential_setup_instructions, check_bilibili_credentials, or check_mcp_update to confirm Cookie setup and package freshness.
 ```
 
 - [Codex app / Codex CLI](#codex-app--codex-cli)
@@ -136,6 +136,7 @@ After the MCP server is connected, if available, call get_credential_setup_instr
 
 - `get_credential_setup_instructions`: Returns safe setup commands for Bilibili Cookie configuration. AI agents installing this MCP can call this tool to guide users through setup.
 - `check_bilibili_credentials`: Checks whether credentials are configured and logged in without returning Cookie values. Returns next steps when credentials are missing or invalid.
+- `check_mcp_update`: Checks the local package version against npm latest and returns safe update guidance for `npx @latest` or global installs.
 
 ### 6. Behavior and Error Handling
 
@@ -181,9 +182,11 @@ After the MCP server is connected, if available, call get_credential_setup_instr
 > Recommended commands:
 >
 > ```bash
-> npx -y @xzxzzx/bilibili-mcp config
-> npx -y @xzxzzx/bilibili-mcp check
+> npx -y @xzxzzx/bilibili-mcp@latest config
+> npx -y @xzxzzx/bilibili-mcp@latest check
 > ```
+>
+> For MCP client configuration, prefer `npx -y @xzxzzx/bilibili-mcp@latest` so new client sessions resolve the current npm release. Existing global installs must be updated manually with `npm install -g @xzxzzx/bilibili-mcp@latest`, or checked with `bilibili-mcp check-update`.
 >
 > If the package is already installed globally, use:
 >
@@ -203,12 +206,12 @@ Codex app, Codex CLI, and the Codex IDE extension share MCP configuration. Use e
 Open Settings → Integrations & MCP, then add a custom MCP server:
 
 - Command: `npx`
-- Arguments: `["-y", "@xzxzzx/bilibili-mcp"]`
+- Arguments: `["-y", "@xzxzzx/bilibili-mcp@latest"]`
 
 #### Codex CLI
 
 ```bash
-codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+codex mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp@latest
 ```
 
 After setup, run `/mcp` in the Codex CLI TUI to inspect server status.
@@ -223,13 +226,13 @@ You can also edit Codex configuration directly:
 ```toml
 [mcp_servers.bilibili-mcp]
 command = "npx"
-args = ["-y", "@xzxzzx/bilibili-mcp"]
+args = ["-y", "@xzxzzx/bilibili-mcp@latest"]
 ```
 
 ### Claude Code
 
 ```bash
-claude mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+claude mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp@latest
 ```
 
 This saves the server as a local MCP server for the current project by default. After setup, run `/mcp` inside Claude Code or `claude mcp list` in your terminal to check the connection.
@@ -237,7 +240,7 @@ This saves the server as a local MCP server for the current project by default. 
 To make it available across all projects, use user scope:
 
 ```bash
-claude mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+claude mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp@latest
 ```
 
 You can also edit `~/.claude.json` and add the same JSON block shown for Claude Desktop under the matching project or user configuration.
@@ -257,7 +260,7 @@ Add:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -275,7 +278,7 @@ Edit the OpenCode config file at `~/.config/opencode/opencode.json` and add this
   "mcp": {
     "bilibili-mcp": {
       "type": "local",
-      "command": ["npx", "-y", "@xzxzzx/bilibili-mcp"],
+      "command": ["npx", "-y", "@xzxzzx/bilibili-mcp@latest"],
       "enabled": true
     }
   }
@@ -289,7 +292,7 @@ OpenCode adds MCP tools to the available tool context. When prompting, explicitl
 Register this server in OpenClaw's MCP registry:
 
 ```bash
-openclaw mcp set bilibili-mcp '{"command":"npx","args":["-y","@xzxzzx/bilibili-mcp"]}'
+openclaw mcp set bilibili-mcp '{"command":"npx","args":["-y","@xzxzzx/bilibili-mcp@latest"]}'
 ```
 
 Check the registered server:
@@ -307,7 +310,7 @@ You can also add the same structure to your OpenClaw configuration:
     "servers": {
       "bilibili-mcp": {
         "command": "npx",
-        "args": ["-y", "@xzxzzx/bilibili-mcp"]
+        "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
       }
     }
   }
@@ -324,7 +327,7 @@ Edit `~/.hermes/config.yaml` and add this entry under `mcp_servers`:
 mcp_servers:
   bilibili-mcp:
     command: "npx"
-    args: ["-y", "@xzxzzx/bilibili-mcp"]
+    args: ["-y", "@xzxzzx/bilibili-mcp@latest"]
 ```
 
 If you already have a Hermes session running, use `/reload-mcp` to reload MCP configuration, or start a fresh Hermes session.
@@ -339,7 +342,7 @@ WorkBuddy's official docs recommend configuring MCP from the UI. Open Sidebar �
     "bilibili-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -357,7 +360,7 @@ You can also edit the scoped config file:
 CodeBuddy CLI can add this stdio MCP server directly:
 
 ```bash
-codebuddy mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+codebuddy mcp add --scope user bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp@latest
 ```
 
 Check the registered server:
@@ -377,7 +380,7 @@ Open CodeBuddy Settings → MCP → Add MCP from the top-right of the IDE chat p
     "bilibili-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"],
       "description": "Bilibili MCP server"
     }
   }
@@ -403,7 +406,7 @@ Add:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -422,7 +425,7 @@ For project-level configuration, create `.trae/mcp.json`:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -441,7 +444,7 @@ Create `.trae/mcp.json` in your project root:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -460,7 +463,7 @@ Project-level config also uses `.trae/mcp.json`:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -481,7 +484,7 @@ Open the top-right user icon → Qoder Settings → MCP. On the My Servers tab, 
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -494,7 +497,7 @@ Qoder documents that Streamable HTTP can be configured like an SSE endpoint and 
 Qoder CLI can add this stdio MCP server directly:
 
 ```bash
-qodercli mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+qodercli mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp@latest
 ```
 
 Useful check:
@@ -522,7 +525,7 @@ The fastest path is Paste JSON Config:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -531,7 +534,7 @@ The fastest path is Paste JSON Config:
 You can also choose Fill in Config Manually, set Server Type to STDIO, and enter:
 
 - Server Name: `bilibili-mcp`
-- Command: `npx -y @xzxzzx/bilibili-mcp`
+- Command: `npx -y @xzxzzx/bilibili-mcp@latest`
 
 After adding it, confirm the server is enabled under Custom Servers and expand it to inspect available tools. Do not write real Cookie values in Qoder / QoderWork MCP config; configure credentials with `bilibili-mcp config` or environment variables.
 
@@ -549,7 +552,7 @@ Add:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -567,7 +570,7 @@ Project-level `.kimi-code/mcp.json` applies only to the current repository and o
 Legacy Kimi CLI docs also documented `kimi mcp add`; if your installed version still supports it, you can use:
 
 ```bash
-kimi mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+kimi mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp@latest
 kimi mcp list
 kimi mcp test bilibili-mcp
 ```
@@ -593,7 +596,7 @@ Add:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -622,7 +625,7 @@ Add:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -668,7 +671,7 @@ Add:
     "bilibili-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -709,7 +712,7 @@ Add:
     "bilibili-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -722,7 +725,7 @@ Crush also supports HTTP and SSE MCP. Do not put real Cookie values in `env` or 
 DeepSeek-TUI is both an MCP client and an MCP server. As an MCP client, add this project with:
 
 ```bash
-deepseek mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp
+deepseek mcp add bilibili-mcp -- npx -y @xzxzzx/bilibili-mcp@latest
 ```
 
 Or edit:
@@ -738,7 +741,7 @@ Add:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -755,7 +758,7 @@ Deep Code configures MCP servers in `~/.deepcode/settings.json`. Add `bilibili-m
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["@xzxzzx/bilibili-mcp"]
+      "args": ["@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -768,7 +771,7 @@ Deep Code documents that it automatically prepends `-y` when `command` is `npx`.
 Reasonix supports native MCP. The fastest setup is the `--mcp` flag:
 
 ```bash
-npx reasonix code --mcp "bilibili=npx -y @xzxzzx/bilibili-mcp"
+npx reasonix code --mcp "bilibili=npx -y @xzxzzx/bilibili-mcp@latest"
 ```
 
 You can also edit the global config:
@@ -782,7 +785,7 @@ Add an entry to the `mcp` array:
 ```json
 {
   "mcp": [
-    "bilibili=npx -y @xzxzzx/bilibili-mcp"
+    "bilibili=npx -y @xzxzzx/bilibili-mcp@latest"
   ]
 }
 ```
@@ -811,7 +814,7 @@ Add:
     "bilibili-mcp": {
       "type": "local",
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"],
       "env": {},
       "tools": ["*"]
     }
@@ -849,7 +852,7 @@ Config:
     "bilibili-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -879,7 +882,7 @@ Cline supports local STDIO and remote MCP. Edit the Cline MCP config and add:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"],
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"],
       "disabled": false,
       "autoApprove": []
     }
@@ -912,7 +915,7 @@ Add:
   "mcp": {
     "bilibili-mcp": {
       "type": "local",
-      "command": ["npx", "-y", "@xzxzzx/bilibili-mcp"],
+      "command": ["npx", "-y", "@xzxzzx/bilibili-mcp@latest"],
       "enabled": true,
       "timeout": 10000
     }
@@ -944,7 +947,7 @@ Add:
     "bilibili-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -974,7 +977,7 @@ Add:
     "bilibili-mcp": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -991,7 +994,7 @@ Windsurf MCP is used by Cascade. The official entry points are the `MCPs` icon i
 Open MCP Marketplace or MCP Servers settings, then add a custom stdio MCP server:
 
 - Command: `npx`
-- Arguments: `["-y", "@xzxzzx/bilibili-mcp"]`
+- Arguments: `["-y", "@xzxzzx/bilibili-mcp@latest"]`
 
 Windsurf also supports MCP deeplinks. If you provide an install entry in docs or a web page, use `windsurf://windsurf-mcp-registry?serverName=<server-name>` to open the matching MCP registry page.
 
@@ -1010,7 +1013,7 @@ Add:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -1043,7 +1046,7 @@ Add:
   "context_servers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -1081,7 +1084,7 @@ Paste:
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -1098,7 +1101,7 @@ AstrBot manages MCP from its WebUI. Make sure the AstrBot runtime can use `npm` 
   "mcpServers": {
     "bilibili-mcp": {
       "command": "npx",
-      "args": ["-y", "@xzxzzx/bilibili-mcp"]
+      "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
     }
   }
 }
@@ -1122,7 +1125,7 @@ Add this under `tools.mcpServers`:
     "mcpServers": {
       "bilibili-mcp": {
         "command": "npx",
-        "args": ["-y", "@xzxzzx/bilibili-mcp"]
+        "args": ["-y", "@xzxzzx/bilibili-mcp@latest"]
       }
     }
   }
@@ -1138,8 +1141,8 @@ If you use the "Install With Your Agent" prompt above, the agent should guide yo
 ### Recommended: Agent-Guided Credential Setup
 
 ```bash
-npx -y @xzxzzx/bilibili-mcp config
-npx -y @xzxzzx/bilibili-mcp check
+npx -y @xzxzzx/bilibili-mcp@latest config
+npx -y @xzxzzx/bilibili-mcp@latest check
 ```
 
 If you use the "Install With Your Agent" prompt above, the agent should guide you to run these commands after it adds the MCP server. `config` input is not echoed in the terminal and saves Cookies to the local credential config, which the MCP server reads automatically when it starts; it does not write Cookies into MCP client config or the repository.
@@ -1357,7 +1360,7 @@ Local debugging notes:
 
 - The MCP server entry point is `dist/index.js`, and the CLI entry point is `dist/cli.js`; run `npm run build` after changing source files.
 - For stdio MCP servers, `stdout` must be reserved for MCP protocol data. Runtime logs and errors should go to `stderr`, so this project uses `console.error` for operational logs.
-- Do not put real Cookies in tests, logs, examples, or commits. To verify credentials, use `npx -y @xzxzzx/bilibili-mcp check` or local environment variables.
+- Do not put real Cookies in tests, logs, examples, or commits. To verify credentials, use `npx -y @xzxzzx/bilibili-mcp@latest check` or local environment variables.
 
 ---
 
@@ -1380,7 +1383,7 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 
 1.  **Initial Generation**: Core architecture and base logic were rapidly built by **Claude Code** (powered by **GLM-4.7** model).
 2.  **Debugging & Optimization**: Bugs were fixed and features enhanced using **Claude** and **Gemini** models within the **Antigravity** environment, ensuring stable subtitle extraction and comment analysis.
-3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** with **DeepSeek** executes implementation; now covers 30+ AI client MCP configurations, 6 MCP tools, and 124 unit tests.
+3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** executes implementation; now covers 30+ AI client MCP configurations, 7 MCP tools, and 145 unit tests.
 
 ---
 

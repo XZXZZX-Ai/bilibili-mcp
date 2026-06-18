@@ -58,6 +58,7 @@ describe("MCP stdio entrypoint", () => {
     expect(result.tools.map((tool) => tool.name)).toEqual([
       "get_credential_setup_instructions",
       "check_bilibili_credentials",
+      "check_mcp_update",
       "get_video_info",
       "get_video_comments",
       "get_video_transcript",

@@ -784,3 +784,15 @@
 - Commands: `npm run build`; `npm test -- tests/server-tools.test.ts tests/server-credential-tools.test.ts tests/server-error-next-steps.test.ts tests/server-handler-sanitization.test.ts tests/mcp-server-smoke.test.ts`; `npm test`; `npm pack --dry-run`; MCP test helper scan with `rg`.
 - Result: MCP server tests now share a single registered-handler helper, stdio entrypoint smoke coverage verifies startup logging stays on stderr, public tool-list smoke coverage remains stable, and build/tests/package dry-run pass.
 - Caveat: One Task 6 scoped exception — `src/index.ts:16` now passes `quiet: true` to dotenv to stop dotenv 17 from polluting MCP stdio stdout with `[dotenv@...] injecting env` log; without this 1-line production fix the stdio smoke `stdout === ""` assertion cannot pass and real MCP clients would see non-JSON output on the JSON-RPC channel. No MCP public contract, credential loading, logger behavior, cache behavior, package metadata, release workflow, tag, push, publish, or GitHub release was changed.
+
+## 2026-06-18 MCP Update Guidance
+
+- Commands: `npm run build`; `npm test -- tests/update-check.test.ts tests/server-tools.test.ts tests/server-credential-tools.test.ts tests/mcp-server-smoke.test.ts tests/credential-guidance.test.ts tests/server-error-next-steps.test.ts`; `npm test`; `node dist/cli.js check-update`; `npm pack --dry-run`; stale unversioned command scan with `rg --pcre2`.
+- Result: Added explicit package freshness guidance through `check_mcp_update` and `bilibili-mcp check-update`; README and README_EN now prefer `npx -y @xzxzzx/bilibili-mcp@latest` for MCP configs and credential helper commands; build, focused tests, full tests, real CLI update check, package dry-run, and stale command scan passed.
+- Caveat: No automatic package update, npm publish, tag, push, GitHub Release, release workflow change, credential loading change, Bilibili API behavior change, or real MCP client UI smoke was performed.
+
+## 2026-06-18 Version 1.6.0 Commit Verification
+
+- Commands: `npm version 1.6.0 --no-git-tag-version`; `npm run build`; `npm test`; `npm pack --dry-run`; `node dist/cli.js check-update`; `git diff --check`.
+- Result: `package.json` and `package-lock.json` now report `1.6.0`; build and full Vitest suite pass; package dry-run reports `@xzxzzx/bilibili-mcp@1.6.0`; CLI update check reports local current `1.6.0` against npm latest `1.5.3`; diff check has only CRLF warnings.
+- Caveat: No npm publish, tag creation, GitHub Release creation, or release workflow execution was performed in this commit step.

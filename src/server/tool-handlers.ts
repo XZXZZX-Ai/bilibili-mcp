@@ -13,6 +13,7 @@ import {
 } from "../utils/credential-guidance.js";
 import { BilibiliAPIError, NoSubtitleError } from "../utils/errors.js";
 import { sanitizeBVInput } from "../utils/sanitization.js";
+import { buildPackageUpdateInfo } from "../utils/update-check.js";
 import {
   validateBVInput,
   validateCommentLimit,
@@ -36,6 +37,11 @@ export async function handleToolCall(name: string, args: ToolArgs) {
 
     case "check_bilibili_credentials": {
       const result = await buildCredentialStatus(checkLoginStatus);
+      return toTextContent(result);
+    }
+
+    case "check_mcp_update": {
+      const result = await buildPackageUpdateInfo();
       return toTextContent(result);
     }
 

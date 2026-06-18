@@ -4,6 +4,22 @@
 
 ---
 
+## [1.6.0] - 2026-06-18
+
+### 新增
+- 新增 `check_mcp_update` MCP 工具，用于安全返回本地包版本、npm latest 版本、是否需要更新，以及推荐更新命令。
+- 新增 `bilibili-mcp check-update` CLI 命令，用于在终端检查包版本新鲜度。
+
+### 改进
+- MCP 客户端接入示例统一优先使用 `npx -y @xzxzzx/bilibili-mcp@latest`，让新会话解析 npm latest 版本。
+- 凭证配置引导和凭证相关错误的 next steps 改为使用 `@latest` 包规格。
+- README 状态说明更新为 7 个 MCP 工具、145 个单元测试。
+
+### 测试
+- 新增包更新引导测试，并更新 MCP 工具列表契约测试以覆盖新的公开工具。
+
+---
+
 ## [1.4.1] - 2026-06-04
 
 ### 🔧 改进 (Changed)

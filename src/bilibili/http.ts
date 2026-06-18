@@ -195,7 +195,7 @@ export async function fetchWithWBI(
               { type: "bilibili-http", code: "COOKIE_EXPIRED" },
             );
             throw new BilibiliAPIError(
-              "Current Bilibili credentials are expired or not logged in. Run \"npx -y @xzxzzx/bilibili-mcp config\", then \"npx -y @xzxzzx/bilibili-mcp check\", or update environment variables.",
+              "Current Bilibili credentials are expired or not logged in. Run \"npx -y @xzxzzx/bilibili-mcp@latest config\", then \"npx -y @xzxzzx/bilibili-mcp@latest check\", or update environment variables.",
               "COOKIE_EXPIRED",
               undefined,
               { code: data.code },
@@ -341,7 +341,7 @@ export async function fetchWithoutWBI(
               { type: "bilibili-http", code: "COOKIE_EXPIRED" },
             );
             throw new BilibiliAPIError(
-              "Current Bilibili credentials are expired or not logged in. Run \"npx -y @xzxzzx/bilibili-mcp config\", then \"npx -y @xzxzzx/bilibili-mcp check\", or update environment variables.",
+              "Current Bilibili credentials are expired or not logged in. Run \"npx -y @xzxzzx/bilibili-mcp@latest config\", then \"npx -y @xzxzzx/bilibili-mcp@latest check\", or update environment variables.",
               "COOKIE_EXPIRED",
               undefined,
               { code: data.code },

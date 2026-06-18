@@ -27,10 +27,10 @@ describe("credential guidance", () => {
 
     expect(result.title).toBe("Bilibili credential setup");
     expect(result.recommended_commands).toContain(
-      "npx -y @xzxzzx/bilibili-mcp config",
+      "npx -y @xzxzzx/bilibili-mcp@latest config",
     );
     expect(result.recommended_commands).toContain(
-      "npx -y @xzxzzx/bilibili-mcp check",
+      "npx -y @xzxzzx/bilibili-mcp@latest check",
     );
     expect(result.required_cookie_fields).toEqual([
       "SESSDATA",
@@ -44,8 +44,8 @@ describe("credential guidance", () => {
 
   it("returns reusable next steps for credential errors", () => {
     expect(buildCredentialNextSteps()).toEqual([
-      "Run: npx -y @xzxzzx/bilibili-mcp config",
-      "Then run: npx -y @xzxzzx/bilibili-mcp check",
+      "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
+      "Then run: npx -y @xzxzzx/bilibili-mcp@latest check",
       "Do not paste Cookie values into MCP client config files.",
     ]);
   });
@@ -77,7 +77,7 @@ describe("credential status", () => {
     expect(result.source).toBe("none");
     expect(result.logged_in).toBe(false);
     expect(result.next_steps).toContain(
-      "Run: npx -y @xzxzzx/bilibili-mcp config",
+      "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
     );
   });
 

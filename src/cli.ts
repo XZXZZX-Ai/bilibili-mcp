@@ -7,6 +7,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { credentialManager } from './utils/credentials.js';
 import { Writable } from "stream";
 import { redactSecrets } from "./utils/logger.js";
+import { buildPackageUpdateInfo } from "./utils/update-check.js";
 
 // 版本信息
 import fs from 'fs';
@@ -107,6 +108,24 @@ function checkConfig() {
   }
 }
 
+async function checkUpdate() {
+  const result = await buildPackageUpdateInfo();
+
+  console.log(`Package: ${result.package_name}`);
+  console.log(`Current version: ${result.current_version}`);
+  console.log(`Latest version: ${result.latest_version ?? "unknown"}`);
+  console.log(`Update available: ${result.update_available === null ? "unknown" : result.update_available ? "yes" : "no"}`);
+  console.log("");
+  console.log("Recommended MCP config:");
+  console.log(`  command: ${result.recommended_mcp_config.command}`);
+  console.log(`  args: ${JSON.stringify(result.recommended_mcp_config.args)}`);
+  console.log("");
+  console.log("Manual update commands:");
+  console.log(`  ${result.update_commands.global_update}`);
+  console.log(`  ${result.update_commands.npx_config}`);
+  console.log(`  ${result.update_commands.npx_check}`);
+}
+
 // 显示帮助信息
 function showHelp() {
   console.log(`bilibili-mcp ${packageJson.version}`);
@@ -117,6 +136,7 @@ function showHelp() {
   console.log('  bilibili-mcp             启动 MCP 服务器');
   console.log('  bilibili-mcp config      配置 Bilibili 凭证');
   console.log('  bilibili-mcp check       检查配置状态');
+  console.log('  bilibili-mcp check-update 检查 npm 最新版本');
   console.log('  bilibili-mcp help        显示此帮助信息');
   console.log('');
   console.log('选项：');
@@ -142,6 +162,9 @@ async function main() {
           break;
         case 'check':
           checkConfig();
+          break;
+        case 'check-update':
+          await checkUpdate();
           break;
         case 'help':
         case '--help':
@@ -175,6 +198,11 @@ async function main() {
     .command('check')
     .description('检查配置状态')
     .action(checkConfig);
+
+  program
+    .command('check-update')
+    .description('检查 npm 最新版本')
+    .action(checkUpdate);
 
   // 帮助命令
   program

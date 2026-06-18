@@ -48,7 +48,7 @@ describe("credential MCP tools", () => {
 
     expect(response.isError).toBeUndefined();
     expect(payload.recommended_commands).toContain(
-      "npx -y @xzxzzx/bilibili-mcp config",
+      "npx -y @xzxzzx/bilibili-mcp@latest config",
     );
     expect(JSON.stringify(payload)).not.toContain("SESSDATA=");
   });
@@ -64,7 +64,7 @@ describe("credential MCP tools", () => {
     expect(payload.source).toBe("none");
     expect(payload.logged_in).toBe(false);
     expect(payload.next_steps).toContain(
-      "Run: npx -y @xzxzzx/bilibili-mcp config",
+      "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
     );
   });
 });
@@ -75,8 +75,38 @@ describe("credential next_steps in error payloads", () => {
     const payload = JSON.parse(response.content[0].text);
 
     expect(payload.recommended_commands).toEqual([
-      "npx -y @xzxzzx/bilibili-mcp config",
-      "npx -y @xzxzzx/bilibili-mcp check",
+      "npx -y @xzxzzx/bilibili-mcp@latest config",
+      "npx -y @xzxzzx/bilibili-mcp@latest check",
     ]);
+  });
+});
+
+describe("package update MCP tool", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns safe @latest update guidance", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        statusText: "OK",
+        json: async () => ({ version: "9.9.9" }),
+      })),
+    );
+
+    const response = await callTool("check_mcp_update");
+    const payload = JSON.parse(response.content[0].text);
+
+    expect(response.isError).toBeUndefined();
+    expect(payload.latest_version).toBe("9.9.9");
+    expect(payload.update_available).toBe(true);
+    expect(payload.recommended_mcp_config.args).toEqual([
+      "-y",
+      "@xzxzzx/bilibili-mcp@latest",
+    ]);
+    expect(JSON.stringify(payload)).not.toContain("SESSDATA=");
   });
 });

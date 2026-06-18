@@ -60,7 +60,7 @@ describe("generic MCP error credential next_steps", () => {
     expect(response.isError).toBe(true);
     expect(payload.code).toBe("COOKIE_EXPIRED");
     expect(payload.next_steps).toContain(
-      "Run: npx -y @xzxzzx/bilibili-mcp config",
+      "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
     );
   });
 });

@@ -22,6 +22,16 @@ export const toolSchemas: Tool[] = [
     },
   },
   {
+    name: "check_mcp_update",
+    description:
+      "Check the installed package version against the npm latest version and return safe MCP update guidance. Does not expose credentials.",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      required: [],
+    },
+  },
+  {
     name: "get_video_info",
     description:
       "获取 Bilibili 视频信息，优先返回字幕内容，如无字幕则返回视频简介和标签。支持指定偏好语言。For credential help, call get_credential_setup_instructions.",
