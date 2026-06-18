@@ -4,6 +4,15 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.6.1] - 2026-06-18
+
+### Docs
+- Added explicit Chinese README guidance for `@latest` MCP configs, global install updates, and `bilibili-mcp check-update`.
+- Added `check_mcp_update` to the English agent-install guidance.
+- Added `check_mcp_update` to the English tool selection table and added Chinese/English tool call examples.
+
+---
+
 ## [1.6.0] - 2026-06-18
 
 ### Added

@@ -4,6 +4,15 @@
 
 ---
 
+## [1.6.1] - 2026-06-18
+
+### 文档
+- 中文 README 补充 `@latest` MCP 配置、全局安装更新和 `bilibili-mcp check-update` 的明确说明。
+- 英文 README 的 agent 安装引导补充 `check_mcp_update`。
+- 英文工具选择表补充 `check_mcp_update`，并补充中英文工具调用示例。
+
+---
+
 ## [1.6.0] - 2026-06-18
 
 ### 新增

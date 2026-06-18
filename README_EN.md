@@ -6,7 +6,7 @@
 
 MCP server that gives AI clients access to Bilibili video subtitles, transcripts, metadata, and popular comments.
 
-View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.6.0](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.6.0)
+View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.6.1](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.6.1)
 
 > [!TIP]
 > ⚠️ You can copy the "Install With Your Agent" prompt below to Codex, Claude Code, Cursor, or another agent and let it add this MCP server to your client and guide Cookie setup. For reliable subtitles, transcripts, and comments, you still need to configure Bilibili Cookies after installation; do not write Cookies into MCP client config. Metadata may work without cookies. See [**Credential Configuration**](#-credential-configuration).
@@ -177,7 +177,7 @@ After the MCP server is connected, if available, call get_credential_setup_instr
 > Do not write real Cookie values in MCP client config files. Prefer `bilibili-mcp config` to save credentials to the local credential config, or provide environment variables in the runtime environment; the MCP server will read those credentials automatically when it starts. See [⚙️ Credential Configuration](#-credential-configuration).
 
 > [!IMPORTANT]
-> If you are an AI agent installing this MCP for a user: do not stop after writing the MCP client config. After adding the `bilibili-mcp` server, you must remind and guide the user to configure Bilibili Cookies separately. After connecting the MCP server, agents can also call `get_credential_setup_instructions` or `check_bilibili_credentials` to guide the user.
+> If you are an AI agent installing this MCP for a user: do not stop after writing the MCP client config. After adding the `bilibili-mcp` server, you must remind and guide the user to configure Bilibili Cookies separately. After connecting the MCP server, agents can also call `get_credential_setup_instructions`, `check_bilibili_credentials`, or `check_mcp_update` to guide the user.
 >
 > Recommended commands:
 >
@@ -1197,6 +1197,7 @@ Do not share cookies with others. Do not paste them into public chats, issues, P
 | View audience reactions | `get_video_comments` | Popular comments, timestamped highlights, optional replies |
 | Guide users through Cookie setup | `get_credential_setup_instructions` | Safe setup steps, recommended commands, security notes |
 | Check whether Cookies are configured/logged in | `check_bilibili_credentials` | configured, source, logged_in, next_steps |
+| Check whether the MCP package needs an update | `check_mcp_update` | current_version, latest_version, update_available, update commands |
 
 ## 💡 Tool Call Examples
 
@@ -1231,6 +1232,21 @@ Request:
 ```
 
 Returns: `configured`, `source` (`env` / `global_config` / `none`), `logged_in`, and `next_steps`; never returns Cookie values.
+
+### `check_mcp_update`
+
+**Best for**: checking whether the installed MCP package is behind npm latest and showing safe update commands.
+
+Request:
+
+```json
+{
+  "name": "check_mcp_update",
+  "arguments": {}
+}
+```
+
+Returns: `current_version`, `latest_version`, `update_available`, `recommended_mcp_config`, and `update_commands`; never updates packages automatically.
 
 ### `get_video_transcript`
 
