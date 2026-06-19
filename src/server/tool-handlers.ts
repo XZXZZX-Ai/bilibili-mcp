@@ -7,11 +7,11 @@ import {
 } from "../bilibili/subtitle.js";
 import { getPreferredLanguage } from "../config.js";
 import {
-  buildCredentialNextSteps,
   buildCredentialSetupInstructions,
   buildCredentialStatus,
 } from "../utils/credential-guidance.js";
-import { BilibiliAPIError, NoSubtitleError } from "../utils/errors.js";
+import { buildStructuredErrorPayload } from "../utils/error-guidance.js";
+import { NoSubtitleError } from "../utils/errors.js";
 import { sanitizeBVInput } from "../utils/sanitization.js";
 import { buildPackageUpdateInfo } from "../utils/update-check.js";
 import {
@@ -119,24 +119,11 @@ export async function handleToolCall(name: string, args: ToolArgs) {
         return toTextContent(result);
       } catch (error) {
         if (error instanceof NoSubtitleError) {
-          return toErrorTextContent({
-            error: true,
-            message: error.message,
-            code: "SUBTITLE_UNAVAILABLE",
-            next_steps: [
-              "If you expected subtitles, configure Bilibili Cookies.",
-              ...buildCredentialNextSteps(),
-              "Or retry get_video_transcript with fallback_to_description: true if description fallback is acceptable.",
-            ],
-          });
-        }
-        if (error instanceof BilibiliAPIError && error.code === "COOKIE_EXPIRED") {
-          return toErrorTextContent({
-            error: true,
-            message: error.message,
-            code: "COOKIE_EXPIRED",
-            next_steps: buildCredentialNextSteps(),
-          });
+          return toErrorTextContent(
+            buildStructuredErrorPayload(error, {
+              fallbackToDescriptionAvailable: true,
+            }),
+          );
         }
         throw error;
       }

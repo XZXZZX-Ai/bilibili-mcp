@@ -158,11 +158,51 @@ After the MCP server is connected, if available, call get_credential_setup_instr
 
 #### Expected Error Codes
 
+All MCP tool error responses use a unified structured payload. The backward-compatible `error`, `message`, `code`, and `next_steps` fields remain, alongside explicit bilingual fields:
+
+```json
+{
+  "error": true,
+  "message": "Network request failed.",
+  "message_en": "Network request failed.",
+  "message_zh": "网络请求失败。",
+  "code": "NETWORK_ERROR",
+  "category": "network",
+  "retryable": true,
+  "user_action_required": false,
+  "next_steps": ["Retry later.", "Check local network, proxy, firewall, or VPN settings if the problem repeats."],
+  "next_steps_en": ["Retry later.", "Check local network, proxy, firewall, or VPN settings if the problem repeats."],
+  "next_steps_zh": ["稍后重试。", "如果问题反复出现，请检查本机网络、代理、防火墙或 VPN 设置。"],
+  "details": {
+    "status_code": 503
+  }
+}
+```
+
+Field meaning:
+
+- `error` / `message` / `code` / `next_steps`: backward-compatible fields; `next_steps` mirrors `next_steps_en`.
+- `message_en` / `message_zh` / `next_steps_en` / `next_steps_zh`: explicit English and Chinese copies for clients that render by language.
+- `category`: classification (`validation` / `credentials` / `content` / `network` / `access` / `rate_limit` / `api` / `unknown`).
+- `retryable`: whether automatic retry is reasonable.
+- `user_action_required`: whether the user must act before the call can succeed.
+- `details`: optional metadata such as HTTP status, timeout in milliseconds, or Bilibili API code; never includes Cookie values or full URLs.
+
+Supported error codes:
+
 | Code | Meaning | Caller Action |
 |------|---------|---------------|
 | `VALIDATION_ERROR` | Invalid input parameter | Fix the `bvid_or_url` or other parameter |
 | `COOKIE_EXPIRED` | Cookie expired or not logged in | User should refresh/rotate Bilibili credentials |
 | `SUBTITLE_UNAVAILABLE` | No subtitles available for this video | For `get_video_transcript`, retry with `fallback_to_description: true` |
+| `NETWORK_ERROR` | Network request failed (HTTP 5xx, connection errors, etc.) | Retry later; check network/proxy/firewall if it keeps happening |
+| `NETWORK_TIMEOUT` | Request to Bilibili timed out | Retry later; check network/proxy/firewall if it keeps happening |
+| `API_RATE_LIMITED` | Bilibili API rate limit hit (HTTP 429) | Wait and retry; reduce request frequency or raise `BILIBILI_RATE_LIMIT_MS` |
+| `ACCESS_DENIED` | Bilibili denied access (permissions, private, region-locked, removed) | Verify the video access permissions; run the credential check if needed |
+| `PAID_VIDEO` | Video may require payment, membership, or extra permissions | Confirm in Bilibili; this MCP will not bypass paid or restricted access |
+| `COMMENTS_DISABLED` | Comments are disabled or restricted | Use transcript or metadata tools; confirm on the Bilibili page |
+| `BILIBILI_API_ERROR` | Other Bilibili API errors | Retry if it looks temporary; include the code when reporting repeated issues |
+| `UNKNOWN_ERROR` | Unknown failure | Retry later; never include Cookie values when reporting |
 
 ## 📋 Requirements
 
@@ -1196,8 +1236,8 @@ Do not share cookies with others. Do not paste them into public chats, issues, P
 | See structured metadata | `get_video_metadata` | Title, author, duration, publish date, tags, stats |
 | View audience reactions | `get_video_comments` | Popular comments, timestamped highlights, optional replies |
 | Guide users through Cookie setup | `get_credential_setup_instructions` | Safe setup steps, recommended commands, security notes |
-| Check whether Cookies are configured/logged in | `check_bilibili_credentials` | configured, source, logged_in, next_steps |
-| Check whether the MCP package needs an update | `check_mcp_update` | current_version, latest_version, update_available, update commands |
+| Check whether Cookies are configured/logged in | `check_bilibili_credentials` | configured, source, logged_in, next_steps, next_steps_zh |
+| Check whether the MCP package needs an update | `check_mcp_update` | current_version, latest_version, update_available, notes_zh, update commands |
 
 ## 💡 Tool Call Examples
 
@@ -1216,7 +1256,7 @@ Request:
 }
 ```
 
-Returns: recommended setup commands, global-install commands, required Cookie fields, and security notes; never returns Cookie values.
+Returns: recommended setup commands, global-install commands, required Cookie fields, and bilingual `security_notes_en` / `security_notes_zh`; never returns Cookie values.
 
 ### `check_bilibili_credentials`
 
@@ -1231,7 +1271,7 @@ Request:
 }
 ```
 
-Returns: `configured`, `source` (`env` / `global_config` / `none`), `logged_in`, and `next_steps`; never returns Cookie values.
+Returns: `configured`, `source` (`env` / `global_config` / `none`), `logged_in`, backward-compatible `next_steps`, and bilingual `next_steps_en` / `next_steps_zh`; never returns Cookie values.
 
 ### `check_mcp_update`
 
@@ -1246,7 +1286,7 @@ Request:
 }
 ```
 
-Returns: `current_version`, `latest_version`, `update_available`, `recommended_mcp_config`, and `update_commands`; never updates packages automatically.
+Returns: `current_version`, `latest_version`, `update_available`, `recommended_mcp_config`, `update_commands`, and bilingual `notes_en` / `notes_zh`; never updates packages automatically.
 
 ### `get_video_transcript`
 

@@ -3,11 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 import { getMcpHandler } from "./helpers/mcp.js";
 
 const mockGetVideoInfoWithSubtitle = vi.fn();
+const mockGetVideoTranscriptData = vi.fn();
+const mockGetVideoCommentsData = vi.fn();
 
 vi.mock("../src/bilibili/subtitle.js", () => ({
   getVideoInfoWithSubtitle: (...args: unknown[]) =>
     mockGetVideoInfoWithSubtitle(...args),
-  getVideoTranscriptData: vi.fn(),
+  getVideoTranscriptData: (...args: unknown[]) =>
+    mockGetVideoTranscriptData(...args),
 }));
 
 vi.mock("../src/bilibili/metadata.js", () => ({
@@ -15,14 +18,22 @@ vi.mock("../src/bilibili/metadata.js", () => ({
 }));
 
 vi.mock("../src/bilibili/comments.js", () => ({
-  getVideoCommentsData: vi.fn(),
+  getVideoCommentsData: (...args: unknown[]) =>
+    mockGetVideoCommentsData(...args),
 }));
 
 vi.mock("../src/bilibili/http.js", () => ({
   checkLoginStatus: vi.fn(async () => ({ isLogin: false })),
 }));
 
-const { BilibiliAPIError } = await import("../src/utils/errors.js");
+const {
+  BilibiliAPIError,
+  CommentsDisabledError,
+  NetworkError,
+  NoSubtitleError,
+  PaidVideoError,
+  TimeoutError,
+} = await import("../src/utils/errors.js");
 
 function getCallToolHandler() {
   return getMcpHandler<
@@ -37,6 +48,25 @@ function getCallToolHandler() {
       isError?: boolean;
     }
   >("tools/call");
+}
+
+function expectStructuredError(
+  payload: Record<string, unknown>,
+  code: string,
+  options: { retryable: boolean; userActionRequired: boolean },
+) {
+  expect(payload.error).toBe(true);
+  expect(payload.code).toBe(code);
+  expect(typeof payload.category).toBe("string");
+  expect(typeof payload.message).toBe("string");
+  expect(typeof payload.message_en).toBe("string");
+  expect(typeof payload.message_zh).toBe("string");
+  expect(Array.isArray(payload.next_steps)).toBe(true);
+  expect(Array.isArray(payload.next_steps_en)).toBe(true);
+  expect(Array.isArray(payload.next_steps_zh)).toBe(true);
+  expect(payload.next_steps_en).toEqual(payload.next_steps);
+  expect(payload.retryable).toBe(options.retryable);
+  expect(payload.user_action_required).toBe(options.userActionRequired);
 }
 
 describe("generic MCP error credential next_steps", () => {
@@ -58,9 +88,201 @@ describe("generic MCP error credential next_steps", () => {
     const payload = JSON.parse(response.content[0].text);
 
     expect(response.isError).toBe(true);
-    expect(payload.code).toBe("COOKIE_EXPIRED");
+    expectStructuredError(payload, "COOKIE_EXPIRED", {
+      retryable: false,
+      userActionRequired: true,
+    });
     expect(payload.next_steps).toContain(
       "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
     );
+    expect(payload.next_steps_en).toEqual(payload.next_steps);
+    expect(payload.next_steps_zh.join(" ")).toContain(
+      "npx -y @xzxzzx/bilibili-mcp@latest config",
+    );
+  });
+
+  it("adds bilingual next_steps when transcript subtitles are unavailable", async () => {
+    mockGetVideoTranscriptData.mockRejectedValueOnce(
+      new NoSubtitleError("No subtitles"),
+    );
+
+    const handler = getCallToolHandler();
+    const response = await handler({
+      method: "tools/call",
+      jsonrpc: "2.0",
+      id: 1,
+      params: {
+        name: "get_video_transcript",
+        arguments: { bvid_or_url: "BV1T6PQzQErF" },
+      },
+    });
+    const payload = JSON.parse(response.content[0].text);
+
+    expect(response.isError).toBe(true);
+    expectStructuredError(payload, "SUBTITLE_UNAVAILABLE", {
+      retryable: false,
+      userActionRequired: true,
+    });
+    expect(payload.next_steps_en.join(" ")).toContain(
+      "fallback_to_description: true",
+    );
+    expect(payload.next_steps_zh.join(" ")).toContain(
+      "fallback_to_description: true",
+    );
+  });
+});
+
+describe("structured MCP error categories", () => {
+  it("maps handler validation errors to VALIDATION_ERROR", async () => {
+    const handler = getCallToolHandler();
+    const response = await handler({
+      method: "tools/call",
+      jsonrpc: "2.0",
+      id: 1,
+      params: {
+        name: "get_video_comments",
+        arguments: { bvid_or_url: "BV1T6PQzQErF", limit: 51 },
+      },
+    });
+    const payload = JSON.parse(response.content[0].text);
+
+    expect(response.isError).toBe(true);
+    expectStructuredError(payload, "VALIDATION_ERROR", {
+      retryable: false,
+      userActionRequired: true,
+    });
+    expect(payload.message).toBe("Comment limit must be between 1 and 50");
+  });
+
+  it.each([
+    {
+      name: "network failures",
+      error: new NetworkError(
+        "HTTP 503: Service Unavailable",
+        undefined,
+        "https://api.bilibili.com/x",
+        503,
+      ),
+      code: "NETWORK_ERROR",
+      retryable: true,
+      userActionRequired: false,
+      zhNeedle: "网络",
+    },
+    {
+      name: "network timeouts",
+      error: new TimeoutError("Request timeout: 30000ms", 30000),
+      code: "NETWORK_TIMEOUT",
+      retryable: true,
+      userActionRequired: false,
+      zhNeedle: "超时",
+    },
+    {
+      name: "API rate limits",
+      error: new NetworkError(
+        "HTTP 429: Too Many Requests",
+        undefined,
+        "https://api.bilibili.com/x",
+        429,
+      ),
+      code: "API_RATE_LIMITED",
+      retryable: true,
+      userActionRequired: true,
+      zhNeedle: "频率",
+    },
+    {
+      name: "access denied API errors",
+      error: new BilibiliAPIError("Access denied", "ACCESS_DENIED"),
+      code: "ACCESS_DENIED",
+      retryable: false,
+      userActionRequired: true,
+      zhNeedle: "访问",
+    },
+    {
+      name: "paid videos",
+      error: new PaidVideoError("Paid video"),
+      code: "PAID_VIDEO",
+      retryable: false,
+      userActionRequired: true,
+      zhNeedle: "付费",
+    },
+    {
+      name: "disabled comments",
+      error: new CommentsDisabledError("Comments disabled"),
+      code: "COMMENTS_DISABLED",
+      retryable: false,
+      userActionRequired: false,
+      zhNeedle: "评论",
+    },
+  ])(
+    "returns structured guidance for $name",
+    async ({ error, code, retryable, userActionRequired, zhNeedle }) => {
+      mockGetVideoInfoWithSubtitle.mockRejectedValueOnce(error);
+
+      const handler = getCallToolHandler();
+      const response = await handler({
+        method: "tools/call",
+        jsonrpc: "2.0",
+        id: 1,
+        params: {
+          name: "get_video_info",
+          arguments: { bvid_or_url: "BV1T6PQzQErF" },
+        },
+      });
+      const payload = JSON.parse(response.content[0].text);
+
+      expect(response.isError).toBe(true);
+      expectStructuredError(payload, code, { retryable, userActionRequired });
+      expect(payload.next_steps_zh.join(" ")).toContain(zhNeedle);
+    },
+  );
+
+  it("maps comments-disabled errors from get_video_comments to COMMENTS_DISABLED", async () => {
+    mockGetVideoCommentsData.mockRejectedValueOnce(
+      new CommentsDisabledError("Comments disabled"),
+    );
+
+    const handler = getCallToolHandler();
+    const response = await handler({
+      method: "tools/call",
+      jsonrpc: "2.0",
+      id: 1,
+      params: {
+        name: "get_video_comments",
+        arguments: { bvid_or_url: "BV1T6PQzQErF" },
+      },
+    });
+    const payload = JSON.parse(response.content[0].text);
+
+    expect(response.isError).toBe(true);
+    expectStructuredError(payload, "COMMENTS_DISABLED", {
+      retryable: false,
+      userActionRequired: false,
+    });
+    expect(payload.next_steps_zh.join(" ")).toContain("评论");
+  });
+
+  it("maps generic Bilibili API errors to BILIBILI_API_ERROR", async () => {
+    mockGetVideoInfoWithSubtitle.mockRejectedValueOnce(
+      new BilibiliAPIError("Bilibili returned an error", "API_ERROR"),
+    );
+
+    const handler = getCallToolHandler();
+    const response = await handler({
+      method: "tools/call",
+      jsonrpc: "2.0",
+      id: 1,
+      params: {
+        name: "get_video_info",
+        arguments: { bvid_or_url: "BV1T6PQzQErF" },
+      },
+    });
+    const payload = JSON.parse(response.content[0].text);
+
+    expect(response.isError).toBe(true);
+    expectStructuredError(payload, "BILIBILI_API_ERROR", {
+      retryable: false,
+      userActionRequired: false,
+    });
+    expect(payload.details).toEqual({ api_code: "API_ERROR" });
   });
 });

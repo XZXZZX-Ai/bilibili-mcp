@@ -41,6 +41,7 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 
 - `src/utils/credentials.ts`: global credential storage and credential source detection.
 - `src/utils/credential-guidance.ts`: safe credential setup instructions, status payloads, and next-step generation.
+- `src/utils/error-guidance.ts`: unified structured MCP error payload mapper with bilingual recovery guidance and category/retry metadata.
 - `src/utils/validation.ts`: BV, language, detail-level, comment limit, and sort validation.
 - `src/utils/sanitization.ts`: BV/URL sanitization and output sanitization helpers.
 - `src/utils/errors.ts`: domain-specific error classes and codes.

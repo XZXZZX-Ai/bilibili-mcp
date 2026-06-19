@@ -192,16 +192,7 @@ export async function getVideoCommentsData(
   } catch (error) {
     if (error instanceof CommentsDisabledError) {
       logger.warn("Comments disabled for video", { bvid }, { type: "comments" });
-      const result: CommentData = {
-        comments: [],
-        summary: {
-          total_comments: 0,
-          comments_with_timestamp: 0,
-        },
-      };
-      // 存入缓存
-      cacheManager.setCommentInfo(cacheKey, result);
-      return result;
+      throw error;
     }
     logger.error(
       "Error getting video comments",

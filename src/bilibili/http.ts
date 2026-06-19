@@ -181,7 +181,7 @@ export async function fetchWithWBI(
             },
             { type: "bilibili-http", operation: "fetchWithWBI" },
           );
-          throw new NetworkError(errorMsg, undefined, url.toString());
+          throw new NetworkError(errorMsg, undefined, url.toString(), response.status);
         }
 
         const data = await response.json();
@@ -327,6 +327,7 @@ export async function fetchWithoutWBI(
             `HTTP ${response.status}: ${response.statusText}`,
             undefined,
             url.toString(),
+            response.status,
           );
         }
 

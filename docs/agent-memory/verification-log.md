@@ -796,3 +796,21 @@
 - Commands: `npm version 1.6.0 --no-git-tag-version`; `npm run build`; `npm test`; `npm pack --dry-run`; `node dist/cli.js check-update`; `git diff --check`.
 - Result: `package.json` and `package-lock.json` now report `1.6.0`; build and full Vitest suite pass; package dry-run reports `@xzxzzx/bilibili-mcp@1.6.0`; CLI update check reports local current `1.6.0` against npm latest `1.5.3`; diff check has only CRLF warnings.
 - Caveat: No npm publish, tag creation, GitHub Release creation, or release workflow execution was performed in this commit step.
+
+## 2026-06-19 Structured Error Guidance Codex Review
+
+- Commands: `npm test -- tests/server-error-next-steps.test.ts tests/bilibili-comments-tool.test.ts`; `npm test`; `npm run build`; structured error-code scan with `rg`; added-diff secret-pattern scan with `git diff -- ... | Select-String`; UTF-8 source check with Python.
+- Result: Codex review found and fixed two gaps after Claude implementation: handler-level plain `Error` validation failures now still return `VALIDATION_ERROR`, and generic `BilibiliAPIError("...", "API_ERROR")` now returns the documented `BILIBILI_API_ERROR` while preserving the original token in `details.api_code`. Focused tests now pass at 23 tests, full Vitest suite passes at 16 files / 155 tests, and build passes.
+- Caveat: Live MCP client compatibility, npm package dry-run, version bump, tag, release, npm publish, push, and live Bilibili API calls were not performed in this review.
+
+## 2026-06-19 Structured Error Guidance Package Dry Run
+
+- Commands: `npm pack --dry-run --json`; package file scan over the JSON output for `tests`, `docs/qa`, `docs/agent-memory`, `docs/research`, `docs/templates`, `.codex`, `.claude`, `.env`, Smithery files, `src`, and raw `.ts` files excluding expected `.d.ts` type declarations.
+- Result: Package dry-run reports `@xzxzzx/bilibili-mcp@1.6.1`, `xzxzzx-bilibili-mcp-1.6.1.tgz`, 120 entries, 102709 bytes packed, 389208 bytes unpacked, shasum `bc2dbd3e2c03ee72dde6c2ee503ce601d65870d8`; abnormal file scan returned `badCount=0`.
+- Caveat: This is a dry run only; no npm publish, tag, release, push, live MCP client test, or live Bilibili API call was performed.
+
+## 2026-06-19 Structured Error Guidance Stdio Smoke
+
+- Commands: Node child-process stdio smoke against `node dist/index.js` with `initialize`, `notifications/initialized`, `tools/list`, and `tools/call get_video_info` using an empty `bvid_or_url`.
+- Result: Process exited 0; stdout had 3 JSON-RPC response lines and no non-JSON noise; raw stderr was exactly `Bilibili MCP server running on stdio`; `tools/list` returned 7 expected tools; invalid input returned an MCP `isError: true` response whose JSON text payload had `code: VALIDATION_ERROR`, `category: validation`, `message_zh`, `next_steps_zh`, and `next_steps` matching `next_steps_en`.
+- Caveat: This is an equivalent local stdio smoke, not a GUI MCP client smoke; no live Bilibili API call, package publish, tag, release, or push was performed.

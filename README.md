@@ -158,11 +158,51 @@ npx -y @xzxzzx/bilibili-mcp@latest check
 
 #### 预期错误码
 
+所有 MCP 工具的错误响应都使用统一的结构化 payload，同时保留向后兼容的 `error`、`message`、`code`、`next_steps` 字段，并新增中英双语与分类字段：
+
+```json
+{
+  "error": true,
+  "message": "Network request failed.",
+  "message_en": "Network request failed.",
+  "message_zh": "网络请求失败。",
+  "code": "NETWORK_ERROR",
+  "category": "network",
+  "retryable": true,
+  "user_action_required": false,
+  "next_steps": ["Retry later.", "Check local network, proxy, firewall, or VPN settings if the problem repeats."],
+  "next_steps_en": ["Retry later.", "Check local network, proxy, firewall, or VPN settings if the problem repeats."],
+  "next_steps_zh": ["稍后重试。", "如果问题反复出现，请检查本机网络、代理、防火墙或 VPN 设置。"],
+  "details": {
+    "status_code": 503
+  }
+}
+```
+
+字段含义：
+
+- `error` / `message` / `code` / `next_steps`：向后兼容字段；`next_steps` 与 `next_steps_en` 内容一致。
+- `message_en` / `message_zh` / `next_steps_en` / `next_steps_zh`：显式中英文版本，便于客户端按语言渲染。
+- `category`：错误分类（`validation` / `credentials` / `content` / `network` / `access` / `rate_limit` / `api` / `unknown`）。
+- `retryable`：是否建议自动重试。
+- `user_action_required`：是否需要用户介入才能解决。
+- `details`：可选的附加信息（如 HTTP 状态码、超时毫秒数、Bilibili API 错误码），不包含 Cookie 或完整 URL。
+
+支持的错误码：
+
 | 错误码 | 含义 | 调用方建议 |
 |--------|------|-----------|
 | `VALIDATION_ERROR` | 输入参数不合法 | 检查并修正 `bvid_or_url` 或其他参数 |
 | `COOKIE_EXPIRED` | Cookie 已失效或未登录 | 用户应更新/轮换 Bilibili 凭据 |
 | `SUBTITLE_UNAVAILABLE` | 视频无可用的字幕 | 对 `get_video_transcript` 可重试并设置 `fallback_to_description: true` |
+| `NETWORK_ERROR` | 网络请求失败（HTTP 5xx、连接错误等） | 稍后重试；如反复出现请检查网络/代理/防火墙 |
+| `NETWORK_TIMEOUT` | 请求 Bilibili 超时 | 稍后重试；如反复出现请检查网络/代理/防火墙 |
+| `API_RATE_LIMITED` | 触发 Bilibili API 频率限制（HTTP 429） | 等待一段时间后重试；降低调用频率或调大 `BILIBILI_RATE_LIMIT_MS` |
+| `ACCESS_DENIED` | Bilibili 拒绝访问（权限不足、私密、地区限制、已下架等） | 检查视频访问权限，必要时运行凭据检查 |
+| `PAID_VIDEO` | 视频可能需要付费、会员或额外权限 | 在 Bilibili 端确认；本 MCP 不会绕过付费或受限访问 |
+| `COMMENTS_DISABLED` | 视频评论已关闭或访问受限 | 改用字幕或元数据工具；也可在 Bilibili 页面确认 |
+| `BILIBILI_API_ERROR` | 其他 Bilibili API 错误 | 临时问题可稍后重试；持续出现请带错误码反馈 |
+| `UNKNOWN_ERROR` | 未知错误 | 稍后重试；反馈时请勿包含 Cookie 或凭据 |
 
 ## 📋 环境要求
 
@@ -1196,8 +1236,8 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 | 想查看标题、作者、播放量等结构化信息 | `get_video_metadata` | 标题、作者、时长、发布时间、标签、统计数据 |
 | 想看观众反馈和热门评论 | `get_video_comments` | 热门评论、时间戳评论、可选回复 |
 | 让 agent 引导用户配置 Cookie | `get_credential_setup_instructions` | 安全配置步骤、推荐命令、注意事项 |
-| 检查 Cookie 是否已配置/登录 | `check_bilibili_credentials` | configured、source、logged_in、next_steps |
-| 检查 MCP 包是否需要更新 | `check_mcp_update` | current_version、latest_version、update_available、更新命令 |
+| 检查 Cookie 是否已配置/登录 | `check_bilibili_credentials` | configured、source、logged_in、next_steps、next_steps_zh |
+| 检查 MCP 包是否需要更新 | `check_mcp_update` | current_version、latest_version、update_available、notes_zh、更新命令 |
 
 ## 💡 工具调用示例
 
@@ -1216,7 +1256,7 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 }
 ```
 
-返回内容：推荐配置命令、全局安装命令、所需 Cookie 字段和安全提醒；不会返回任何 Cookie 值。
+返回内容：推荐配置命令、全局安装命令、所需 Cookie 字段，以及 `security_notes_en` / `security_notes_zh` 双语安全提醒；不会返回任何 Cookie 值。
 
 ### `check_bilibili_credentials`
 
@@ -1231,7 +1271,7 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 }
 ```
 
-返回内容：`configured`、`source`（`env` / `global_config` / `none`）、`logged_in` 和 `next_steps`；不会返回任何 Cookie 值。
+返回内容：`configured`、`source`（`env` / `global_config` / `none`）、`logged_in`、兼容旧调用方的 `next_steps`，以及双语 `next_steps_en` / `next_steps_zh`；不会返回任何 Cookie 值。
 
 ### `check_mcp_update`
 
@@ -1246,7 +1286,7 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 }
 ```
 
-返回内容：`current_version`、`latest_version`、`update_available`、`recommended_mcp_config` 和 `update_commands`；不会自动更新包。
+返回内容：`current_version`、`latest_version`、`update_available`、`recommended_mcp_config`、`update_commands`，以及双语 `notes_en` / `notes_zh`；不会自动更新包。
 
 ### `get_video_transcript`
 

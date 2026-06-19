@@ -1,28 +1,25 @@
-import { BilibiliAPIError } from "../utils/errors.js";
-import { buildCredentialNextSteps } from "../utils/credential-guidance.js";
+import { buildStructuredErrorPayload } from "../utils/error-guidance.js";
+import { ValidationError } from "../utils/errors.js";
 
-export function buildValidationErrorPayload(error: unknown): Record<string, unknown> {
-  return {
-    error: true,
-    message: error instanceof Error ? error.message : "Invalid input",
-    code: "VALIDATION_ERROR",
-  };
+export function buildValidationErrorPayload(
+  error: unknown,
+): Record<string, unknown> {
+  const validationError =
+    error instanceof ValidationError
+      ? error
+      : new ValidationError(
+          error instanceof Error ? error.message : "Invalid input",
+        );
+
+  return buildStructuredErrorPayload(
+    validationError,
+  ) as unknown as Record<string, unknown>;
 }
 
-export function buildGenericErrorPayload(error: unknown): Record<string, unknown> {
-  const payload: Record<string, unknown> = {
-    error: true,
-    message: error instanceof Error ? error.message : "Unknown error",
-  };
-
-  if (error instanceof BilibiliAPIError) {
-    payload.code = error.code;
-    if (error.code === "COOKIE_EXPIRED") {
-      payload.next_steps = buildCredentialNextSteps();
-    }
-  }
-
-  return payload;
+export function buildGenericErrorPayload(
+  error: unknown,
+): Record<string, unknown> {
+  return buildStructuredErrorPayload(error) as unknown as Record<string, unknown>;
 }
 
 export function toTextContent(payload: unknown) {
