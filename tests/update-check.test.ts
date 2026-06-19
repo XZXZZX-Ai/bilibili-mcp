@@ -32,6 +32,8 @@ describe("package update guidance", () => {
     expect(result.update_commands.npx_config).toBe(
       "npx -y @xzxzzx/bilibili-mcp@latest config",
     );
+    expect(result.notes_en.join(" ")).toContain("Use the @latest MCP config");
+    expect(result.notes_zh.join(" ")).toContain("建议在 MCP 配置中使用 @latest");
   });
 
   it("reports unknown registry state without throwing", async () => {
@@ -44,5 +46,7 @@ describe("package update guidance", () => {
     expect(result.latest_version).toBeNull();
     expect(result.update_available).toBeNull();
     expect(result.notes.join(" ")).toContain("Could not reach the npm registry");
+    expect(result.notes_en.join(" ")).toContain("Could not reach the npm registry");
+    expect(result.notes_zh.join(" ")).toContain("无法连接 npm registry");
   });
 });

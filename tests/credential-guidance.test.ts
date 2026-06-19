@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   buildCredentialSetupInstructions,
   buildCredentialNextSteps,
+  buildCredentialNextStepsEn,
+  buildCredentialNextStepsZh,
   hasSecretLikeValue,
   buildCredentialStatus,
 } from "../src/utils/credential-guidance.js";
@@ -26,6 +28,7 @@ describe("credential guidance", () => {
     const result = buildCredentialSetupInstructions();
 
     expect(result.title).toBe("Bilibili credential setup");
+    expect(result.title_zh).toBe("Bilibili 凭证配置");
     expect(result.recommended_commands).toContain(
       "npx -y @xzxzzx/bilibili-mcp@latest config",
     );
@@ -40,6 +43,12 @@ describe("credential guidance", () => {
     expect(result.security_notes.join(" ")).toContain(
       "Do not paste Cookie values into MCP client config",
     );
+    expect(result.security_notes_en.join(" ")).toContain(
+      "Do not paste Cookie values into MCP client config",
+    );
+    expect(result.security_notes_zh.join(" ")).toContain(
+      "不要把 Cookie 值粘贴到 MCP 客户端配置文件中",
+    );
   });
 
   it("returns reusable next steps for credential errors", () => {
@@ -47,6 +56,12 @@ describe("credential guidance", () => {
       "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
       "Then run: npx -y @xzxzzx/bilibili-mcp@latest check",
       "Do not paste Cookie values into MCP client config files.",
+    ]);
+    expect(buildCredentialNextStepsEn()).toEqual(buildCredentialNextSteps());
+    expect(buildCredentialNextStepsZh()).toEqual([
+      "运行：npx -y @xzxzzx/bilibili-mcp@latest config",
+      "然后运行：npx -y @xzxzzx/bilibili-mcp@latest check",
+      "不要把 Cookie 值粘贴到 MCP 客户端配置文件中。",
     ]);
   });
 
@@ -78,6 +93,13 @@ describe("credential status", () => {
     expect(result.logged_in).toBe(false);
     expect(result.next_steps).toContain(
       "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
+    );
+    expect(result.next_steps_en).toEqual(result.next_steps);
+    expect(result.next_steps_zh).toContain(
+      "运行：npx -y @xzxzzx/bilibili-mcp@latest config",
+    );
+    expect(result.security_notes_zh).toContain(
+      "此响应永远不会包含原始 Cookie 值。",
     );
   });
 

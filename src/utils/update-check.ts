@@ -30,6 +30,8 @@ export interface PackageUpdateInfo {
     global_update: string;
   };
   notes: string[];
+  notes_en: string[];
+  notes_zh: string[];
 }
 
 function readCurrentVersion(): string {
@@ -68,6 +70,17 @@ function buildBaseInfo(currentVersion: string): Omit<
   PackageUpdateInfo,
   "latest_version" | "update_available"
 > {
+  const notesEn = [
+    "Use the @latest MCP config so new client sessions resolve the latest npm version.",
+    "Restart or reload the MCP client after changing package versions or MCP configuration.",
+    "Do not print update hints during stdio startup; stdout must stay reserved for JSON-RPC.",
+  ];
+  const notesZh = [
+    "建议在 MCP 配置中使用 @latest，这样新的客户端会话会解析 npm 最新版本。",
+    "修改包版本或 MCP 配置后，请重启或重新加载 MCP 客户端。",
+    "不要在 stdio 启动时打印更新提示；stdout 必须保留给 JSON-RPC。",
+  ];
+
   return {
     package_name: PACKAGE_NAME,
     current_version: currentVersion,
@@ -81,11 +94,9 @@ function buildBaseInfo(currentVersion: string): Omit<
       npx_check: `npx -y ${LATEST_PACKAGE_SPEC} check`,
       global_update: `npm install -g ${LATEST_PACKAGE_SPEC}`,
     },
-    notes: [
-      "Use the @latest MCP config so new client sessions resolve the latest npm version.",
-      "Restart or reload the MCP client after changing package versions or MCP configuration.",
-      "Do not print update hints during stdio startup; stdout must stay reserved for JSON-RPC.",
-    ],
+    notes: notesEn,
+    notes_en: notesEn,
+    notes_zh: notesZh,
   };
 }
 
@@ -121,6 +132,14 @@ export async function buildPackageUpdateInfo(
       notes: [
         ...baseInfo.notes,
         "Could not reach the npm registry; retry later or run npm view @xzxzzx/bilibili-mcp version.",
+      ],
+      notes_en: [
+        ...baseInfo.notes_en,
+        "Could not reach the npm registry; retry later or run npm view @xzxzzx/bilibili-mcp version.",
+      ],
+      notes_zh: [
+        ...baseInfo.notes_zh,
+        "无法连接 npm registry；请稍后重试，或运行 npm view @xzxzzx/bilibili-mcp version。",
       ],
     };
   }

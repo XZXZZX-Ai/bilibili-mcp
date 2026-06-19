@@ -50,6 +50,12 @@ describe("credential MCP tools", () => {
     expect(payload.recommended_commands).toContain(
       "npx -y @xzxzzx/bilibili-mcp@latest config",
     );
+    expect(payload.security_notes_en.join(" ")).toContain(
+      "Do not paste Cookie values",
+    );
+    expect(payload.security_notes_zh.join(" ")).toContain(
+      "不要把 Cookie 值粘贴到 MCP 客户端配置文件中",
+    );
     expect(JSON.stringify(payload)).not.toContain("SESSDATA=");
   });
 
@@ -66,6 +72,10 @@ describe("credential MCP tools", () => {
     expect(payload.next_steps).toContain(
       "Run: npx -y @xzxzzx/bilibili-mcp@latest config",
     );
+    expect(payload.next_steps_en).toEqual(payload.next_steps);
+    expect(payload.next_steps_zh).toContain(
+      "运行：npx -y @xzxzzx/bilibili-mcp@latest config",
+    );
   });
 });
 
@@ -78,6 +88,9 @@ describe("credential next_steps in error payloads", () => {
       "npx -y @xzxzzx/bilibili-mcp@latest config",
       "npx -y @xzxzzx/bilibili-mcp@latest check",
     ]);
+    expect(payload.security_notes_zh).toContain(
+      "不要把 Cookie 值粘贴到 MCP 客户端配置文件中。",
+    );
   });
 });
 
@@ -107,6 +120,8 @@ describe("package update MCP tool", () => {
       "-y",
       "@xzxzzx/bilibili-mcp@latest",
     ]);
+    expect(payload.notes_en.join(" ")).toContain("Use the @latest MCP config");
+    expect(payload.notes_zh.join(" ")).toContain("建议在 MCP 配置中使用 @latest");
     expect(JSON.stringify(payload)).not.toContain("SESSDATA=");
   });
 });
