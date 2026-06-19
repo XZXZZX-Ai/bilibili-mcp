@@ -4,6 +4,17 @@
 
 ---
 
+## [1.6.3] - 2026-06-19
+
+### 修复
+- 补齐结构化错误响应依赖的中英文凭据操作建议 helper，修复 v1.6.2 发布工作流在干净 checkout 中测试失败的问题。
+- 补齐 MCP 更新检查响应的 `notes_en` / `notes_zh` 字段实现与测试，使发布包行为与 README 文档一致。
+
+### 验证
+- 重新通过完整 Vitest 测试、TypeScript 构建、npm package dry-run 和等价 MCP stdio smoke。
+
+---
+
 ## [1.6.1] - 2026-06-18
 
 ### 文档

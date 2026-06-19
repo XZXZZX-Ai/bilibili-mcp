@@ -4,6 +4,17 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.6.3] - 2026-06-19
+
+### Fixed
+- Included the bilingual credential next-step helpers required by the structured error payload mapper, fixing the v1.6.2 publish workflow failure on a clean checkout.
+- Added the `notes_en` / `notes_zh` package-update response implementation and tests so the published package behavior matches the README documentation.
+
+### Verification
+- Re-ran the full Vitest suite, TypeScript build, npm package dry-run, and equivalent MCP stdio smoke.
+
+---
+
 ## [1.6.1] - 2026-06-18
 
 ### Docs
