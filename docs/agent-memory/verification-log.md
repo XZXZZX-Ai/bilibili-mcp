@@ -958,3 +958,9 @@
 - Commands: 93-test focused Vitest run; full `npm test`; `npm run build`; `npm audit --omit=dev --json`; `npm pack --dry-run --json`; real stdio initialize/tools-list; live read-only metadata/Chapter calls; UTF-8 strict decoding; intended-added-content high-confidence secret scan; `git diff --check`; Codex Standards/Spec review; four bounded Claude subagent reviews.
 - Result: Codex independently verified 23 files and 243 tests, a clean build, zero production vulnerabilities, 128 expected tarball entries with navigation/Chapter output and no internal docs, server version `1.7.0`, eight tools in stable order, zero high-confidence secret matches, and no UTF-8 failures. Live examples returned 19 Parts and 6 non-empty Chapters with valid ranges.
 - Caveat: Bilibili consumer webpage endpoints remain undocumented and may drift; parsing is defensive and Chapters are never inferred. This verification does not authorize or perform a tag, npm publish, GitHub Release, or workflow change.
+
+## 2026-07-20 v1.7.0 Publication
+
+- Commands: annotated tag creation/push; GitHub Actions run inspection; `npm view @xzxzzx/bilibili-mcp@1.7.0`; npm attestation inspection; published `npx -y @xzxzzx/bilibili-mcp@1.7.0 --help`; GitHub Release creation and inspection.
+- Result: Tag `v1.7.0` points to `bd15438`; Actions run `29704348924` passed install, 243 tests, build, and trusted publication. npm latest is `1.7.0` with SLSA provenance, the published CLI help smoke passes, and the GitHub Release is non-draft and non-prerelease.
+- Caveat: The release uses undocumented Bilibili consumer endpoints for Part/Chapter reads; the defensive parsing and empty-Chapter behavior remain the compatibility boundary.

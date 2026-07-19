@@ -160,9 +160,9 @@
 - Evidence: `src/server/tool-schemas.ts`, `src/bilibili/navigation.ts`, `src/bilibili/chapters.ts`, the 243-test Vitest suite, real stdio `tools/list`, and live read-only Part/Chapter checks.
 - Impact: Metadata callers can discover normalized Parts; transcript and video-info callers can select a one-based Part; transcript callers can request one-sided or bounded time ranges and timestamped lines; Chapter callers receive only bounded platform-provided intervals.
 
-- Fact: Package source and lock metadata are synchronized at `1.7.0`, while npm/latest remains the separately published `1.6.4` until a future authorized publication.
-- Evidence: `package.json`, `package-lock.json`, the 1.7.0 package dry run, and the explicit no-publish boundary of the navigable-transcript task.
-- Impact: Commit/push does not imply tag, npm publication, or GitHub Release.
+- Fact: Version `1.7.0` is the current npm latest and GitHub Release.
+- Evidence: annotated tag `v1.7.0`, successful GitHub Actions run `29704348924`, npm registry metadata and SLSA provenance, the published CLI help smoke, and the non-draft GitHub Release.
+- Impact: Install/update guidance may now target `@xzxzzx/bilibili-mcp@1.7.0` or `@latest`.
 
 - Fact: MCP server initialization metadata reads its version from the root `package.json` instead of maintaining a separate hard-coded value.
 - Evidence: `src/server.ts`, the version regression in `tests/mcp-server-smoke.test.ts`, and Codex verification against compiled `dist/server.js`.

@@ -17,7 +17,7 @@
 - 缓存键包含分集编号，防止不同 Part 间缓存互串。
 
 ### 验证
-- 通过 22 个 Vitest 文件中的 228 项测试、TypeScript 构建、npm 生产依赖审计与 package dry-run。
+- 通过 23 个 Vitest 文件中的 243 项测试、TypeScript 构建、npm 生产依赖审计与 package dry-run。
 
 ---
 

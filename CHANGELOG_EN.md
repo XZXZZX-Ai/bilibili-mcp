@@ -17,7 +17,7 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 - Cache keys include page numbers to prevent cross-Part cache collisions.
 
 ### Verification
-- Passed 228 tests across 22 Vitest files, TypeScript build, production dependency audit, and npm package dry-run.
+- Passed 243 tests across 23 Vitest files, TypeScript build, production dependency audit, and npm package dry-run.
 
 ---
 

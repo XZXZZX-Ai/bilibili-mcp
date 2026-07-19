@@ -1,7 +1,7 @@
 # QA Session: Navigable Transcript
 
 - Date: 2026-07-20
-- Version: 1.7.0 source preparation
+- Version: 1.7.0 release
 - Owner: Codex
 - Related PRD: `docs/navigable-transcript-prd.md`
 - QA type: MCP tool change / pre-release
@@ -57,6 +57,14 @@
 - Non-blocking caveats: Bilibili consumer endpoints are not a public stable contract.
 - Codemap update status: updated (navigation, chapters, request-count tests)
 - Research: `docs/research/2026-07-20-feature-opportunities.md`
+
+## Post-Release Verification
+
+- [x] Annotated tag `v1.7.0` points to commit `bd15438`.
+- [x] GitHub Actions publish run `29704348924` completed successfully.
+- [x] npm latest is `1.7.0` with SLSA provenance.
+- [x] Published `npx -y @xzxzzx/bilibili-mcp@1.7.0 --help` smoke passed.
+- [x] GitHub Release `v1.7.0` is published, non-draft, and non-prerelease.
 
 ## Subagent Reviews
 

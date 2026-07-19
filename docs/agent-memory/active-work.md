@@ -4,7 +4,7 @@ Workflow: Matt Pocock skills with GitHub Issues, bounded Codex-to-Claude handoff
 
 Active work: none. The navigable-transcript task ticket and Codex-to-Claude handoff are complete and retained under `docs/agent-memory/handoffs/`.
 
-Status: timestamped/range transcripts, multi-Part selection, and Bilibili-provided Chapters are complete in source version `1.7.0`. The task includes its authorized commit/push, but no tag or npm publication is authorized.
+Status: version `1.7.0` is published to npm with provenance and has an annotated tag plus a non-draft GitHub Release. No active implementation or release task remains.
 
 Codex launches and reviews one bounded Claude Code implementation agent through Paseo. The user does not manually transfer prompts between Codex and Claude Code.
 
