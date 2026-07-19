@@ -72,21 +72,30 @@ export async function getWBI(): Promise<{
           REQUEST_TIMEOUT_MS,
         );
 
-        const navRes = await fetch(`${BASE_URL}/x/web-interface/nav`, {
-          headers: {
-            "User-Agent": config.userAgent,
-            Referer: config.referer,
-          },
-          signal: controller.signal,
-        });
-
-        clearTimeout(timeoutId);
+        let navRes: Response;
+        try {
+          navRes = await fetch(`${BASE_URL}/x/web-interface/nav`, {
+            headers: {
+              "User-Agent": config.userAgent,
+              Referer: config.referer,
+            },
+            signal: controller.signal,
+          });
+        } catch (error) {
+          if (error instanceof TypeError) {
+            throw new NetworkError("Network request failed", error);
+          }
+          throw error;
+        } finally {
+          clearTimeout(timeoutId);
+        }
 
         if (!navRes.ok) {
           throw new NetworkError(
             `Failed to fetch WBI: ${navRes.status}`,
             undefined,
             `${BASE_URL}/x/web-interface/nav`,
+            navRes.status,
           );
         }
 
@@ -153,6 +162,7 @@ export async function getWBI(): Promise<{
       "Failed to fetch WBI",
       error instanceof Error ? error : undefined,
       `${BASE_URL}/x/web-interface/nav`,
+      error instanceof NetworkError ? error.statusCode : undefined,
     );
   }
 }

@@ -28,13 +28,13 @@ export async function getBuvid(): Promise<{
     return { buvid3: cachedBuvid.buvid3, buvid4: cachedBuvid.buvid4 };
   }
 
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      REQUEST_TIMEOUT_MS,
-    );
+  const controller = new AbortController();
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    REQUEST_TIMEOUT_MS,
+  );
 
+  try {
     const resp = await fetch(`${BASE_URL}/x/frontend/finger/spi`, {
       headers: {
         "User-Agent": config.userAgent,
@@ -42,7 +42,6 @@ export async function getBuvid(): Promise<{
       },
       signal: controller.signal,
     });
-    clearTimeout(timeoutId);
 
     if (!resp.ok) return null;
 
@@ -65,5 +64,7 @@ export async function getBuvid(): Promise<{
       { error: error instanceof Error ? error.message : error },
     );
     return null;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }

@@ -18,7 +18,7 @@ const BASE_URL = config.baseUrl;
 const RATE_LIMIT_MS = config.rateLimitMs;
 const REQUEST_TIMEOUT_MS = config.requestTimeoutMs;
 let lastRequestTime = 0;
-let pendingPromise: Promise<void> | null = null;
+let admissionChain: Promise<void> = Promise.resolve();
 
 /**
  * 等待到下一个允许请求的时间
@@ -41,10 +41,10 @@ async function waitForRateLimit(): Promise<void> {
 export async function throttledFetch<T>(
   fetchFn: (controller: AbortController) => Promise<T>,
 ): Promise<T> {
-  // 等待上一个请求完成
-  if (pendingPromise) {
-    await pendingPromise;
-  }
+  const previousTurn = admissionChain;
+  const myTurn = previousTurn.then(() => waitForRateLimit());
+  admissionChain = myTurn.catch(() => {});
+  await previousTurn;
 
   // 创建 AbortController 用于超时控制
   const controller = new AbortController();
@@ -57,13 +57,8 @@ export async function throttledFetch<T>(
     );
   }, REQUEST_TIMEOUT_MS);
 
-  // 创建新的请求
-  pendingPromise = (async () => {
-    await waitForRateLimit();
-  })();
-
   try {
-    await pendingPromise;
+    await myTurn;
     return await fetchFn(controller);
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
@@ -72,11 +67,13 @@ export async function throttledFetch<T>(
         REQUEST_TIMEOUT_MS,
       );
     }
+    if (error instanceof TypeError) {
+      throw new NetworkError("Network request failed", error);
+    }
     throw error;
   } finally {
     clearTimeout(timeoutId);
     controller.abort(); // 确保 AbortController 被清理
-    pendingPromise = null;
   }
 }
 
@@ -98,29 +95,9 @@ export async function retryableFetch<T>(fetchFn: () => Promise<T>): Promise<T> {
  * 该函数不会在日志或错误信息中输出任何 Cookie 内容。
  */
 export async function checkLoginStatus(): Promise<{ isLogin: boolean }> {
-  try {
-    const authHeaders = credentialManager.getAuthHeaders();
-    const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      config.requestTimeoutMs,
-    );
-    const resp = await fetch(`${BASE_URL}/x/web-interface/nav`, {
-      headers: {
-        "User-Agent": config.userAgent,
-        Referer: config.referer,
-        ...authHeaders,
-      },
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-    if (!resp.ok) return { isLogin: false };
-    const data = await resp.json();
-    return { isLogin: data?.data?.isLogin === true };
-  } catch {
-    // 网络问题或超时，保守地认为登录状态未知，返回 false
-    return { isLogin: false };
-  }
+  const authHeaders = credentialManager.getAuthHeaders();
+  const data = await fetchWithoutWBI("/x/web-interface/nav", undefined, authHeaders);
+  return { isLogin: (data as { isLogin?: unknown } | undefined)?.isLogin === true };
 }
 
 /**

@@ -229,6 +229,24 @@ describe("getSubtitleContent", () => {
     expect(getFetchCalls(fetchMock)[0].init?.redirect).toBe("manual");
   });
 
+  it("does not retry a non-retryable subtitle HTTP status", async () => {
+    vi.useFakeTimers();
+    try {
+      const fetchMock = vi.fn(async () => textResponse("forbidden", 403));
+      vi.stubGlobal("fetch", fetchMock);
+
+      const result = getSubtitleContent(
+        "//aisubtitle.hdslb.com/forbidden.json",
+      ).catch((error: unknown) => error);
+
+      await vi.runAllTimersAsync();
+      await expect(result).resolves.toMatchObject({ statusCode: 403 });
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("rejects oversized subtitle responses before JSON parsing", async () => {
     const oversizedBody = JSON.stringify({
       body: [{ from: 0, to: 1, location: 2, content: "x".repeat(1_000_001) }],

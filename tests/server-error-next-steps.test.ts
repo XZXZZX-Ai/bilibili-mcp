@@ -22,8 +22,12 @@ vi.mock("../src/bilibili/comments.js", () => ({
     mockGetVideoCommentsData(...args),
 }));
 
-vi.mock("../src/bilibili/http.js", () => ({
+const httpMock = vi.hoisted(() => ({
   checkLoginStatus: vi.fn(async () => ({ isLogin: false })),
+}));
+
+vi.mock("../src/bilibili/http.js", () => ({
+  checkLoginStatus: httpMock.checkLoginStatus,
 }));
 
 const {
@@ -34,6 +38,8 @@ const {
   PaidVideoError,
   TimeoutError,
 } = await import("../src/utils/errors.js");
+
+const { credentialManager } = await import("../src/utils/credentials.js");
 
 function getCallToolHandler() {
   return getMcpHandler<
@@ -284,5 +290,37 @@ describe("structured MCP error categories", () => {
       userActionRequired: false,
     });
     expect(payload.details).toEqual({ api_code: "API_ERROR" });
+  });
+});
+
+describe("check_bilibili_credentials network errors", () => {
+  it("returns NETWORK_ERROR when checkLoginStatus rejects with NetworkError", async () => {
+    const spy = vi.spyOn(credentialManager, "getCredentialSource").mockReturnValue("env");
+    try {
+      httpMock.checkLoginStatus.mockRejectedValueOnce(
+        new NetworkError("Network request failed"),
+      );
+
+      const handler = getCallToolHandler();
+      const response = await handler({
+        method: "tools/call",
+        jsonrpc: "2.0",
+        id: 1,
+        params: {
+          name: "check_bilibili_credentials",
+          arguments: {},
+        },
+      });
+      const payload = JSON.parse(response.content[0].text);
+
+      expect(response.isError).toBe(true);
+      expectStructuredError(payload, "NETWORK_ERROR", {
+        retryable: true,
+        userActionRequired: false,
+      });
+      expect(JSON.stringify(payload)).not.toMatch(/SESSDATA|bili_jct|DedeUserID/i);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });

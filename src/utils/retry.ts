@@ -117,9 +117,9 @@ class RetryManager {
     retryableStatusCodes: number[],
     retryableErrorTypes: string[]
   ): boolean {
-    // 检查HTTP状态码
-    if (error.statusCode && retryableStatusCodes.includes(error.statusCode)) {
-      return true;
+    // 状态码优先：有明确状态码时只看状态码
+    if (typeof error.statusCode === 'number') {
+      return retryableStatusCodes.includes(error.statusCode);
     }
 
     // 检查错误类型
@@ -129,11 +129,6 @@ class RetryManager {
 
     // 检查网络错误
     if (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT') {
-      return true;
-    }
-
-    // 检查429 Too Many Requests
-    if (error.statusCode === 429) {
       return true;
     }
 

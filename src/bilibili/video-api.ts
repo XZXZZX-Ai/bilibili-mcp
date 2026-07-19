@@ -201,6 +201,7 @@ export async function getSubtitleContent(url: string): Promise<{
             `HTTP ${response.status}: ${response.statusText}`,
             undefined,
             url.toString(),
+            response.status,
           );
         }
 
