@@ -22,7 +22,7 @@ jobs:
           scope: '@xzxzzx'  # 重要：添加 scope 配置
 
       - name: Install npm with trusted publishing support (>=11.5.1)
-        run: npm install -g npm@latest
+        run: npm install -g npm@11.18.0
 
       - run: npm ci
 
