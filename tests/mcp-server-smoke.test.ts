@@ -26,21 +26,59 @@ describe("MCP stdio entrypoint", () => {
 
     const stderrChunks: Buffer[] = [];
     const stdoutChunks: Buffer[] = [];
+    const READY_SIGNAL = "Bilibili MCP server running on stdio";
+    const TIMEOUT_MS = 3_000;
 
-    child.stderr.on("data", (chunk) => {
-      stderrChunks.push(Buffer.from(chunk));
-    });
     child.stdout.on("data", (chunk) => {
       stdoutChunks.push(Buffer.from(chunk));
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    child.kill();
+    const ready = new Promise<void>((resolve, reject) => {
+      const onData = (chunk: Buffer) => {
+        stderrChunks.push(Buffer.from(chunk));
+        const text = Buffer.concat(stderrChunks).toString("utf8");
+        if (text.includes(READY_SIGNAL)) {
+          cleanup();
+          resolve();
+        }
+      };
+      const onError = (err: Error) => {
+        cleanup();
+        reject(err);
+      };
+      const onExit = (code: number | null) => {
+        cleanup();
+        reject(new Error(`Server exited with code ${code} before ready signal`));
+      };
+      const timer = setTimeout(() => {
+        cleanup();
+        reject(new Error(`Server did not emit ready signal within ${TIMEOUT_MS}ms`));
+      }, TIMEOUT_MS);
+
+      const cleanup = () => {
+        clearTimeout(timer);
+        child.stderr.removeListener("data", onData);
+        child.removeListener("error", onError);
+        child.removeListener("exit", onExit);
+      };
+
+      child.stderr.on("data", onData);
+      child.on("error", onError);
+      child.on("exit", onExit);
+    });
+
+    try {
+      await ready;
+    } finally {
+      const closed = new Promise<void>((resolve) => child.on("close", () => resolve()));
+      child.kill();
+      await closed;
+    }
 
     const stderr = Buffer.concat(stderrChunks).toString("utf8");
     const stdout = Buffer.concat(stdoutChunks).toString("utf8");
 
-    expect(stderr).toContain("Bilibili MCP server running on stdio");
+    expect(stderr).toContain(READY_SIGNAL);
     expect(stdout).toBe("");
   });
 
