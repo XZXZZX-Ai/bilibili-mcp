@@ -15,11 +15,11 @@ Use this template for human-facing QA before or after changes that affect real M
 
 In scope:
 
-- 
+-
 
 Out of scope:
 
-- 
+-
 
 ## Preconditions
 
@@ -56,7 +56,7 @@ Results:
 
 Notes:
 
-- 
+-
 
 ## MCP Stdio And Tool Discovery
 
@@ -76,7 +76,7 @@ Expected tools:
 
 Notes:
 
-- 
+-
 
 ## Credential States
 
@@ -89,7 +89,7 @@ Do not paste full Cookie values into this checklist.
 
 Notes:
 
-- 
+-
 
 ## Tool Workflows
 
@@ -104,7 +104,7 @@ Use safe test videos and avoid recording private user data.
 
 Notes:
 
-- 
+-
 
 ## Client Compatibility
 
@@ -127,7 +127,7 @@ Mark untested clients explicitly.
 
 Notes:
 
-- 
+-
 
 ## Security And Privacy Checks
 
@@ -138,7 +138,7 @@ Notes:
 
 Notes:
 
-- 
+-
 
 ## Result
 

@@ -55,4 +55,3 @@ These checks are not required to prove the deterministic pagination defect is fi
 - Blocking issues: none from deterministic contract coverage
 - Non-blocking caveats: live Bilibili and client-specific behavior not exercised
 - Codemap: checked; ownership remains in `src/bilibili/comments.ts` and existing entries remain correct
-

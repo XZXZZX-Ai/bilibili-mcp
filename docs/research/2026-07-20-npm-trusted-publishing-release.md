@@ -20,4 +20,3 @@
 ## Repository Judgment
 
 `.github/workflows/publish.yml` already satisfies these release-path requirements and previously published v1.6.3 successfully. No workflow edit is required for v1.6.4. The tag-triggered run and npm registry result must still be monitored because configuration correctness does not prove a new release succeeded.
-

@@ -29,52 +29,52 @@ State the smallest user-visible or maintainer-visible outcome this ticket must p
 
 In scope:
 
-- 
+-
 
 Out of scope:
 
-- 
+-
 
 ## Files To Inspect Or Edit
 
 Expected inspect:
 
-- 
+-
 
 Expected edit:
 
-- 
+-
 
 Do not touch:
 
-- 
+-
 
 ## Required Capabilities
 
 Skills:
 
-- 
+-
 
 Subagents:
 
-- 
+-
 
 MCP/tools/CLI:
 
-- 
+-
 
 If a listed capability is unavailable, report it and use the closest safe fallback.
 
 ## Execution Steps
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Acceptance Criteria
 
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]
 - [ ] Public MCP tool names, input schemas, and response shapes remain stable unless explicitly changed.
 - [ ] Credentials, Cookies, tokens, `.env` content, and private values are not printed or committed.
 - [ ] `docs/agent-memory/codemap.md` is updated if module ownership, MCP tool flow, tests, package/release files, or harness structure changed; otherwise the report says it was checked and left unchanged.
@@ -96,17 +96,17 @@ npm pack --dry-run
 
 Manual checks:
 
-- 
+-
 
 ## Risks And Rollback
 
 Risks:
 
-- 
+-
 
 Rollback:
 
-- 
+-
 
 ## Stop And Report Conditions
 

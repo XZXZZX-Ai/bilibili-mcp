@@ -25,11 +25,11 @@ Examples:
 
 Why this matters for `@xzxzzx/bilibili-mcp`:
 
-- 
+-
 
 What decision or implementation this may affect:
 
-- 
+-
 
 ## Sources
 
@@ -41,33 +41,33 @@ Use primary or authoritative sources when possible. Prefer official docs, source
 
 ## Findings
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Applicability To This Project
 
 Applies:
 
-- 
+-
 
 Does not apply:
 
-- 
+-
 
 ## Decision Impact
 
 Recommended project action:
 
-- 
+-
 
 Rules or files that may need updates:
 
-- 
+-
 
 ## Risks And Unknowns
 
-- 
+-
 
 ## Staleness Notes
 
@@ -79,4 +79,4 @@ Refresh this research when:
 
 ## Follow-Up
 
-- [ ] 
+- [ ]

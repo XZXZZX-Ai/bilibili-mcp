@@ -42,17 +42,17 @@ Copy this section for each evaluation.
 
 #### Harness Changes Under Review
 
-- 
+-
 
 #### Signals
 
 Useful positive signals:
 
-- 
+-
 
 Useful negative signals:
 
-- 
+-
 
 Candidate metrics:
 
@@ -71,25 +71,25 @@ Candidate metrics:
 
 #### Findings
 
-- 
+-
 
 #### Keep / Change / Remove
 
 Keep:
 
-- 
+-
 
 Change:
 
-- 
+-
 
 Remove or stop using:
 
-- 
+-
 
 #### Decisions Or Follow-Up
 
-- [ ] 
+- [ ]
 
 #### Memory Updates Needed
 

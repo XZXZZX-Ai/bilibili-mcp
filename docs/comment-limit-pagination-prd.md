@@ -1,8 +1,8 @@
 # Product Requirements Document: Comment Limit Pagination
 
-**Version**: 1.0  
-**Date**: 2026-07-19  
-**Author**: Sarah (Product Owner)  
+**Version**: 1.0
+**Date**: 2026-07-19
+**Author**: Sarah (Product Owner)
 **Quality Score**: 94/100
 
 ## Executive Summary
