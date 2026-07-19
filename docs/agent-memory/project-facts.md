@@ -153,3 +153,13 @@
 - Fact: Optional buvid fingerprint requests clear their timeout on both success and failure.
 - Evidence: GitHub Issue #15, the `finally` cleanup in `src/bilibili/fingerprint.ts`, and `tests/bilibili-fingerprint.test.ts`.
 - Impact: A rejected fingerprint fetch still performs one attempt and resolves `null` without leaving its request timer pending.
+
+## 2026-07-20
+
+- Fact: v1.6.4 is the current published npm and GitHub release.
+- Evidence: npm registry metadata and SLSA attestation for `@xzxzzx/bilibili-mcp@1.6.4`, successful GitHub Actions run `29695975757`, and GitHub Release `v1.6.4`.
+- Impact: Issues #2 through #15 are released and closed; future work starts from npm/latest 1.6.4 and `master` after commit `3fd6f6f`.
+
+- Fact: The npm publish workflow pins npm 11.18.0 while using Node 22.14.0.
+- Evidence: The initial v1.6.4 tag run failed when `npm@latest` selected npm 12.0.1, whose engine requires a newer Node version; npm 11.18.0 supports Node 22.14.0 and completed trusted publishing successfully.
+- Impact: Do not restore an unbounded `npm@latest` install without also updating and verifying the workflow Node version; keep the trusted-publishing minimum and engine compatibility explicit.

@@ -15,8 +15,8 @@
 - Provenance is requested with `npm publish --provenance`.
 - The workflow grants `contents: read` and `id-token: write` for OIDC/provenance.
 - `actions/setup-node` configures `https://registry.npmjs.org/` before publication.
-- npm trusted publishing requires a compatible modern npm CLI; the repository workflow explicitly installs current npm before publishing.
+- npm trusted publishing requires a compatible modern npm CLI; the repository workflow installs npm 11.18.0, which is above the trusted-publishing minimum and compatible with Node 22.14.0.
 
 ## Repository Judgment
 
-`.github/workflows/publish.yml` already satisfies these release-path requirements and previously published v1.6.3 successfully. No workflow edit is required for v1.6.4. The tag-triggered run and npm registry result must still be monitored because configuration correctness does not prove a new release succeeded.
+The initial v1.6.4 tag-triggered run showed that `npm@latest` is not a stable major-version selector: it resolved to npm 12.0.1, whose Node engine rejected Node 22.14.0. The workflow now pins npm 11.18.0. Manual run `29695975757` passed install, tests, build, and trusted publication; npm registry metadata exposes the v1.6.4 SLSA provenance attestation.
