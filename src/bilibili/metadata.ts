@@ -1,16 +1,17 @@
 // 视频元数据 wrapper
-import { getVideoInfo } from "./video-api.js";
+import { getVideoInfo, resolvePartCid } from "./client.js";
 import { extractBVId } from "../utils/bvid.js";
 import type { VideoMetadataData } from "./types.js";
 
 /**
- * 获取视频元数据（不含字幕、评论）
+ * 获取视频元数据（不含字幕、评论），含多P pages 列表。
  */
 export async function getVideoMetadataData(
   bvidOrUrl: string,
 ): Promise<VideoMetadataData> {
   const bvid = extractBVId(bvidOrUrl);
   const videoData = await getVideoInfo(bvid);
+  const { pages } = await resolvePartCid(bvidOrUrl, undefined, videoData);
 
   const pubdate_timestamp = videoData.pubdate
     ? videoData.pubdate
@@ -28,6 +29,7 @@ export async function getVideoMetadataData(
     pubdate_timestamp,
     description: videoData.desc || "",
     tags: videoData.tag?.map((t) => t.tag_name) || [],
+    pages,
     stats: {
       view: videoData.stat?.view,
       like: videoData.stat?.like,

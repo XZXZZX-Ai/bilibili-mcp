@@ -183,3 +183,13 @@
 - Decision: Limit default Paseo execution to one bounded Claude Code implementation agent and preserve all existing scope, security, verification, and Git authorization gates.
 - Reason: Paseo should remove handoff friction without introducing autonomous teams, concurrent overlapping edits, hard-coded models, or broader mutation authority.
 - Evidence: Paseo execution rules in `AGENTS.md` and `docs/agent-memory/agent-communication.md`.
+
+## 2026-07-20
+
+- Decision: Keep Part discovery in `get_video_metadata`, Part selection on transcript/video-info/Chapters, and Chapter retrieval as a dedicated eighth tool.
+- Reason: This keeps existing defaults compatible, avoids automatic whole-series crawling, and makes the one extra player request explicit only for Chapter calls.
+- Evidence: `docs/adr/0001-navigable-transcript-interface.md`, `docs/navigable-transcript-prd.md`, and the accepted implementation in `src/bilibili/navigation.ts`, `subtitle.ts`, `metadata.ts`, and `chapters.ts`.
+
+- Decision: Preserve the top-level video CID when no page is supplied and centralize page-to-CID validation in the shared navigation module.
+- Reason: Existing callers must retain the prior default Part, while explicit out-of-range pages need a structured validation error before any player/subtitle request.
+- Evidence: `resolvePartCid`, request-count/navigation regressions, and the MCP handler validation regression.

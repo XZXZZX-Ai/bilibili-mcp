@@ -127,3 +127,13 @@
 - Lesson: Optional best-effort requests still need deterministic resource cleanup even when failure is intentionally swallowed.
 - Evidence: `getBuvid` correctly returned `null` on fetch rejection but skipped `clearTimeout`, leaving the timer pending.
 - Future behavior: Keep fallback semantics separate from cleanup guarantees, and assert both the fallback result and exact request/cleanup counts.
+
+## 2026-07-20
+
+- Lesson: An undocumented consumer response must be verified against a live first-party sample before finalizing fixtures and types.
+- Evidence: The first Chapter implementation modeled `view_points[].title`, while the live player response uses `view_points[].content`; the incorrect fixture made the initial tests pass with empty real titles.
+- Future behavior: Cache the live response shape in a research note, use the observed field as authoritative with defensive fallback, and include at least one fixture matching the real field names.
+
+- Lesson: Shared navigation must not move cache checks behind a new network request or duplicate an existing view request.
+- Evidence: The first implementation fetched video info inside the resolver and again in callers, and the first repair still checked the video-info cache after resolution.
+- Future behavior: Add exact dependency-call regressions for default flows and cache hits whenever a shared fetch/selection seam is introduced.

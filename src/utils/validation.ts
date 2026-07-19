@@ -101,3 +101,51 @@ export function validateCommentSort(sort?: string): void {
     throw new Error('Invalid comment sort: must be "hot" or "time"');
   }
 }
+
+/**
+ * 验证 page 参数（正整数）
+ */
+export function validatePage(page: unknown): void {
+  if (page === undefined) return;
+
+  if (typeof page !== "number" || !Number.isInteger(page) || page < 1) {
+    throw new Error("page must be a positive integer");
+  }
+}
+
+/**
+ * 验证时间戳范围参数
+ */
+export function validateTimestampRange(
+  startSeconds: unknown,
+  endSeconds: unknown,
+): void {
+  if (startSeconds !== undefined) {
+    if (typeof startSeconds !== "number" || !isFinite(startSeconds) || startSeconds < 0) {
+      throw new Error("start_seconds must be a finite non-negative number");
+    }
+  }
+
+  if (endSeconds !== undefined) {
+    if (typeof endSeconds !== "number" || !isFinite(endSeconds) || endSeconds < 0) {
+      throw new Error("end_seconds must be a finite non-negative number");
+    }
+  }
+
+  if (
+    startSeconds !== undefined &&
+    endSeconds !== undefined &&
+    endSeconds < startSeconds
+  ) {
+    throw new Error("end_seconds must be >= start_seconds");
+  }
+}
+
+/**
+ * 验证布尔类型参数
+ */
+export function validateBoolean(value: unknown, name: string): void {
+  if (value !== undefined && typeof value !== "boolean") {
+    throw new Error(`${name} must be a boolean`);
+  }
+}

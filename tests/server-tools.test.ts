@@ -24,7 +24,7 @@ describe("MCP tool list baseline", () => {
   beforeAll(async () => {
     toolsResult = await getListToolsResult();
   });
-  it("exposes all 7 tools", () => {
+  it("exposes all 8 tools", () => {
     const names = toolsResult.tools.map((t) => t.name);
     expect(names).toContain("get_credential_setup_instructions");
     expect(names).toContain("check_bilibili_credentials");
@@ -33,6 +33,7 @@ describe("MCP tool list baseline", () => {
     expect(names).toContain("get_video_comments");
     expect(names).toContain("get_video_transcript");
     expect(names).toContain("get_video_metadata");
+    expect(names).toContain("get_video_chapters");
   });
 
   it("keeps the public tool order stable", () => {
@@ -44,6 +45,7 @@ describe("MCP tool list baseline", () => {
       "get_video_comments",
       "get_video_transcript",
       "get_video_metadata",
+      "get_video_chapters",
     ]);
   });
 
@@ -63,6 +65,7 @@ describe("MCP tool list baseline", () => {
       get_video_comments: ["bvid_or_url"],
       get_video_transcript: ["bvid_or_url"],
       get_video_metadata: ["bvid_or_url"],
+      get_video_chapters: ["bvid_or_url"],
     });
   });
 
@@ -82,6 +85,14 @@ describe("MCP tool list baseline", () => {
     it("accepts optional preferred_lang", () => {
       schema = toolsResult.tools.find((t) => t.name === "get_video_info")!;
       expect(schema.inputSchema.properties).toHaveProperty("preferred_lang");
+    });
+
+    it("accepts optional page with integer type and minimum 1", () => {
+      schema = toolsResult.tools.find((t) => t.name === "get_video_info")!;
+      const prop = schema.inputSchema.properties.page as { type?: string; minimum?: number };
+      expect(prop).toBeDefined();
+      expect(prop.type).toBe("integer");
+      expect(prop.minimum).toBe(1);
     });
   });
 
@@ -178,6 +189,19 @@ describe("MCP tool list baseline", () => {
       expect(prop).toBeDefined();
       expect(prop.type).toBe("boolean");
     });
+
+    it("accepts optional page (integer, min 1), include_timestamps, start_seconds, end_seconds", () => {
+      schema = toolsResult.tools.find(
+        (t) => t.name === "get_video_transcript",
+      )!;
+      const pageProp = schema.inputSchema.properties.page as { type?: string; minimum?: number };
+      expect(pageProp).toBeDefined();
+      expect(pageProp.type).toBe("integer");
+      expect(pageProp.minimum).toBe(1);
+      expect(schema.inputSchema.properties).toHaveProperty("include_timestamps");
+      expect(schema.inputSchema.properties).toHaveProperty("start_seconds");
+      expect(schema.inputSchema.properties).toHaveProperty("end_seconds");
+    });
   });
 
   describe("credential helper tools", () => {
@@ -235,6 +259,34 @@ describe("MCP tool list baseline", () => {
         (t) => t.name === "get_video_metadata",
       )!;
       expect(schema.inputSchema.required).toContain("bvid_or_url");
+    });
+  });
+
+  describe("get_video_chapters schema", () => {
+    let schema: { name: string; inputSchema: Record<string, unknown> };
+
+    it("is registered as the 8th tool", () => {
+      const names = toolsResult.tools.map((t) => t.name);
+      expect(names).toContain("get_video_chapters");
+      expect(names[7]).toBe("get_video_chapters");
+    });
+
+    it("requires bvid_or_url", () => {
+      schema = toolsResult.tools.find(
+        (t) => t.name === "get_video_chapters",
+      )!;
+      expect(schema).toBeDefined();
+      expect(schema.inputSchema.required).toContain("bvid_or_url");
+    });
+
+    it("accepts optional page with integer type and minimum 1", () => {
+      schema = toolsResult.tools.find(
+        (t) => t.name === "get_video_chapters",
+      )!;
+      const prop = schema.inputSchema.properties.page as { type?: string; minimum?: number };
+      expect(prop).toBeDefined();
+      expect(prop.type).toBe("integer");
+      expect(prop.minimum).toBe(1);
     });
   });
 });

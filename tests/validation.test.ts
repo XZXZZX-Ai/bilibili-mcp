@@ -1,11 +1,14 @@
 import { describe, expect, it } from "vitest";
 import {
+  validateBoolean,
   validateBVInput,
   validateCommentLimit,
   validateCommentSort,
   validateDetailLevel,
   validateLanguage,
   validateLength,
+  validatePage,
+  validateTimestampRange,
 } from "../src/utils/validation.js";
 
 describe("validateBVInput", () => {
@@ -167,5 +170,105 @@ describe("validateLength", () => {
     expect(() =>
       validateLength("hello", { maxLength: 100, minLength: 1 }),
     ).not.toThrow();
+  });
+});
+
+describe("validatePage", () => {
+  it("does nothing when page is undefined", () => {
+    expect(() => validatePage(undefined)).not.toThrow();
+  });
+
+  it("accepts positive integer 1", () => {
+    expect(() => validatePage(1)).not.toThrow();
+  });
+
+  it("accepts large page number", () => {
+    expect(() => validatePage(999)).not.toThrow();
+  });
+
+  it("rejects 0", () => {
+    expect(() => validatePage(0)).toThrow("page must be a positive integer");
+  });
+
+  it("rejects negative", () => {
+    expect(() => validatePage(-1)).toThrow("page must be a positive integer");
+  });
+
+  it("rejects non-integer", () => {
+    expect(() => validatePage(1.5)).toThrow("page must be a positive integer");
+  });
+
+  it("rejects string", () => {
+    expect(() => validatePage("2" as unknown as number)).toThrow(
+      "page must be a positive integer",
+    );
+  });
+});
+
+describe("validateTimestampRange", () => {
+  it("does nothing when both are undefined", () => {
+    expect(() => validateTimestampRange(undefined, undefined)).not.toThrow();
+  });
+
+  it("accepts valid range start < end", () => {
+    expect(() => validateTimestampRange(10, 30)).not.toThrow();
+  });
+
+  it("accepts start equals end", () => {
+    expect(() => validateTimestampRange(10, 10)).not.toThrow();
+  });
+
+  it("rejects end < start", () => {
+    expect(() => validateTimestampRange(30, 10)).toThrow(
+      "end_seconds must be >= start_seconds",
+    );
+  });
+
+  it("rejects negative start", () => {
+    expect(() => validateTimestampRange(-1, 10)).toThrow(
+      "start_seconds must be a finite non-negative number",
+    );
+  });
+
+  it("rejects NaN start", () => {
+    expect(() => validateTimestampRange(NaN, 10)).toThrow(
+      "start_seconds must be a finite non-negative number",
+    );
+  });
+
+  it("rejects Infinity", () => {
+    expect(() => validateTimestampRange(Infinity, 10)).toThrow(
+      "start_seconds must be a finite non-negative number",
+    );
+  });
+
+  it("accepts only end_seconds without start_seconds", () => {
+    expect(() => validateTimestampRange(undefined, 30)).not.toThrow();
+  });
+});
+
+describe("validateBoolean", () => {
+  it("does nothing when value is undefined", () => {
+    expect(() => validateBoolean(undefined, "test")).not.toThrow();
+  });
+
+  it("accepts true", () => {
+    expect(() => validateBoolean(true, "test")).not.toThrow();
+  });
+
+  it("accepts false", () => {
+    expect(() => validateBoolean(false, "test")).not.toThrow();
+  });
+
+  it("rejects string", () => {
+    expect(() => validateBoolean("true", "flag")).toThrow(
+      "flag must be a boolean",
+    );
+  });
+
+  it("rejects number", () => {
+    expect(() => validateBoolean(1, "flag")).toThrow(
+      "flag must be a boolean",
+    );
   });
 });

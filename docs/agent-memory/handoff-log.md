@@ -170,3 +170,10 @@
 - Objective: Prepare the MCP metadata fix as patch version `1.6.5` for a scoped commit and push without triggering publication.
 - Files in scope: package metadata, bilingual changelogs, prior version-fix source/test files, and handoff/verification records; the generated learning-proposal file remained excluded.
 - Result: The agent synchronized package versions and changelogs; `release-verifier` found no blocker. The Paseo daemon stopped before the requested `package-maintainer` repair completed, so Codex performed the equivalent package/lock/tarball audit, independently passed all release gates, and retained tag/npm publication as a separate unauthorized step.
+
+## 2026-07-20 Navigable Transcript v1.7.0
+
+- Owner: Codex produced the PRD, ADR, task ticket, research note, QA checklist, and bounded Paseo handoff; Claude Code agent `b529301e-7bcf-4570-a4e9-8c71cfabf851` implemented and repaired the feature.
+- Objective: Add timestamped/one-sided-or-bounded transcript reads, explicit multi-Part selection, normalized Part discovery, and platform-provided Chapters without changing existing defaults or adding dependencies.
+- Review: Codex's Standards/Spec review found incorrect `view_points` mapping, duplicate default requests, swallowed errors, metadata scope creep, schema drift, and missing package synchronization. Same-scope repairs plus `test-baseline-builder`, `package-maintainer`, `risk-reviewer`, and `release-verifier` closed the findings; a final Codex pass moved cache lookup before networking and aligned returned Part identity with the selected CID.
+- Result: Codex independently passed 93 focused and 243 full-suite tests, build, zero-production-vulnerability audit, 128-file package dry run, real stdio discovery, UTF-8/diff/secret scans, and live read-only checks showing 19 Parts and 6 valid Chapters. Commit/push are authorized in the parent task; tag/npm publication remain out of scope.

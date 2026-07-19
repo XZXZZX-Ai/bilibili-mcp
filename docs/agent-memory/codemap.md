@@ -20,6 +20,7 @@ Current tool families:
 - Credential setup, status, and package freshness: `get_credential_setup_instructions`, `check_bilibili_credentials`, `check_mcp_update`.
 - Video content: `get_video_info`, `get_video_transcript`, `get_video_metadata`.
 - Comments: `get_video_comments`.
+- Chapters: `get_video_chapters`.
 
 When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `tool-handlers.ts`, then update tests and user-facing docs.
 
@@ -30,9 +31,11 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 - `src/bilibili/auth.ts`: Bilibili credential/auth helpers.
 - `src/bilibili/wbi.ts`: WBI signing support.
 - `src/bilibili/fingerprint.ts`: buvid/fingerprint support.
-- `src/bilibili/video-api.ts`: video/subtitle API calls and subtitle response safety checks.
-- `src/bilibili/subtitle.ts`: subtitle selection, transcript formatting, fallback behavior, and transcript-oriented response assembly.
-- `src/bilibili/metadata.ts`: metadata retrieval and shaping.
+- `src/bilibili/video-api.ts`: video/subtitle/player API calls and response safety checks.
+- `src/bilibili/navigation.ts`: shared Part/CID resolution for multi-Part videos.
+- `src/bilibili/subtitle.ts`: subtitle selection, transcript formatting, timestamp output, range filtering, and fallback behavior.
+- `src/bilibili/metadata.ts`: metadata retrieval, shaping, and Part summaries.
+- `src/bilibili/chapters.ts`: Bilibili-provided Chapter (view_points) retrieval.
 - `src/bilibili/comments-api.ts`: raw comments API access.
 - `src/bilibili/comments.ts`: comments retrieval, filtering, and response shaping.
 - `src/bilibili/types.ts`: shared Bilibili-facing types.
@@ -61,8 +64,11 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 - `tests/server-handler-sanitization.test.ts`: handler-level sanitization checks.
 - `tests/credential-guidance.test.ts`: credential setup/status guidance.
 - `tests/bilibili-video-api.test.ts`: video/subtitle API safety and behavior checks.
-- `tests/bilibili-transcript.test.ts`: transcript fallback and size-limit behavior.
-- `tests/bilibili-metadata.test.ts`: metadata behavior.
+- `tests/bilibili-navigation.test.ts`: Part normalization, page resolution, ValidationError behavior, and preFetchedVideoData path.
+- `tests/bilibili-transcript.test.ts`: transcript fallback, size-limit, one-sided/two-sided range filtering, and timestamp behavior.
+- `tests/bilibili-metadata.test.ts`: metadata and Part-listing behavior (pages as required array).
+- `tests/bilibili-chapters.test.ts`: Chapter retrieval, content→title mapping, error propagation, and empty-list fallback.
+- `tests/bilibili-request-count.test.ts`: verifies exactly 1 view-api request per default flow; cache-hit prevents subtitle requests.
 - `tests/bilibili-comments-tool.test.ts`: comments tool behavior.
 - `tests/cache.test.ts`: cache behavior.
 - `tests/validation.test.ts`: input validation behavior.

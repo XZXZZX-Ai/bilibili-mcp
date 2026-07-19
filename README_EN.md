@@ -84,8 +84,9 @@ After the MCP server is connected, if available, call get_credential_setup_instr
   - [2. Comment Summarization (`get_video_comments`)](#2-comment-summarization-get_video_comments)
   - [3. Video Transcript (`get_video_transcript`)](#3-video-transcript-get_video_transcript)
   - [4. Video Metadata (`get_video_metadata`)](#4-video-metadata-get_video_metadata)
-  - [5. Credential Helper Tools](#5-credential-helper-tools)
-  - [6. Behavior and Error Handling](#6-behavior-and-error-handling)
+  - [5. Video Chapters (`get_video_chapters`)](#5-video-chapters-get_video_chapters)
+  - [6. Credential Helper Tools](#6-credential-helper-tools)
+  - [7. Behavior and Error Handling](#7-behavior-and-error-handling)
 - [📋 Requirements](#-requirements)
 - [🚀 Client Setup](#-client-setup)
 - [⚙️ Credential Configuration](#-credential-configuration)
@@ -121,24 +122,34 @@ After the MCP server is connected, if available, call get_credential_setup_instr
 ### 3. Video Transcript (`get_video_transcript`)
 - Returns clean subtitle text, joined by newlines.
 - Supports preferred language selection (defaults to `zh-Hans` > `ai-zh` > `zh-CN` > `zh-Hant` > `en` priority).
+- Supports multi-Part selection, timestamp output, and time-range filtering.
 - Optional parameters:
   - `preferred_lang`: Preferred subtitle language code.
   - `fallback_to_description`: Fall back to video description if subtitles unavailable (default `false`).
+  - `page`: Multi-Part video page number (1-based positive integer).
+  - `include_timestamps`: Prefix each line with `[HH:MM:SS --> HH:MM:SS]`.
+  - `start_seconds` / `end_seconds`: Only return segments overlapping this range.
 - By default, returns `SUBTITLE_UNAVAILABLE` error when no subtitles exist.
+- Timestamps/range filtering is incompatible with description fallback.
 - Cookie expiration always returns `COOKIE_EXPIRED`, never silently falls back.
 
 ### 4. Video Metadata (`get_video_metadata`)
 - Returns video title, author, duration, publish date, description, tags, and stats (views, likes, coins, etc.).
+- Returns multi-Part listing (`pages`) with page number, CID, title, and duration.
 - Does not fetch subtitles or comments.
-- Only requires the `bvid_or_url` parameter.
 
-### 5. Credential Helper Tools
+### 5. Video Chapters (`get_video_chapters`)
+- Returns Bilibili creator-defined Chapter intervals (view_points) with title, start, and end seconds.
+- Returns empty `chapters` array when no Chapters exist; never infers Chapters.
+- Accepts optional `page` parameter for multi-Part videos.
+
+### 6. Credential Helper Tools
 
 - `get_credential_setup_instructions`: Returns safe setup commands for Bilibili Cookie configuration. AI agents installing this MCP can call this tool to guide users through setup.
 - `check_bilibili_credentials`: Checks whether credentials are configured and logged in without returning Cookie values. Returns next steps when credentials are missing or invalid.
 - `check_mcp_update`: Checks the local package version against npm latest and returns safe update guidance for `npx @latest` or global installs.
 
-### 6. Behavior and Error Handling
+### 7. Behavior and Error Handling
 
 - **Intelligent Cookie Expiration Detection**: Automatically verifies login status when subtitles are empty, distinguishing between "videos without subtitles" and "invalid credentials," and throwing a clear `COOKIE_EXPIRED` error to prevent silent degradation.
 
@@ -1232,9 +1243,10 @@ Do not share cookies with others. Do not paste them into public chats, issues, P
 | Goal | Recommended tool | What you get |
 |---|---|---|
 | Summarize a video | `get_video_info` | Subtitles first; falls back to title, description, tags |
-| Get clean transcript text | `get_video_transcript` | Plain subtitle text, language, data source |
-| See structured metadata | `get_video_metadata` | Title, author, duration, publish date, tags, stats |
+| Get clean transcript text | `get_video_transcript` | Plain subtitle text, language, data source; supports timestamps and range filtering |
+| See structured metadata | `get_video_metadata` | Title, author, duration, publish date, tags, stats, multi-Part listing |
 | View audience reactions | `get_video_comments` | Popular comments, timestamped highlights, optional replies |
+| See video Chapters | `get_video_chapters` | Chapter titles, start/end seconds; empty list when absent |
 | Guide users through Cookie setup | `get_credential_setup_instructions` | Safe setup steps, recommended commands, security notes |
 | Check whether Cookies are configured/logged in | `check_bilibili_credentials` | configured, source, logged_in, next_steps, next_steps_zh |
 | Check whether the MCP package needs an update | `check_mcp_update` | current_version, latest_version, update_available, notes_zh, update commands |
@@ -1305,9 +1317,24 @@ Request:
 }
 ```
 
-Returns: `bvid`, `title`, `language`, `transcript` (newline-joined), `data_source` (`subtitle` or `description`).
+Returns: `bvid`, `title`, `language`, `transcript` (newline-joined), `data_source` (`subtitle` or `description`), `page`.
 
 > Returns `SUBTITLE_UNAVAILABLE` when no subtitles exist. Set `fallback_to_description: true` to fall back.
+
+**Timed range example**:
+
+```json
+{
+  "name": "get_video_transcript",
+  "arguments": {
+    "bvid_or_url": "BV1xx411c7mD",
+    "page": 1,
+    "include_timestamps": true,
+    "start_seconds": 120,
+    "end_seconds": 300
+  }
+}
+```
 
 ### `get_video_metadata`
 
@@ -1324,7 +1351,24 @@ Request:
 }
 ```
 
-Returns: `bvid`, `title`, `author`, `duration`, `pubdate` / `pubdate_timestamp`, `description`, `tags`, and `stats` (views, likes, coins, favorites, shares, replies, danmaku).
+Returns: `bvid`, `title`, `author`, `duration`, `pubdate` / `pubdate_timestamp`, `description`, `tags`, `pages` (multi-Part listing), and `stats` (views, likes, coins, favorites, shares, replies, danmaku).
+
+### `get_video_chapters`
+
+**Best for**: getting Bilibili creator-defined Chapter intervals for navigation.
+
+Request:
+
+```json
+{
+  "name": "get_video_chapters",
+  "arguments": {
+    "bvid_or_url": "BV1vL411G7N7"
+  }
+}
+```
+
+Returns: `bvid`, `page`, `cid`, `title`, `chapters` (array with `title`, `start_seconds`, `end_seconds`). Empty array when no Chapters exist.
 
 ### `get_video_info`
 

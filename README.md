@@ -84,8 +84,9 @@ npx -y @xzxzzx/bilibili-mcp@latest check
   - [2. 评论总结 (`get_video_comments`)](#2-评论总结-get_video_comments)
   - [3. 视频转录 (`get_video_transcript`)](#3-视频转录-get_video_transcript)
   - [4. 视频元数据 (`get_video_metadata`)](#4-视频元数据-get_video_metadata)
-  - [5. 凭证助手工具](#5-凭证助手工具)
-  - [6. 行为说明与错误处理](#6-行为说明与错误处理)
+  - [5. 视频章节 (`get_video_chapters`)](#5-视频章节-get_video_chapters)
+  - [6. 凭证助手工具](#6-凭证助手工具)
+  - [7. 行为说明与错误处理](#7-行为说明与错误处理)
 - [📋 环境要求](#-环境要求)
 - [🚀 客户端接入方式](#-客户端接入方式)
 - [⚙️ 凭证配置](#️-凭证配置)
@@ -121,24 +122,34 @@ npx -y @xzxzzx/bilibili-mcp@latest check
 ### 3. 视频转录 (`get_video_transcript`)
 - 返回纯字幕文本，按行合并
 - 支持指定偏好语言（默认按 `zh-Hans` > `ai-zh` > `zh-CN` > `zh-Hant` > `en` 优先级选择）
+- 支持多P分集选择、时间戳输出和时间区间过滤
 - 可选参数：
   - `preferred_lang`: 偏好字幕语言代码
   - `fallback_to_description`: 字幕不可用时是否降级为视频描述（默认 `false`）
+  - `page`: 多P视频分集编号（从1开始的正整数）
+  - `include_timestamps`: 每行添加 `[HH:MM:SS --> HH:MM:SS]` 时间戳前缀
+  - `start_seconds` / `end_seconds`: 只返回与此区间重叠的字幕段
 - 默认不降级：无字幕时返回 `SUBTITLE_UNAVAILABLE` 错误
+- 时间戳/区间过滤与描述降级不兼容：请求 timed 输出时不会静默降级
 - Cookie 失效时始终返回 `COOKIE_EXPIRED`，不静默降级
 
 ### 4. 视频元数据 (`get_video_metadata`)
 - 返回视频标题、作者、时长、发布时间、描述、标签、播放/点赞/投币等统计信息
+- 返回多P分集列表（`pages`），含分集编号、CID、标题和时长
 - 不获取字幕或评论
-- 仅需 `bvid_or_url` 参数
 
-### 5. 凭证助手工具
+### 5. 视频章节 (`get_video_chapters`)
+- 返回 Bilibili 创作者/平台定义的视频章节（进度条分段），含章节标题和起止时间
+- 无章节时返回空列表（`chapters: []`），不推断章节
+- 可选参数 `page`：多P视频分集编号
+
+### 6. 凭证助手工具
 
 - `get_credential_setup_instructions`: 返回安全的 Bilibili Cookie 配置命令和说明。AI agent 安装此 MCP 后可调用此工具引导用户完成配置。
 - `check_bilibili_credentials`: 检查凭证是否已配置并处于登录状态，不返回任何 Cookie 值。配置缺失或失效时返回下一步操作指引。
 - `check_mcp_update`: 检查本地包版本与 npm latest 是否一致，并返回 `npx @latest` 或全局安装的安全更新指引。
 
-### 6. 行为说明与错误处理
+### 7. 行为说明与错误处理
 
 - **Cookie 过期智能检测**：当字幕获取为空时自动验证登录状态，区分“无字幕视频”与“凭证失效”，并抛出明确的 `COOKIE_EXPIRED` 错误，避免静默降级。
 
@@ -1232,9 +1243,10 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 | 目标 | 推荐工具 | 返回重点 |
 |---|---|---|
 | 想让 AI 总结一个视频 | `get_video_info` | 字幕优先；无字幕时返回标题、简介、标签 |
-| 只想拿完整转录文本 | `get_video_transcript` | 纯字幕文本、语言、数据来源 |
-| 想查看标题、作者、播放量等结构化信息 | `get_video_metadata` | 标题、作者、时长、发布时间、标签、统计数据 |
+| 只想拿完整转录文本 | `get_video_transcript` | 纯字幕文本、语言、数据来源；支持时间戳和区间过滤 |
+| 想查看标题、作者、播放量等结构化信息 | `get_video_metadata` | 标题、作者、时长、发布时间、标签、统计数据、多P分集列表（`pages`） |
 | 想看观众反馈和热门评论 | `get_video_comments` | 热门评论、时间戳评论、可选回复 |
+| 想看视频章节/进度条分段 | `get_video_chapters` | 章节标题、起止时间；无章节时返回空列表 |
 | 让 agent 引导用户配置 Cookie | `get_credential_setup_instructions` | 安全配置步骤、推荐命令、注意事项 |
 | 检查 Cookie 是否已配置/登录 | `check_bilibili_credentials` | configured、source、logged_in、next_steps、next_steps_zh |
 | 检查 MCP 包是否需要更新 | `check_mcp_update` | current_version、latest_version、update_available、notes_zh、更新命令 |
@@ -1305,9 +1317,24 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 }
 ```
 
-返回内容：`bvid`、`title`、`language`、`transcript`（按行合并）、`data_source`（`subtitle` 或 `description`）。
+返回内容：`bvid`、`title`、`language`、`transcript`（按行合并）、`data_source`（`subtitle` 或 `description`）、`page`（分集编号）。
 
 > 默认无字幕时返回 `SUBTITLE_UNAVAILABLE`。如需降级，设置 `fallback_to_description: true`。
+
+**定时区间转录示例**：
+
+```json
+{
+  "name": "get_video_transcript",
+  "arguments": {
+    "bvid_or_url": "BV1xx411c7mD",
+    "page": 1,
+    "include_timestamps": true,
+    "start_seconds": 120,
+    "end_seconds": 300
+  }
+}
+```
 
 ### `get_video_metadata`
 
@@ -1324,7 +1351,24 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 }
 ```
 
-返回内容：`bvid`、`title`、`author`、`duration`、`pubdate` / `pubdate_timestamp`、`description`、`tags` 和 `stats`（播放、点赞、投币、收藏、分享、评论、弹幕）。
+返回内容：`bvid`、`title`、`author`、`duration`、`pubdate` / `pubdate_timestamp`、`description`、`tags`、`pages`（多P分集列表）和 `stats`（播放、点赞、投币、收藏、分享、评论、弹幕）。
+
+### `get_video_chapters`
+
+**适合**：获取 Bilibili 创作者定义的视频章节，用于导航或定位。
+
+请求示例：
+
+```json
+{
+  "name": "get_video_chapters",
+  "arguments": {
+    "bvid_or_url": "BV1vL411G7N7"
+  }
+}
+```
+
+返回内容：`bvid`、`page`、`cid`、`title`、`chapters`（数组，每项含 `title`、`start_seconds`、`end_seconds`）。无章节时 `chapters` 为空数组。
 
 ### `get_video_info`
 

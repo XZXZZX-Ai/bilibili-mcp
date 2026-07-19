@@ -1,8 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { getMcpHandler } from "./helpers/mcp.js";
 
 const mockGetVideoMetadataData = vi.fn();
+const mockGetVideoChaptersData = vi.fn();
 
 vi.mock("../src/bilibili/subtitle.js", () => ({
   getVideoInfoWithSubtitle: vi.fn(),
@@ -11,6 +12,10 @@ vi.mock("../src/bilibili/subtitle.js", () => ({
 
 vi.mock("../src/bilibili/metadata.js", () => ({
   getVideoMetadataData: (...args: unknown[]) => mockGetVideoMetadataData(...args),
+}));
+
+vi.mock("../src/bilibili/chapters.js", () => ({
+  getVideoChaptersData: (...args: unknown[]) => mockGetVideoChaptersData(...args),
 }));
 
 vi.mock("../src/bilibili/comments.js", () => ({
@@ -56,5 +61,55 @@ describe("server handler input sanitization", () => {
     expect(mockGetVideoMetadataData).toHaveBeenCalledWith(
       "https://www.bilibili.com/video/BV1T6PQzQErF/?spm_id_from=333.999.0.0",
     );
+  });
+});
+
+describe("handler page validation", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("get_video_chapters with out-of-range page returns VALIDATION_ERROR via generic error handler", async () => {
+    const { ValidationError } = await import("../src/utils/errors.js");
+    mockGetVideoChaptersData.mockRejectedValue(new ValidationError("Page 99 not found"));
+
+    const handler = getCallToolHandler();
+    const result = await handler({
+      method: "tools/call",
+      jsonrpc: "2.0",
+      id: 1,
+      params: {
+        name: "get_video_chapters",
+        arguments: {
+          bvid_or_url: "BV1T6PQzQErF",
+          page: 99,
+        },
+      },
+    });
+
+    expect(result.isError).toBe(true);
+    const text = JSON.parse(result.content[0].text);
+    expect(text.code).toBe("VALIDATION_ERROR");
+  });
+
+  it("get_video_chapters with non-integer page returns validation error before business call", async () => {
+    const handler = getCallToolHandler();
+    const result = await handler({
+      method: "tools/call",
+      jsonrpc: "2.0",
+      id: 2,
+      params: {
+        name: "get_video_chapters",
+        arguments: {
+          bvid_or_url: "BV1T6PQzQErF",
+          page: 1.5,
+        },
+      },
+    });
+
+    expect(result.isError).toBe(true);
+    const text = JSON.parse(result.content[0].text);
+    expect(text.code).toBe("VALIDATION_ERROR");
+    expect(mockGetVideoChaptersData).not.toHaveBeenCalled();
   });
 });

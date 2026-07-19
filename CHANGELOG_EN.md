@@ -4,6 +4,23 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.7.0] - 2026-07-20
+
+### Added
+- Video transcript (`get_video_transcript`) supports multi-Part selection (`page`), timestamp output (`include_timestamps`), and time-range filtering (`start_seconds` / `end_seconds`).
+- Video metadata (`get_video_metadata`) returns multi-Part listing (`pages`).
+- New `get_video_chapters` tool returns Bilibili-provided Chapter intervals (view_points).
+- `get_video_info` accepts optional `page` parameter for multi-Part videos.
+
+### Fixed
+- Multi-Part CID resolution is centralized in a shared navigation module.
+- Cache keys include page numbers to prevent cross-Part cache collisions.
+
+### Verification
+- Passed 228 tests across 22 Vitest files, TypeScript build, production dependency audit, and npm package dry-run.
+
+---
+
 ## [1.6.4] - 2026-07-20
 
 ### Fixed

@@ -13,8 +13,10 @@ import {
 
 const MAX_SUBTITLE_RESPONSE_BYTES = 1_000_000;
 
+import type { RawPageEntry } from "./types.js";
+
 /**
- * 获取视频基本信息
+ * 获取视频基本信息（含多P pages）
  */
 export async function getVideoInfo(bvid: string) {
   return fetchWithoutWBI("/x/web-interface/view", { bvid }) as Promise<{
@@ -35,6 +37,7 @@ export async function getVideoInfo(bvid: string) {
     aid: number;
     duration: number;
     pubdate: number;
+    pages?: RawPageEntry[];
     tag?: { tag_name: string }[];
   }>;
 }
@@ -115,6 +118,31 @@ export async function getVideoSubtitle(bvid: string, cid: number) {
   }
 
   return fallbackResult;
+}
+
+/**
+ * 获取播放器数据（用于章节等不需要字幕的场景）
+ */
+export async function getPlayerData(bvid: string, cid: number): Promise<{
+  view_points?: Array<{
+    content?: string;
+    title?: string;
+    from: number;
+    to: number;
+  }>;
+}> {
+  const authHeaders = credentialManager.getAuthHeaders();
+  const buvidFingerprint = await getBuvid();
+  const headers: Record<string, string> = { ...authHeaders };
+  if (buvidFingerprint) {
+    const existingCookie = headers["Cookie"] || "";
+    const buvidCookie = `buvid3=${buvidFingerprint.buvid3}; buvid4=${buvidFingerprint.buvid4}`;
+    headers["Cookie"] = existingCookie ? `${existingCookie}; ${buvidCookie}` : buvidCookie;
+  }
+
+  return fetchWithoutWBI("/x/player/v2", { bvid, cid }, headers) as Promise<{
+    view_points?: Array<{ content?: string; title?: string; from: number; to: number }>;
+  }>;
 }
 
 /**

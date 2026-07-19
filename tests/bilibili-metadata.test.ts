@@ -1,9 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockGetVideoInfo = vi.fn();
+const mockResolvePartCid = vi.fn();
 
 vi.mock("../src/bilibili/video-api.js", () => ({
   getVideoInfo: (...args: unknown[]) => mockGetVideoInfo(...args),
+}));
+
+vi.mock("../src/bilibili/navigation.js", () => ({
+  resolvePartCid: (...args: unknown[]) => mockResolvePartCid(...args),
+  normalizePages: vi.fn((raw: Array<Record<string, unknown>> | undefined) => {
+    if (!raw) return [];
+    return raw.map((p) => ({
+      page: p.page as number,
+      cid: p.cid as number,
+      title: (p.part as string) || `P${p.page}`,
+      duration: p.duration as number,
+    }));
+  }),
 }));
 
 import { getVideoMetadataData } from "../src/bilibili/metadata.js";
@@ -33,7 +47,13 @@ function makeVideoData(overrides: Record<string, unknown> = {}) {
 
 beforeEach(() => {
   mockGetVideoInfo.mockReset();
+  mockResolvePartCid.mockReset();
   mockGetVideoInfo.mockResolvedValue(makeVideoData());
+  mockResolvePartCid.mockResolvedValue({
+    cid: 12345,
+    pages: [],
+    videoData: makeVideoData(),
+  });
 });
 
 describe("getVideoMetadataData", () => {
@@ -97,7 +117,38 @@ describe("getVideoMetadataData", () => {
   it("does not call subtitle or comment APIs", async () => {
     await getVideoMetadataData("BV1T6PQzQErF");
 
-    // Only getVideoInfo should be called - no other imports from video-api
     expect(mockGetVideoInfo).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns pages when video has multiple parts", async () => {
+    mockGetVideoInfo.mockResolvedValue(
+      makeVideoData({
+        pages: [
+          { cid: 100, page: 1, part: "Intro", duration: 120 },
+          { cid: 200, page: 2, part: "Main", duration: 300 },
+        ],
+      }),
+    );
+    mockResolvePartCid.mockResolvedValue({
+      cid: 100,
+      videoData: makeVideoData(),
+      pages: [
+        { page: 1, cid: 100, title: "Intro", duration: 120 },
+        { page: 2, cid: 200, title: "Main", duration: 300 },
+      ],
+    });
+
+    const result = await getVideoMetadataData("BV1T6PQzQErF");
+
+    expect(result.pages).toEqual([
+      { page: 1, cid: 100, title: "Intro", duration: 120 },
+      { page: 2, cid: 200, title: "Main", duration: 300 },
+    ]);
+  });
+
+  it("returns empty pages array for single-part video", async () => {
+    const result = await getVideoMetadataData("BV1T6PQzQErF");
+
+    expect(result.pages).toEqual([]);
   });
 });

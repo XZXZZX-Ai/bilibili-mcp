@@ -34,7 +34,7 @@ export const toolSchemas: Tool[] = [
   {
     name: "get_video_info",
     description:
-      "获取 Bilibili 视频信息，优先返回字幕内容，如无字幕则返回视频简介和标签。支持指定偏好语言。For credential help, call get_credential_setup_instructions.",
+      "获取 Bilibili 视频信息，优先返回字幕内容，如无字幕则返回视频简介和标签。支持指定偏好语言和多P分集选择。For credential help, call get_credential_setup_instructions.",
     inputSchema: {
       type: "object",
       properties: {
@@ -46,6 +46,12 @@ export const toolSchemas: Tool[] = [
           type: "string",
           description:
             "可选参数，指定偏好字幕语言代码，如 'zh-Hans', 'zh-Hant', 'en' 等。默认按 zh-Hans -> zh-Hant -> en 顺序选择。",
+        },
+        page: {
+          type: "integer",
+          minimum: 1,
+          description:
+            "可选，多P视频的分集编号（从1开始的正整数）。不指定时使用默认CID。",
         },
       },
       required: ["bvid_or_url"],
@@ -91,7 +97,7 @@ export const toolSchemas: Tool[] = [
   {
     name: "get_video_transcript",
     description:
-      "获取 Bilibili 视频纯字幕文本（按行合并）。不自动降级到描述；仅在 fallback_to_description 为 true 且字幕不可用时返回视频描述。Requires Bilibili Cookie for reliable subtitle access. If unavailable, call get_credential_setup_instructions.",
+      "获取 Bilibili 视频纯字幕文本（按行合并）。支持分集选择、时间戳输出和时间区间过滤。不自动降级到描述；仅在 fallback_to_description 为 true 且字幕不可用时返回视频描述。Requires Bilibili Cookie for reliable subtitle access. If unavailable, call get_credential_setup_instructions.",
     inputSchema: {
       type: "object",
       properties: {
@@ -107,7 +113,28 @@ export const toolSchemas: Tool[] = [
         fallback_to_description: {
           type: "boolean",
           description:
-            "字幕不可用时是否降级为视频描述文本。默认 false。",
+            "字幕不可用时是否降级为视频描述文本。默认 false。与时间戳/区间过滤器不兼容。",
+        },
+        page: {
+          type: "integer",
+          minimum: 1,
+          description:
+            "可选，多P视频的分集编号（从1开始的正整数）。不指定时使用默认Part。",
+        },
+        include_timestamps: {
+          type: "boolean",
+          description:
+            "可选，为每行字幕添加 [HH:MM:SS --> HH:MM:SS] 时间戳前缀。默认 false。",
+        },
+        start_seconds: {
+          type: "number",
+          description:
+            "可选，字幕区间起始秒数（非负整数或小数）。只返回 to >= start_seconds 的字幕段。",
+        },
+        end_seconds: {
+          type: "number",
+          description:
+            "可选，字幕区间结束秒数（非负整数或小数）。只返回 from <= end_seconds 的字幕段。当同时提供 start_seconds 和 end_seconds 时需 end_seconds >= start_seconds。",
         },
       },
       required: ["bvid_or_url"],
@@ -116,13 +143,34 @@ export const toolSchemas: Tool[] = [
   {
     name: "get_video_metadata",
     description:
-      "获取 Bilibili 视频元数据（标题、作者、时长、发布日期、标签、统计信息等）。不获取字幕或评论。",
+      "获取 Bilibili 视频元数据（标题、作者、时长、发布日期、标签、统计信息、多P分集列表等）。不获取字幕或评论。",
     inputSchema: {
       type: "object",
       properties: {
         bvid_or_url: {
           type: "string",
           description: "Bilibili 视频 BV 号或完整 URL",
+        },
+      },
+      required: ["bvid_or_url"],
+    },
+  },
+  {
+    name: "get_video_chapters",
+    description:
+      "获取 Bilibili 视频的创作者/平台定义的章节（进度条分段），包含章节标题和起止时间。无章节时返回空列表，不推断章节。支持多P分集选择。",
+    inputSchema: {
+      type: "object",
+      properties: {
+        bvid_or_url: {
+          type: "string",
+          description: "Bilibili 视频 BV 号或完整 URL",
+        },
+        page: {
+          type: "integer",
+          minimum: 1,
+          description:
+            "可选，多P视频的分集编号（从1开始的正整数）。不指定时使用默认Part。",
         },
       },
       required: ["bvid_or_url"],

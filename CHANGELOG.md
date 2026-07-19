@@ -4,6 +4,23 @@
 
 ---
 
+## [1.7.0] - 2026-07-20
+
+### 新增
+- 视频转录 (`get_video_transcript`) 支持多P分集选择 (`page`)、时间戳输出 (`include_timestamps`) 和时间区间过滤 (`start_seconds` / `end_seconds`)。
+- 视频元数据 (`get_video_metadata`) 支持多P分集列表 (`pages`)。
+- 新增 `get_video_chapters` 工具，返回 Bilibili 创作者/平台定义的视频章节（进度条分段）。
+- `get_video_info` 支持 `page` 参数选择多P分集。
+
+### 修复
+- 多P视频 CID 选择由共享导航模块统一解析，避免各工具重复实现。
+- 缓存键包含分集编号，防止不同 Part 间缓存互串。
+
+### 验证
+- 通过 22 个 Vitest 文件中的 228 项测试、TypeScript 构建、npm 生产依赖审计与 package dry-run。
+
+---
+
 ## [1.6.4] - 2026-07-20
 
 ### 修复

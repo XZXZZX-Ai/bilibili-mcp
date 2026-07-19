@@ -1,3 +1,4 @@
+import { getVideoChaptersData } from "../bilibili/chapters.js";
 import { getVideoCommentsData } from "../bilibili/comments.js";
 import { checkLoginStatus } from "../bilibili/http.js";
 import { getVideoMetadataData } from "../bilibili/metadata.js";
@@ -15,11 +16,14 @@ import { NoSubtitleError } from "../utils/errors.js";
 import { sanitizeBVInput } from "../utils/sanitization.js";
 import { buildPackageUpdateInfo } from "../utils/update-check.js";
 import {
+  validateBoolean,
   validateBVInput,
   validateCommentLimit,
   validateCommentSort,
   validateDetailLevel,
   validateLanguage,
+  validatePage,
+  validateTimestampRange,
 } from "../utils/validation.js";
 import {
   buildValidationErrorPayload,
@@ -48,18 +52,20 @@ export async function handleToolCall(name: string, args: ToolArgs) {
     case "get_video_info": {
       const bvidOrUrl = args?.bvid_or_url as string;
       const preferredLang = args?.preferred_lang as string | undefined;
+      const page = args?.page as number | undefined;
 
       let sanitizedBvidOrUrl: string;
       try {
         validateBVInput(bvidOrUrl);
         validateLanguage(preferredLang);
+        validatePage(page);
         sanitizedBvidOrUrl = sanitizeBVInput(bvidOrUrl);
       } catch (error) {
         return toErrorTextContent(buildValidationErrorPayload(error));
       }
 
       const normalizedLang = getPreferredLanguage(preferredLang);
-      const result = await getVideoInfoWithSubtitle(sanitizedBvidOrUrl, normalizedLang);
+      const result = await getVideoInfoWithSubtitle(sanitizedBvidOrUrl, normalizedLang, page);
 
       return toTextContent(result);
     }
@@ -99,11 +105,19 @@ export async function handleToolCall(name: string, args: ToolArgs) {
       const bvidOrUrl = args?.bvid_or_url as string;
       const preferredLang = args?.preferred_lang as string | undefined;
       const fallbackToDescription = (args?.fallback_to_description as boolean) || false;
+      const page = args?.page as number | undefined;
+      const includeTimestamps = args?.include_timestamps as boolean | undefined;
+      const startSeconds = args?.start_seconds as number | undefined;
+      const endSeconds = args?.end_seconds as number | undefined;
 
       let sanitizedBvidOrUrl: string;
       try {
         validateBVInput(bvidOrUrl);
         validateLanguage(preferredLang);
+        validateBoolean(fallbackToDescription, "fallback_to_description");
+        validatePage(page);
+        validateBoolean(includeTimestamps, "include_timestamps");
+        validateTimestampRange(startSeconds, endSeconds);
         if (args?.fallback_to_description !== undefined && typeof args.fallback_to_description !== "boolean") {
           throw new Error("fallback_to_description must be a boolean");
         }
@@ -115,13 +129,21 @@ export async function handleToolCall(name: string, args: ToolArgs) {
       const normalizedLang = getPreferredLanguage(preferredLang);
 
       try {
-        const result = await getVideoTranscriptData(sanitizedBvidOrUrl, normalizedLang, fallbackToDescription);
+        const result = await getVideoTranscriptData(
+          sanitizedBvidOrUrl,
+          normalizedLang,
+          fallbackToDescription,
+          page,
+          includeTimestamps,
+          startSeconds,
+          endSeconds,
+        );
         return toTextContent(result);
       } catch (error) {
         if (error instanceof NoSubtitleError) {
           return toErrorTextContent(
             buildStructuredErrorPayload(error, {
-              fallbackToDescriptionAvailable: true,
+              fallbackToDescriptionAvailable: !includeTimestamps && startSeconds === undefined && endSeconds === undefined && fallbackToDescription !== true,
             }),
           );
         }
@@ -141,6 +163,24 @@ export async function handleToolCall(name: string, args: ToolArgs) {
       }
 
       const result = await getVideoMetadataData(sanitizedBvidOrUrl);
+
+      return toTextContent(result);
+    }
+
+    case "get_video_chapters": {
+      const bvidOrUrl = args?.bvid_or_url as string;
+      const page = args?.page as number | undefined;
+
+      let sanitizedBvidOrUrl: string;
+      try {
+        validateBVInput(bvidOrUrl);
+        validatePage(page);
+        sanitizedBvidOrUrl = sanitizeBVInput(bvidOrUrl);
+      } catch (error) {
+        return toErrorTextContent(buildValidationErrorPayload(error));
+      }
+
+      const result = await getVideoChaptersData(sanitizedBvidOrUrl, page);
 
       return toTextContent(result);
     }

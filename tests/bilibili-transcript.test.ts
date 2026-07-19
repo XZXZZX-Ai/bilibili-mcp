@@ -4,12 +4,18 @@ const mockGetVideoInfo = vi.fn();
 const mockGetVideoSubtitle = vi.fn();
 const mockGetSubtitleContent = vi.fn();
 const mockCheckLoginStatus = vi.fn();
+const mockResolvePartCid = vi.fn();
 
 vi.mock("../src/bilibili/client.js", () => ({
   getVideoInfo: (...args: unknown[]) => mockGetVideoInfo(...args),
   getVideoSubtitle: (...args: unknown[]) => mockGetVideoSubtitle(...args),
   getSubtitleContent: (...args: unknown[]) => mockGetSubtitleContent(...args),
   checkLoginStatus: (...args: unknown[]) => mockCheckLoginStatus(...args),
+  resolvePartCid: (...args: unknown[]) => mockResolvePartCid(...args),
+  matchPartIdentity: (cid: number, pages: Array<{ cid: number; page: number; title: string }>, fallback: string) => {
+    const match = pages.find((p) => p.cid === cid);
+    return match ? { page: match.page, title: match.title } : { page: 1, title: fallback };
+  },
 }));
 
 import {
@@ -29,17 +35,37 @@ function makeFakeSubtitleContent(body: Array<{ from: number; to: number; content
   return { body };
 }
 
+function defaultPages() {
+  return [{ page: 1, cid: 12345, title: "Part 1", duration: 120 }];
+}
+
+function defaultVideoData() {
+  return {
+    title: "Test Video",
+    desc: "Video description text",
+    cid: 12345,
+    pages: undefined,
+  };
+}
+
 beforeEach(() => {
   cacheManager.clear();
   mockGetVideoInfo.mockReset();
   mockGetVideoSubtitle.mockReset();
   mockGetSubtitleContent.mockReset();
   mockCheckLoginStatus.mockReset();
+  mockResolvePartCid.mockReset();
 
   mockGetVideoInfo.mockResolvedValue({
     title: "Test Video",
     desc: "Video description text",
     cid: 12345,
+  });
+
+  mockResolvePartCid.mockResolvedValue({
+    cid: 12345,
+    pages: defaultPages(),
+    videoData: defaultVideoData(),
   });
 
   mockGetVideoSubtitle.mockResolvedValue(
@@ -245,5 +271,171 @@ describe("getVideoTranscriptData - COOKIE_EXPIRED propagation", () => {
     await expect(
       getVideoTranscriptData("BV1T6PQzQErF"),
     ).rejects.toThrow(BilibiliAPIError);
+  });
+});
+
+describe("getVideoTranscriptData - range filtering", () => {
+  it("filters segments overlapping the requested range", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 5, content: "early" },
+        { from: 5, to: 10, content: "middle" },
+        { from: 10, to: 15, content: "late" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      6,
+      12,
+    );
+
+    expect(result.transcript).toBe("middle\nlate");
+  });
+
+  it("includes segment that overlaps start boundary", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 5, to: 10, content: "middle" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      7,
+      12,
+    );
+
+    expect(result.transcript).toBe("middle");
+  });
+
+  it("start-only range includes segments to >= start_seconds", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 5, content: "early" },
+        { from: 5, to: 10, content: "middle" },
+        { from: 10, to: 15, content: "late" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      10,
+      undefined,
+    );
+
+    expect(result.transcript).toBe("middle\nlate");
+  });
+
+  it("end-only range includes segments from <= end_seconds", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 5, content: "early" },
+        { from: 5, to: 10, content: "middle" },
+        { from: 10, to: 15, content: "late" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      5,
+    );
+
+    expect(result.transcript).toBe("early\nmiddle");
+  });
+});
+
+describe("getVideoTranscriptData - timestamps", () => {
+  it("prefixes lines with HH:MM:SS timestamps", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2.5, content: "Hi" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      true,
+    );
+
+    expect(result.transcript).toMatch(/\[00:00:00 --> 00:00:02\] Hi/);
+  });
+
+  it("rejects description fallback when timestamps requested and no subtitles available", async () => {
+    mockGetVideoSubtitle.mockResolvedValue(makeFakeSubtitles([]));
+
+    await expect(
+      getVideoTranscriptData(
+        "BV1T6PQzQErF",
+        undefined,
+        true,
+        undefined,
+        true,
+      ),
+    ).rejects.toThrow(NoSubtitleError);
+  });
+
+  it("rejects description fallback when range requested and no subtitles available", async () => {
+    mockGetVideoSubtitle.mockResolvedValue(makeFakeSubtitles([]));
+
+    await expect(
+      getVideoTranscriptData(
+        "BV1T6PQzQErF",
+        undefined,
+        true,
+        undefined,
+        false,
+        10,
+        30,
+      ),
+    ).rejects.toThrow(NoSubtitleError);
+  });
+});
+
+describe("getVideoTranscriptData - page selection", () => {
+  it("calls resolvePartCid with the page number", async () => {
+    await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      2,
+    );
+
+    expect(mockResolvePartCid).toHaveBeenCalledWith("BV1T6PQzQErF", 2);
+  });
+
+  it("uses the resolved CID for subtitle fetching", async () => {
+    mockResolvePartCid.mockResolvedValue({
+      cid: 77777,
+      videoData: defaultVideoData(),
+      pages: [
+        { page: 1, cid: 12345, title: "P1", duration: 120 },
+        { page: 2, cid: 77777, title: "P2", duration: 180 },
+      ],
+    });
+
+    await getVideoTranscriptData("BV1T6PQzQErF", undefined, false, 2);
+
+    expect(mockGetVideoSubtitle).toHaveBeenCalledWith("BV1T6PQzQErF", 77777);
   });
 });

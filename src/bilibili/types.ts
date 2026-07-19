@@ -137,6 +137,29 @@ export type CommentDetailLevel = 'brief' | 'detailed';
 // 评论排序类型
 export type CommentSort = "hot" | "time";
 
+// Part 类型（多P视频的单集）
+export interface PartInfo {
+  page: number;
+  cid: number;
+  title: string;
+  duration: number;
+}
+
+// Bilibili 原始 pages 条目
+export interface RawPageEntry {
+  cid: number;
+  page: number;
+  part?: string;
+  duration: number;
+}
+
+// Chapter 类型（Bilibili 提供的章节/进度条分段）
+export interface ChapterInfo {
+  title: string;
+  start_seconds: number;
+  end_seconds: number;
+}
+
 // 视频转录数据类型
 export interface VideoTranscriptData {
   bvid: string;
@@ -144,6 +167,16 @@ export interface VideoTranscriptData {
   language?: string;
   transcript: string;
   title: string;
+  page?: number;
+}
+
+// 视频章节数据类型
+export interface VideoChaptersData {
+  bvid: string;
+  page: number;
+  cid: number;
+  title: string;
+  chapters: ChapterInfo[];
 }
 
 // 视频元数据类型
@@ -156,6 +189,7 @@ export interface VideoMetadataData {
   pubdate_timestamp?: number;
   description: string;
   tags: string[];
+  pages: PartInfo[];
   stats: {
     view?: number;
     like?: number;

@@ -1,12 +1,11 @@
 // 字幕处理逻辑
-import { getVideoInfo, getVideoSubtitle, getSubtitleContent, checkLoginStatus } from "./client.js";
+import { getVideoSubtitle, getSubtitleContent, checkLoginStatus, matchPartIdentity, resolvePartCid } from "./client.js";
 import { extractBVId } from "../utils/bvid.js";
 import { cacheManager } from "../utils/cache.js";
 import { BilibiliAPIError, NoSubtitleError, PaidVideoError } from "../utils/errors.js";
 import { logger, redactSecrets } from "../utils/logger.js";
 import type {
   BilibiliSubtitleItem,
-  BilibiliVideoInfoData,
   SubtitleBodyItem,
   VideoTranscriptData,
 } from "./types.js";
@@ -93,10 +92,39 @@ function selectBestSubtitle(
 }
 
 /**
+ * 格式化秒数为 HH:MM:SS 字符串
+ */
+function formatTimestamp(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+/**
+ * 按时间范围过滤 Subtitle Segments。
+ * start-only: segments where to >= startSeconds
+ * end-only: segments where from <= endSeconds
+ * both: overlap (to >= startSeconds AND from <= endSeconds)
+ */
+function filterSegmentsByRange(
+  body: SubtitleBodyItem[],
+  startSeconds?: number,
+  endSeconds?: number,
+): SubtitleBodyItem[] {
+  return body.filter((seg) => {
+    if (startSeconds !== undefined && seg.to < startSeconds) return false;
+    if (endSeconds !== undefined && seg.from > endSeconds) return false;
+    return true;
+  });
+}
+
+/**
  * 合并字幕内容为文本
  */
 function mergeSubtitleText(
-  body: SubtitleBodyItem[]
+  body: SubtitleBodyItem[],
+  includeTimestamps?: boolean,
 ): string {
   if (body.length > MAX_SUBTITLE_BODY_ITEMS) {
     throw new Error("Subtitle body item count exceeds maximum limit");
@@ -107,45 +135,45 @@ function mergeSubtitleText(
 
   for (const item of body) {
     const content = item.content ?? "";
-    totalLength += content.length;
+    const line = includeTimestamps
+      ? `[${formatTimestamp(item.from)} --> ${formatTimestamp(item.to)}] ${content}`
+      : content;
+    totalLength += line.length;
     if (parts.length > 0) {
       totalLength += 1;
     }
     if (totalLength > MAX_SUBTITLE_TEXT_LENGTH) {
       throw new Error("Subtitle text exceeds maximum length");
     }
-    parts.push(content);
+    parts.push(line);
   }
 
   return parts.join("\n");
 }
 
 /**
- * 提取视频标签
- */
-function extractTags(videoData: BilibiliVideoInfoData): string[] {
-  const tags = videoData.tag ?? [];
-  return tags.map((tag) => tag.tag_name);
-}
-
-/**
- * 获取纯视频转录文本（新 API）
+ * 获取纯视频转录文本
  *
  * 不自动降级到描述。如果字幕不可用：
  * - fallbackToDescription=false -> throw NoSubtitleError
  * - fallbackToDescription=true -> return description text
  * - COOKIE_EXPIRED 错误始终向上传播
+ * - 当 timestamps 或 range 被请求时，拒绝 description fallback
  */
 export async function getVideoTranscriptData(
   bvidOrUrl: string,
   preferredLang?: string,
-  fallbackToDescription = false,
+  fallbackToDescription?: boolean,
+  page?: number,
+  includeTimestamps?: boolean,
+  startSeconds?: number,
+  endSeconds?: number,
 ): Promise<VideoTranscriptData> {
   const bvid = extractBVId(bvidOrUrl);
-  const videoData = (await getVideoInfo(bvid)) as BilibiliVideoInfoData;
+  const wantsTimedOutput = includeTimestamps || startSeconds !== undefined || endSeconds !== undefined;
+  const { cid, pages, videoData } = await resolvePartCid(bvidOrUrl, page);
   const title = videoData.title;
   const description = videoData.desc || "";
-  const cid = videoData.cid;
 
   // 获取字幕列表
   try {
@@ -157,11 +185,17 @@ export async function getVideoTranscriptData(
     ) {
       await verifyLoginForEmptySubtitles(bvid);
       if (fallbackToDescription) {
+        if (wantsTimedOutput) {
+          throw new NoSubtitleError(
+            `Video ${bvid} has no subtitles available; description fallback is incompatible with timestamps or range`,
+          );
+        }
         return {
           bvid,
           data_source: "description",
           transcript: description,
           title,
+          page: page ?? matchPartIdentity(videoData.cid, pages, videoData.title).page,
         };
       }
       throw new NoSubtitleError(
@@ -176,11 +210,17 @@ export async function getVideoTranscriptData(
 
     if (!bestSubtitle) {
       if (fallbackToDescription) {
+        if (wantsTimedOutput) {
+          throw new NoSubtitleError(
+            `No suitable subtitle found for video ${bvid}; description fallback is incompatible with timestamps or range`,
+          );
+        }
         return {
           bvid,
           data_source: "description",
           transcript: description,
           title,
+          page: page ?? matchPartIdentity(videoData.cid, pages, videoData.title).page,
         };
       }
       throw new NoSubtitleError(
@@ -194,11 +234,17 @@ export async function getVideoTranscriptData(
 
     if (!subtitleContent?.body || subtitleContent.body.length === 0) {
       if (fallbackToDescription) {
+        if (wantsTimedOutput) {
+          throw new NoSubtitleError(
+            `Subtitle body is empty for video ${bvid}; description fallback is incompatible with timestamps or range`,
+          );
+        }
         return {
           bvid,
           data_source: "description",
           transcript: description,
           title,
+          page: page ?? matchPartIdentity(videoData.cid, pages, videoData.title).page,
         };
       }
       throw new NoSubtitleError(
@@ -206,7 +252,8 @@ export async function getVideoTranscriptData(
       );
     }
 
-    const transcript = mergeSubtitleText(subtitleContent.body);
+    const body = filterSegmentsByRange(subtitleContent.body, startSeconds, endSeconds);
+    const transcript = mergeSubtitleText(body, includeTimestamps);
 
     return {
       bvid,
@@ -214,6 +261,7 @@ export async function getVideoTranscriptData(
       language: bestSubtitle.lan,
       transcript,
       title,
+      page: page ?? matchPartIdentity(videoData.cid, pages, videoData.title).page,
     };
   } catch (error) {
     // COOKIE_EXPIRED must propagate
@@ -226,20 +274,28 @@ export async function getVideoTranscriptData(
     // NoSubtitleError: only rethrow if fallback disabled
     if (error instanceof NoSubtitleError) {
       if (!fallbackToDescription) throw error;
+      if (wantsTimedOutput) throw error;
       return {
         bvid,
         data_source: "description",
         transcript: description,
         title,
+        page: page ?? matchPartIdentity(videoData.cid, pages, videoData.title).page,
       };
     }
     // Other errors: fallback to description if enabled, else rethrow
     if (fallbackToDescription) {
+      if (wantsTimedOutput) {
+        throw new NoSubtitleError(
+          `Subtitle fetch failed for video ${bvid}; description fallback is incompatible with timestamps or range`,
+        );
+      }
       return {
         bvid,
         data_source: "description",
         transcript: description,
         title,
+        page: page ?? matchPartIdentity(videoData.cid, pages, videoData.title).page,
       };
     }
     throw error;
@@ -251,15 +307,14 @@ export async function getVideoTranscriptData(
  */
 export async function getVideoInfoWithSubtitle(
   bvidOrUrl: string,
-  preferredLang?: string
+  preferredLang?: string,
+  page?: number,
 ): Promise<SubtitleData> {
   try {
     const bvid = extractBVId(bvidOrUrl);
-    
-    // 生成缓存键
-    const cacheKey = cacheManager.generateKey('video', bvid, preferredLang);
-    
-    // 尝试从缓存获取
+
+    // 生成缓存键（包含 page）— 在 resolvePartCid 之前检查以避免网络请求
+    const cacheKey = cacheManager.generateKey('video', bvid, preferredLang, page);
     const cachedData = cacheManager.getVideoInfo(cacheKey) as SubtitleData | undefined;
     if (cachedData) {
       logger.debug("Video cache hit", { bvid, cacheKey }, { type: "subtitle" });
@@ -268,22 +323,13 @@ export async function getVideoInfoWithSubtitle(
 
     logger.debug("Video cache miss", { bvid, cacheKey }, { type: "subtitle" });
 
-    // 获取视频基本信息
-    const videoData = (await getVideoInfo(bvid)) as BilibiliVideoInfoData;
+    const { cid, videoData } = await resolvePartCid(bvidOrUrl, page);
 
     const title = videoData.title;
     const description = videoData.desc || "";
-    const tags = extractTags(videoData);
-    const cid = videoData.cid;
-    const pubdate = videoData.pubdate;  // Unix 时间戳（秒）
+    const tags = (videoData.tag || []).map((t) => t.tag_name);
+    const pubdate = videoData.pubdate;
     const formattedDate = pubdate ? formatPublishDate(pubdate) : undefined;
-
-    // 移除对付费视频的硬性拦截，因为即使是需要登录或付费的视频，API 有时也会返回 AI 字幕（至少登录状态下提供）
-    // 旧逻辑会在这里直接退出并返回描述，现在我们让它继续尝试去调取 subtitle 接口。
-    if (videoData.need_login_subtitle || videoData.preview_toast?.includes("付费")) {
-      console.warn(`Video ${bvid} has 'need_login_subtitle' or '付费' flag. Will still attempt to fetch subtitles.`);
-      // 仅用于调试，不中断流程
-    }
 
     // 尝试获取字幕
     try {
