@@ -39,6 +39,26 @@ function formatPublishDate(timestamp: number): string {
   return date.toISOString();
 }
 
+/**
+ * 字幕列表为空时验证登录状态，未登录则抛出 COOKIE_EXPIRED。
+ */
+async function verifyLoginForEmptySubtitles(bvid: string): Promise<void> {
+  logger.warn(
+    "Video returned no subtitles; verifying login status",
+    { bvid },
+    { type: "subtitle" },
+  );
+  const { isLogin } = await checkLoginStatus();
+  if (!isLogin) {
+    throw new BilibiliAPIError(
+      `Video ${bvid} returned an empty subtitle list and current Bilibili credentials are not logged in. Run "npx -y @xzxzzx/bilibili-mcp@latest config", then "npx -y @xzxzzx/bilibili-mcp@latest check", or update environment variables.`,
+      'COOKIE_EXPIRED',
+      undefined,
+      { code: -101, bvid }
+    );
+  }
+}
+
 
 
 /**
@@ -135,6 +155,7 @@ export async function getVideoTranscriptData(
       !subtitleData?.subtitle?.subtitles ||
       subtitleData.subtitle.subtitles.length === 0
     ) {
+      await verifyLoginForEmptySubtitles(bvid);
       if (fallbackToDescription) {
         return {
           bvid,
@@ -269,25 +290,7 @@ export async function getVideoInfoWithSubtitle(
       const subtitleData = await getVideoSubtitle(bvid, cid);
 
       if (!subtitleData?.subtitle?.subtitles || subtitleData.subtitle.subtitles.length === 0) {
-        // 字幕列表为空。主动调用 /x/web-interface/nav 验证登录状态。
-        // 理由：B站不会因 Cookie 无效就返回 -101，而是静默降级——字幕列表返回空。
-        // 通过核实登录状态，我们可以区分两种情况：
-        //   1. 已登录但视频确实无字幕 → 合法降级
-        //   2. 未登录（Cookie 过期）→ 抛出明确错误，拒绝静默降级
-        logger.warn(
-          "Video returned no subtitles; verifying login status",
-          { bvid },
-          { type: "subtitle" },
-        );
-        const { isLogin } = await checkLoginStatus();
-        if (!isLogin) {
-          throw new BilibiliAPIError(
-            `Video ${bvid} returned an empty subtitle list and current Bilibili credentials are not logged in. Run "npx -y @xzxzzx/bilibili-mcp@latest config", then "npx -y @xzxzzx/bilibili-mcp@latest check", or update environment variables.`,
-            'COOKIE_EXPIRED',
-            undefined,
-            { code: -101, bvid }
-          );
-        }
+        await verifyLoginForEmptySubtitles(bvid);
 
         // 已登录但视频本身无字幕，使用简介降级
         logger.info(
@@ -400,8 +403,7 @@ export async function getVideoInfoWithSubtitle(
           pubdate_timestamp: pubdate,
         },
       };
-      // 成功获取到字幕，存入缓存
-      cacheManager.setVideoInfo(cacheKey, result);
+      // 不缓存降级结果，以便下次重试时能拉取字幕
       return result;
     }
   } catch (error) {

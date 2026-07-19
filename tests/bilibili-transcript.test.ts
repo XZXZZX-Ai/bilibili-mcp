@@ -12,7 +12,11 @@ vi.mock("../src/bilibili/client.js", () => ({
   checkLoginStatus: (...args: unknown[]) => mockCheckLoginStatus(...args),
 }));
 
-import { getVideoTranscriptData } from "../src/bilibili/subtitle.js";
+import {
+  getVideoInfoWithSubtitle,
+  getVideoTranscriptData,
+} from "../src/bilibili/subtitle.js";
+import { cacheManager } from "../src/utils/cache.js";
 import { BilibiliAPIError, NoSubtitleError } from "../src/utils/errors.js";
 
 function makeFakeSubtitles(subs: Array<Record<string, unknown>>) {
@@ -26,6 +30,7 @@ function makeFakeSubtitleContent(body: Array<{ from: number; to: number; content
 }
 
 beforeEach(() => {
+  cacheManager.clear();
   mockGetVideoInfo.mockReset();
   mockGetVideoSubtitle.mockReset();
   mockGetSubtitleContent.mockReset();
@@ -50,6 +55,32 @@ beforeEach(() => {
       { from: 1, to: 2, content: "World" },
     ]),
   );
+
+  mockCheckLoginStatus.mockResolvedValue({ isLogin: true });
+});
+
+describe("getVideoInfoWithSubtitle - transient subtitle errors", () => {
+  it("retries subtitle retrieval after a temporary error fallback", async () => {
+    mockGetVideoSubtitle
+      .mockRejectedValueOnce(new Error("Temporary network failure"))
+      .mockResolvedValueOnce(
+        makeFakeSubtitles([
+          {
+            id: 1,
+            lan: "zh-Hans",
+            lan_doc: "Chinese",
+            subtitle_url: "//example.test/zh.json",
+          },
+        ]),
+      );
+
+    const firstResult = await getVideoInfoWithSubtitle("BV1R6PQzQErF");
+    const secondResult = await getVideoInfoWithSubtitle("BV1R6PQzQErF");
+
+    expect(firstResult.data_source).toBe("description");
+    expect(secondResult.data_source).toBe("subtitle");
+    expect(mockGetVideoSubtitle).toHaveBeenCalledTimes(2);
+  });
 });
 
 describe("getVideoTranscriptData - subtitle success", () => {
@@ -181,6 +212,17 @@ describe("getVideoTranscriptData - fallback enabled", () => {
 });
 
 describe("getVideoTranscriptData - COOKIE_EXPIRED propagation", () => {
+  it("checks login status when an empty subtitle list would otherwise fall back", async () => {
+    mockGetVideoSubtitle.mockResolvedValue(makeFakeSubtitles([]));
+    mockCheckLoginStatus.mockResolvedValue({ isLogin: false });
+
+    await expect(
+      getVideoTranscriptData("BV1T6PQzQErF", undefined, true),
+    ).rejects.toMatchObject({ code: "COOKIE_EXPIRED" });
+
+    expect(mockCheckLoginStatus).toHaveBeenCalledOnce();
+  });
+
   it("rethrows COOKIE_EXPIRED even when fallback is enabled", async () => {
     mockGetVideoSubtitle.mockRejectedValue(
       new BilibiliAPIError("Cookie expired", "COOKIE_EXPIRED"),
