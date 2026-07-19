@@ -797,6 +797,12 @@
 - Result: `package.json` and `package-lock.json` now report `1.6.0`; build and full Vitest suite pass; package dry-run reports `@xzxzzx/bilibili-mcp@1.6.0`; CLI update check reports local current `1.6.0` against npm latest `1.5.3`; diff check has only CRLF warnings.
 - Caveat: No npm publish, tag creation, GitHub Release creation, or release workflow execution was performed in this commit step.
 
+## 2026-06-18 Bilingual MCP Guidance Fields
+
+- Commands: `npm run build`; `npm test -- tests/credential-guidance.test.ts tests/server-credential-tools.test.ts tests/server-error-next-steps.test.ts tests/update-check.test.ts`; `npm test`; bilingual field scan with `rg`; added-diff secret-pattern scan with `git diff -- ... | Select-String`.
+- Result: Credential setup/status, cookie-expired guidance, subtitle-unavailable guidance, and MCP update checks now keep existing English-compatible fields while adding explicit `*_en` and `*_zh` fields for clients that render either language; README and README_EN document the bilingual fields; build, focused tests, and full Vitest suite pass.
+- Caveat: This is a source/documentation change only; no package version bump, tag, release, npm publish, push, credential loading behavior change, or Bilibili network behavior change was performed.
+
 ## 2026-06-19 Structured Error Guidance Codex Review
 
 - Commands: `npm test -- tests/server-error-next-steps.test.ts tests/bilibili-comments-tool.test.ts`; `npm test`; `npm run build`; structured error-code scan with `rg`; added-diff secret-pattern scan with `git diff -- ... | Select-String`; UTF-8 source check with Python.
@@ -814,3 +820,111 @@
 - Commands: Node child-process stdio smoke against `node dist/index.js` with `initialize`, `notifications/initialized`, `tools/list`, and `tools/call get_video_info` using an empty `bvid_or_url`.
 - Result: Process exited 0; stdout had 3 JSON-RPC response lines and no non-JSON noise; raw stderr was exactly `Bilibili MCP server running on stdio`; `tools/list` returned 7 expected tools; invalid input returned an MCP `isError: true` response whose JSON text payload had `code: VALIDATION_ERROR`, `category: validation`, `message_zh`, `next_steps_zh`, and `next_steps` matching `next_steps_en`.
 - Caveat: This is an equivalent local stdio smoke, not a GUI MCP client smoke; no live Bilibili API call, package publish, tag, release, or push was performed.
+
+## 2026-06-19 Version 1.6.3 Publish Verification
+
+- Commands: `npm test`; `npm run build`; `npm pack --dry-run --json`; `git push origin master`; `git push origin v1.6.3`; `gh run watch 27803425317 --repo XZXZZX-Ai/bilibili-mcp --exit-status`; `npm view @xzxzzx/bilibili-mcp version dist-tags --json`; `gh release view v1.6.3`.
+- Result: Release commit `ee22eb9` and annotated tag `v1.6.3` were pushed; GitHub Actions run `27803425317` completed successfully through `Publish to npm`; npm registry reports version `1.6.3` and `latest: 1.6.3`; GitHub Release `v1.6.3 - Publish Fix / 发布修复` is published at `https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.6.3`.
+- Caveat: The previous `v1.6.2` tag and failed workflow were left intact; unrelated local harness and memory working-tree changes remain uncommitted.
+
+## 2026-07-19 Matt Pocock Skills Workflow Integration
+
+- Commands: live GitHub API listing for upstream engineering/productivity skill names; local existence comparison against Codex and Claude Code skill roots; `gh label list`; creation of the four missing default triage labels; UTF-8 replacement-character check; scoped credential-pattern scan; duplicate-heading checks; `git diff --check`; `python .codex/scripts/context_budget.py`.
+- Result: All 22 current upstream skill names are present in both runtimes; GitHub Issues, five default triage labels, and a single-context domain-doc layout are configured; all five labels exist remotely; Codex and Claude routing preserve file-backed handoffs and explicit Git authorization; encoding, secret-pattern, duplicate-heading, and diff checks passed.
+- Caveat: No GitHub Issue, commit, push, source code, MCP behavior, package metadata, test, release, hook registration, or global skill file was changed. The initial context budget was `HIGH`; the subsequent Superpowers runtime removal reduced the current status to `REVIEW`.
+
+## 2026-07-19 Superpowers Runtime Removal
+
+- Commands: scoped `rg` scans; Python compilation for context-budget, plan-tracker, learning-proposal, and pre-compact scripts; live `plan_tracker.py`; learning proposal regeneration; session-start output check; context budget regeneration; `git diff --check`.
+- Result: Current Codex and Claude rules prohibit all `superpowers:*` skills; active work resolves to `docs/agent-memory/active-work.md`; startup, pre-compact, learning-state, and context-budget scripts no longer load `docs/superpowers/`; always-relevant context dropped from `HIGH` 23254 tokens to `REVIEW` 17685 tokens.
+- Caveat: Historical files and evidence references under `docs/superpowers/` were intentionally retained. No source code, MCP behavior, package, test, GitHub Issue, label, commit, push, or release state changed in this removal step.
+
+## 2026-07-19 Paseo Claude Code Workflow Integration
+
+- Commands: `Get-Command paseo`; read `C:\Users\ZX\.paseo\orchestration-preferences.json`; `paseo --help`; `paseo run --help`; `GET http://127.0.0.1:6767/api/health`; scoped workflow-rule scans; added-diff UTF-8/secret-value scan; `git diff --check`; `python .codex/scripts/context_budget.py`.
+- Result: Paseo CLI resolves to `C:\Users\ZX\.local\bin\paseo.cmd`; the daemon health endpoint returns `status: ok`; the live `providers.impl` preference selects a Claude provider; repository rules now let Codex launch and review one bounded Claude Code implementation agent from a file-backed handoff without user-operated prompt transfer. Workflow checks passed and the context budget remains `REVIEW` at an estimated 18226 tokens.
+- Caveat: No Claude implementation agent was launched because no bounded implementation ticket was selected in this workflow-only change. Paseo daemon restart, source changes, tests, package operations, Git commits, pushes, and releases were not performed.
+
+## 2026-07-19 Concurrent HTTP Throttling Fix
+
+- Commands: temporary red-capable `tests/.tmp-http-throttle-repro.test.ts`; `npm test -- tests/bilibili-http.test.ts`; `npm test`; `npm run build`; `git diff --check`; temporary/debug-file scans; scoped source/test diff review; Paseo-managed Claude implementation and same-scope repair prompts; focused risk review.
+- Result: The red repro measured a minimum concurrent request-start gap of about `0.155ms` against a configured `500ms` interval. `throttledFetch` now reserves FIFO admission turns with a normalized promise chain, excludes prior callers' queue time from the current caller's timeout, includes the current caller's own rate-limit wait, and allows response bodies to overlap. Codex independently verified 2/2 focused tests, 157/157 full-suite tests across 17 files, TypeScript build, diff format, and clean concurrency/timeout/recovery/determinism/scope risk findings.
+- Caveat: The Paseo `test-baseline-builder` and `risk-reviewer` subagents did not return promptly; the top-level Claude agent completed their scoped work and Codex stopped the otherwise-finished agent. No real Bilibili network call, package dry run, commit, push, release, or Issue close was performed. GitHub Issue #2 is labeled `ready-for-human` pending Git authorization.
+
+## 2026-07-19 Empty Transcript Credential Detection
+
+- Commands: focused red/green `npm test -- tests/bilibili-transcript.test.ts -t "checks login status when an empty subtitle list would otherwise fall back"`; full transcript file; full `npm test`; `npm run build`; `git diff --check`; debug-marker and scoped-diff review; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The red test showed a logged-out empty subtitle list resolving to description instead of rejecting. A private `verifyLoginForEmptySubtitles` helper now holds the existing safe login check and is reused by both transcript and video-info flows. Codex independently verified 1/1 focused, 15/15 transcript, and 158/158 full-suite tests across 17 files; build and diff/debug checks passed; logged-in fallback and `NoSubtitleError` behavior remain covered and unchanged.
+- Caveat: No real Bilibili network call, package dry run, commit, push, release, or Issue close was performed. GitHub Issue #3 is labeled `ready-for-human` pending Git authorization. The risk reviewer noted that `getVideoInfoWithSubtitle` still lacks a dedicated direct unit test, but the moved block is byte-identical and no blocking issue was found.
+
+## 2026-07-19 Transient Subtitle Error Retry
+
+- Commands: focused red/green `npm test -- --run tests/bilibili-transcript.test.ts -t "retries subtitle retrieval after a temporary error fallback"`; full transcript file; full `npm test`; `npm run build`; `git diff --check`; scoped source/test diff review; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The red test showed a first-call temporary subtitle error being cached as `description`, so the second call did not retry. The general-error catch branch no longer writes that fallback to the video cache. Codex independently verified 1/1 focused, 16/16 transcript, and 159/159 full-suite tests across 17 files; build and diff checks passed. Successful subtitle caching and `COOKIE_EXPIRED` propagation remain intact.
+- Caveat: No real Bilibili network call, package dry run, commit, push, release, or Issue close was performed. GitHub Issue #4 is labeled `ready-for-human` pending Git authorization; CRLF conversion warnings remain informational.
+
+## 2026-07-19 Comment Cache Detail-Level Separation
+
+- Commands: focused red/green `npm test -- --run tests/bilibili-comments-tool.test.ts -t "does not share cached results between brief and detailed modes with the same limit"`; full comments test file; full `npm test`; `npm run build`; `git diff --check`; scoped source/test diff review; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The red test showed `{ detailLevel: "detailed", limit: 5 }` reusing the cached one-comment brief result. The explicit-limit cache component now includes `detailLevel`. Codex independently verified 1/1 focused, 13/13 comments, and 160/160 full-suite tests across 17 files; build and diff checks passed. Identical options still reuse cache and public response shapes remain unchanged.
+- Caveat: No real Bilibili network call, package dry run, commit, push, release, or Issue close was performed. GitHub Issue #5 is labeled `ready-for-human` pending Git authorization; CRLF conversion warnings remain informational.
+
+## 2026-07-19 Real npm Test Guidance
+
+- Commands: `npm test`; `npm run build`; expanded stale-guidance `rg` scan across `AGENTS.md`, `CLAUDE.md`, `.claude/agents`, and `.codex/agents`; exact-path secret and replacement-character scans; `git diff --check`; `python .codex/scripts/context_budget.py`; two bounded harness-security risk reviews.
+- Result: Six current agent-rule files now treat `npm test` as the real unconditional Vitest gate. Codex's final run passed 17 files and 160 tests; build and all scoped scans passed. Always-loaded context decreased to an estimated 18,127 tokens, and no execution authority, hooks, permissions, trust boundaries, or historical records changed.
+- Caveat: Repeated agent-side verification exposed a pre-existing intermittent failure in `tests/mcp-server-smoke.test.ts` (one failure among four runs, followed by a pass). It is separate from the documentation correction and requires its own diagnosis. No package dry run, commit, push, release, or Issue close was performed; Issue #6 is `ready-for-human` pending Git authorization.
+
+## 2026-07-19 Stdio Smoke Readiness
+
+- Commands: original 20-run focused loop; direct 20-process readiness-latency probe; post-fix focused test; agent and Codex 20-run focused loops; full `tests/mcp-server-smoke.test.ts`; full `npm test`; `npm run build`; `git diff --check`; fixed-sleep/debug-marker, replacement-character, and secret-pattern scans; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The original test failed at iteration 6 because stderr was still empty after its fixed 300ms sleep. The direct probe showed all 20 servers became ready, but 5 exceeded 300ms and the maximum was 453ms. The final test waits for the exact accumulated stderr signal with a 3s timeout, rejects on error/early exit, and awaits process closure. Codex independently verified 20/20 focused iterations, 2/2 smoke tests, 160/160 full-suite tests, build, and all scoped scans.
+- Caveat: This is a test-only stabilization; no production stdio behavior, package contents, dependency, real client workflow, commit, push, release, or Issue close changed. Issue #7 is `ready-for-human` pending Git authorization; CRLF warnings remain informational.
+
+## 2026-07-19 Redundant Comment Metadata Removal
+
+- Commands: focused red/green `npm test -- --run tests/bilibili-comments-tool.test.ts -t "does not fetch video metadata before delegating to the comments API"`; full comments test file; full `npm test`; `npm run build`; `git diff --check`; `rg -n "getVideoInfo|const cid" src/bilibili/comments.ts src/bilibili/comments-api.ts`; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The red test observed one outer `getVideoInfo` call. `comments.ts` no longer imports or calls it, while `comments-api.ts` still fetches metadata and computes `aid || cid`. Codex independently verified 1/1 focused, 14/14 comments, and 161/161 full-suite tests across 17 files; build and diff/ownership checks passed.
+- Caveat: The test mocks the delegated comments API and guards outer-layer ownership; required lower-layer metadata ownership is additionally verified by direct source inspection. No live Bilibili request, package dry run, interface, commit, push, release, or Issue close changed. Issue #8 is `ready-for-human` pending Git authorization.
+
+## 2026-07-19 Comment Limit Pagination
+
+- Commands: failing-first `npx vitest run tests/bilibili-comments-tool.test.ts`; final focused comment tests; full `npm test`; `npm run build`; `git diff --check`; scoped source/test review; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: Three red regressions observed one request where pagination and early-stop behavior required multiple calls. The final implementation sequentially requests page sizes 20, 20, and 10 for `limit: 50`, stops on empty/short pages, truncates defensively, and preserves single requests at or below 20. Codex independently verified 20/20 comments tests and 167/167 full-suite tests across 17 files; build and diff checks passed.
+- Caveat: `limit` counts top-level comments, so detailed-mode child reply expansion can make the final processed array longer; a deterministic regression verifies 50 top-level comments plus 50 child replies. No live Bilibili request, package dry run, schema, validation, response shape, commit, push, release, or Issue close changed. Issue #9 is `ready-for-human` pending Git authorization.
+
+## 2026-07-19 Login Status Network Error Preservation
+
+- Commands: pre-fix and post-fix no-file HTTP 503 harness; focused `tests/bilibili-http.test.ts` and `tests/server-error-next-steps.test.ts`; credential/subtitle/error regression group; full `npm test`; `npm run build`; `git diff --check`; scoped debug/credential scan; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The pre-fix harness failed because HTTP 503 resolved as logged out. `checkLoginStatus` now delegates to `fetchWithoutWBI`, and `throttledFetch` maps native fetch `TypeError` to `NetworkError` with its original error. The same 503 harness now rejects with `NetworkError` and status 503. Codex independently verified 17/17 focused and 171/171 full-suite tests across 17 files; the MCP credential tool returns structured retryable `NETWORK_ERROR`; build and diff/scoped scans passed.
+- Caveat: Immediate repeated connection failures inherit roughly 14-17 seconds of existing retry backoff, and repeated default 10-second timeouts may take roughly 54-57 seconds. Live Bilibili credentials, clients, package contents, release, commit, push, and Issue close were not exercised. QA is `pass with caveats`; Issue #10 is `ready-for-human` pending Git authorization.
+
+## 2026-07-19 Non-Retryable HTTP Status Precedence
+
+- Commands: pre-fix/post-fix zero-backoff 403 harness; focused `tests/retry.test.ts`, logger-redaction, and HTTP tests; full `npm test`; `npm run build`; `git diff --check`; scoped debug scan; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The pre-fix harness observed four attempts for explicit HTTP 403. `shouldRetry` now immediately returns the status allowlist decision for numeric statuses and only applies name/code checks to status-less errors. The compact matrix verifies 403→1, 503→4, and status-less `NetworkError`→4. Codex independently verified 13/13 focused and 174/174 full-suite tests across 18 files; build, original harness, and diff/debug scans passed.
+- Caveat: `src/bilibili/video-api.ts` has a pre-existing `NetworkError` construction without `statusCode`, so an HTTP 403 on that path still behaves like a status-less connection error; it was not changed under Issue #11. No package dry run, public interface, commit, push, release, or Issue close changed. Issue #11 is `ready-for-human` pending Git authorization.
+
+## 2026-07-19 Subtitle HTTP Status Propagation
+
+- Commands: focused pre-fix/post-fix `tests/bilibili-video-api.test.ts` 403 regression; full `npm test`; `npm run build`; `git diff --check`; scoped source/test review; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The pre-fix regression completed in about 0.6 seconds and observed four fetches with `statusCode: undefined`. `getSubtitleContent` now passes `response.status` into `NetworkError`. Codex independently verified 1/1 focused and 175/175 full-suite tests across 18 files; build and diff checks passed.
+- Caveat: No live Bilibili 403, public schema, package contents, commit, push, release, or Issue close was exercised. Issue #12 is `ready-for-human` pending Git authorization.
+
+## 2026-07-19 WBI HTTP Status Propagation
+
+- Commands: focused pre-fix/post-fix `tests/bilibili-wbi.test.ts`; combined WBI/video/retry tests; full `npm test`; `npm run build`; `git diff --check`; scoped diff review; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The pre-fix test completed in about 0.3 seconds and observed four fetches plus `statusCode: undefined`. The WBI path now passes `navRes.status` into the original `NetworkError` and carries it through the outer typed wrapper. Codex independently verified 11/11 focused and 176/176 full-suite tests across 19 files; build and diff checks passed.
+- Caveat: No live Bilibili 403, package contents, public interface, commit, push, release, or Issue close was exercised. Issue #13 is `ready-for-human` pending Git authorization.
+
+## 2026-07-19 WBI Transport Retry And Timeout Cleanup
+
+- Commands: focused pre-fix/post-fix WBI transport regression; combined WBI/video/retry tests; full `npm test`; `npm run build`; `git diff --check`; scoped diff review; Paseo Claude implementation; `test-baseline-builder` review and top-level fallback risk review.
+- Result: The pre-fix test observed one fetch and zero timeout cleanups. The WBI fetch boundary now converts native `TypeError` to status-less `NetworkError` before `withRetry` and clears the timeout in `finally`. Codex independently verified four attempts, four cleanup calls, explicit `statusCode: undefined`, preserved 403 behavior, 12/12 focused tests, and 177/177 full-suite tests across 19 files; build and diff checks passed.
+- Caveat: The project `risk-reviewer` stalled after bounded waits, so its checklist was completed by the top-level Claude agent and independently rechecked by Codex. No live transport failure, package contents, public interface, commit, push, release, or Issue close was exercised. Issue #14 is `ready-for-human` pending Git authorization.
+
+## 2026-07-19 Fingerprint Timeout Cleanup
+
+- Commands: pre-fix/post-fix focused fingerprint test; combined fingerprint/video/comment tests; full `npm test`; `npm run build`; `git diff --check`; scoped caller/diff review; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: The pre-fix test observed a `null` fallback with zero timeout cleanups. `getBuvid` now clears the existing timer in `finally`. Codex independently verified one fetch, one cleanup, preserved `null`, 28/28 related tests, and 178/178 full-suite tests across 20 files; build and diff checks passed.
+- Caveat: No live Bilibili fingerprint failure, package contents, public interface, commit, push, release, or Issue close was exercised. Issue #15 is `ready-for-human` pending Git authorization.

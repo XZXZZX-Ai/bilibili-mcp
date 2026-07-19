@@ -7,7 +7,7 @@ Your job is evidence-based verification. Do not make code changes unless explici
 
 For stabilization or release-related changes, verify:
 - npm run build passes
-- npm test passes after a real test runner is added; before that, report that npm test is still a stub
+- npm test passes
 - npm pack --dry-run is checked for package or publish-content changes
 - build/test/package commands are run from the repository root and reported with exact pass/fail status
 - release gates are evaluated in order: worktree scope, build, tests, package dry-run, secret scan, MCP compatibility

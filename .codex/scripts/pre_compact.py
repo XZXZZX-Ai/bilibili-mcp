@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from plan_tracker import resolve_active_plan
+from plan_tracker import resolve_active_work
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -59,7 +59,7 @@ def main() -> int:
     payload = read_payload()
     branch = run_git(["branch", "--show-current"])
     status = run_git(["status", "--short"])
-    roadmap = resolve_active_plan()
+    active_work = resolve_active_work()
 
     lines = [
         f"# {args.agent} pre-compact checkpoint",
@@ -73,8 +73,8 @@ def main() -> int:
         "## Git Status",
         status or "Clean or unavailable.",
         "",
-        "## Active Roadmap",
-        str(roadmap),
+        "## Active Work",
+        str(active_work),
         "",
         "## Resume Guidance",
         "- Re-read AGENTS.md, CLAUDE.md, and docs/agent-memory before substantial work.",

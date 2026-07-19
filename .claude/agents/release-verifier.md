@@ -12,7 +12,7 @@ Your job is to verify readiness and report evidence. Do not make code changes un
 Checklist:
 
 - `npm run build` passes.
-- `npm test` passes after a real test runner is added; before that, explicitly report the stub status.
+- `npm test` passes.
 - `npm pack --dry-run` shows expected package contents for release-related changes.
 - Package entry points target `dist`.
 - Smithery runtime config, scripts, and dependency are absent when Task 3 is in scope.

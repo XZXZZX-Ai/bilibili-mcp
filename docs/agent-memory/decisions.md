@@ -107,3 +107,79 @@
 - Decision: Do not name DeepSeek V4 as the fixed Claude Code execution model.
 - Reason: The user clarified that Claude Code may no longer be using DeepSeek V4, and the concrete model can change by user choice or runtime configuration.
 - Evidence: `AGENTS.md` and older planning prompts were updated to describe Claude Code as the implementation tool without hard-coding a model.
+
+## 2026-06-18
+
+- Decision: Sync `domain-modeling` and `codebase-design` to both Codex and Claude Code, with narrow fixed triggers.
+- Reason: These skills complement the existing release, security, test, package, and Git workflows only when terminology, durable decisions, module interfaces, seams, adapters, testability structure, or non-trivial refactors are actually in scope.
+- Evidence: `AGENTS.md` and `CLAUDE.md` now define when these skills must be used and when they should not be invoked.
+
+- Decision: Add narrow fixed triggers for `product-requirements` and `system-design`.
+- Reason: New user-facing features and ambiguous MCP tool behavior need requirements clarification before implementation, while broad cross-module architecture changes need system design; neither should run for routine scoped fixes.
+- Evidence: `AGENTS.md` and `CLAUDE.md` now require `product-requirements` for unclear/new feature scope and `system-design` for broad architecture work only.
+
+- Decision: Add explicit `codex-security` security-scan triggers alongside the existing secret-scanning and project risk-review rules.
+- Reason: Credential scanning, project risk review, and Codex Security cover different layers; repository-wide MCP security scans, attack-path analysis, security diff review, validation, and validated finding fixes should use the dedicated Codex Security skills when available.
+- Evidence: `AGENTS.md` and `CLAUDE.md` now define when to use `codex-security` and how Claude Code should fall back when that runtime does not expose the skill.
+
+- Decision: Treat `docs/agent-memory/codemap.md` as a structural navigation artifact that must be checked after relevant code or harness changes.
+- Reason: Codex and Claude Code need a durable, low-cost map of runtime entry points, MCP tool flow, tests, release files, and harness files; stale navigation causes repeated exploration and weaker handoffs.
+- Evidence: `AGENTS.md` and `CLAUDE.md` now require updating the codemap when structural changes would make it stale, or explicitly reporting that it was checked and left unchanged.
+
+- Decision: Add `docs/templates/task-ticket.md` as an optional execution-ticket template.
+- Reason: Roadmaps and PRDs sometimes need smaller independently executable tickets with dependencies, acceptance criteria, verification gates, capability triggers, and stop/report conditions, but small already-scoped fixes should still use a direct Codex handoff.
+- Evidence: `docs/templates/task-ticket.md` defines the template; `AGENTS.md` and `CLAUDE.md` define when Codex and Claude Code should use it.
+
+- Decision: Use a three-tier standard for task tickets.
+- Reason: The user wants task tickets available for consistency without turning small scoped fixes into unnecessary paperwork.
+- Evidence: `AGENTS.md`, `CLAUDE.md`, and `docs/templates/task-ticket.md` now define: no ticket for <=30 minute tasks without public behavior change; use a ticket for multi-file, test, security, package/release, or MCP tool work; require a ticket for PRD, roadmap, multi-task split, or Claude Code loop work.
+
+- Decision: Add a research-note template and `docs/research/` cache for external facts.
+- Reason: External documentation, SDK/API behavior, third-party repositories, npm/GitHub release behavior, and security guidance can drift; material findings should be cached with sources and staleness conditions instead of being buried in chat.
+- Evidence: `docs/templates/research-note.md`, `docs/research/README.md`, `AGENTS.md`, and `CLAUDE.md` now define when to create research notes and when local worktree facts should be verified directly instead.
+
+- Decision: Add an optional QA checklist template for real user workflow validation.
+- Reason: Automated build, tests, pack, and security checks do not fully cover MCP client installation, stdio cleanliness, credential states, README install accuracy, npm latest behavior, or post-release client smoke checks.
+- Evidence: `docs/templates/qa-checklist.md`, `docs/qa/README.md`, `AGENTS.md`, and `CLAUDE.md` now define when QA checklists should be used and when they are unnecessary.
+
+- Decision: Add `docs/agent-memory/harness-security.md` as the security baseline for the agent harness.
+- Reason: The repository now contains rules, hooks, skills, subagents, generated learning queues, handoffs, templates, research notes, and QA notes that can influence agent behavior; these surfaces need explicit trust-boundary, no-secret, and review rules.
+- Evidence: `docs/agent-memory/harness-security.md`, `docs/agent-memory/README.md`, `AGENTS.md`, and `CLAUDE.md` now define when harness security review applies.
+
+- Decision: Add `docs/agent-memory/harness-eval.md` for periodic evaluation of the agent workflow.
+- Reason: The harness now includes multiple rules, skills, subagents, hooks, templates, memory files, handoffs, research notes, and QA notes; the project needs a way to decide which parts reduce risk or repeated work and which parts add unnecessary overhead.
+- Evidence: `docs/agent-memory/harness-eval.md`, `docs/agent-memory/README.md`, `AGENTS.md`, and `CLAUDE.md` now define when workflow evaluation should happen.
+
+- Decision: Add non-mutating Stop hook reminders for harness artifacts.
+- Reason: Codemap, harness-security, and harness-eval require contextual judgment and should not be auto-edited by hooks, but lightweight path-based reminders can reduce missed checks after relevant code or harness changes.
+- Evidence: `.codex/scripts/stop_summary.py` now adds stop-summary reminders based on `git status --short` path patterns while preserving JSON-safe stdout and avoiding automatic artifact mutation.
+
+- Decision: Require Claude reports to include explicit harness artifact status.
+- Reason: Hooks can only provide path-based reminders; the executing agent must make the contextual judgment about whether task tickets, research notes, QA checklists, codemap updates, harness-security review, or harness-eval apply.
+- Evidence: `docs/agent-memory/agent-communication.md`, `CLAUDE.md`, and `AGENTS.md` now require a `Harness Artifacts` section in Claude reports.
+
+## 2026-07-19
+
+- Decision: Use the installed `mattpocock/skills` collection as the feature-development workflow and do not invoke Superpowers skills.
+- Reason: Matt's discovery, specification, dependency-aware ticketing, implementation, diagnosis, and review flow fits the existing manual Codex-to-Claude model when project-specific safeguards remain authoritative.
+- Evidence: `AGENTS.md`, `CLAUDE.md`, and `docs/agents/` define the routing and repository setup.
+
+- Decision: Store Matt specifications and tickets in GitHub Issues while keeping file-backed Codex-to-Claude handoffs as execution contracts.
+- Reason: Issues provide durable dependencies and triage state; handoffs carry repository-specific file scope, verification, rollback, security, and stop conditions without duplicating a second local ticket.
+- Evidence: `docs/agents/issue-tracker.md` and `docs/agent-memory/agent-communication.md`.
+
+- Decision: Repository Git authorization overrides the upstream `implement` skill's default commit step.
+- Reason: This project only commits, pushes, or opens pull requests after explicit user authorization.
+- Evidence: Matt workflow sections in `AGENTS.md` and `CLAUDE.md`.
+
+- Decision: Remove historical Superpowers plans from active runtime context without deleting the historical files.
+- Reason: The user explicitly chose not to use Superpowers; startup, plan tracking, pre-compact checkpoints, learning-state pointers, and context-budget accounting must not treat old Superpowers artifacts as current work.
+- Evidence: `docs/agent-memory/active-work.md`, `.codex/scripts/plan_tracker.py`, `session-start.ps1`, `pre_compact.py`, `generate_learning_proposals.py`, and `context_budget.py`.
+
+- Decision: Let Codex drive Claude Code through the Paseo CLI instead of requiring manual user orchestration.
+- Reason: The user wants the existing Codex-decides, Claude-implements split without manually moving prompts or supervising Claude Code.
+- Evidence: `AGENTS.md`, `CLAUDE.md`, `docs/agent-memory/agent-communication.md`, and the live Paseo orchestration preference file.
+
+- Decision: Limit default Paseo execution to one bounded Claude Code implementation agent and preserve all existing scope, security, verification, and Git authorization gates.
+- Reason: Paseo should remove handoff friction without introducing autonomous teams, concurrent overlapping edits, hard-coded models, or broader mutation authority.
+- Evidence: Paseo execution rules in `AGENTS.md` and `docs/agent-memory/agent-communication.md`.

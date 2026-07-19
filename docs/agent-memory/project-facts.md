@@ -69,3 +69,87 @@
 - Fact: Codex and Claude Code learning proposal runtime state is synchronized to the completed credential guidance implementation plan.
 - Evidence: `python .codex/scripts/plan_tracker.py` returns `docs\superpowers\plans\2026-06-05-credential-guidance-mcp-tools-implementation-plan.md`; both Codex and Claude `learning-proposal-phase-state.json` files point to that plan with `completed_phase_count` 8.
 - Impact: Phase-gated learning reminders no longer treat the old `v1.4.0` release execution plan as active work; `pending-learning-proposals.md` reporting `No Proposals` remains a normal controlled-learning state.
+
+## 2026-06-18
+
+- Fact: `domain-modeling` and `codebase-design` are installed for both Codex and Claude Code.
+- Evidence: Codex copies live under `C:\Users\ZX\.codex\skills\domain-modeling` and `C:\Users\ZX\.codex\skills\codebase-design`; Claude Code copies live under `C:\Users\ZX\.claude\skills\domain-modeling` and `C:\Users\ZX\.claude\skills\codebase-design`.
+- Impact: Handoffs may name these skills for appropriate domain-language or module-design work, but ordinary bug fixes, package maintenance, releases, and narrow edits should not invoke them by default.
+
+- Fact: `product-requirements` and `system-design` are available to Claude Code and documented in the project workflow.
+- Evidence: Claude Code skill copies exist under `C:\Users\ZX\.claude\skills\product-requirements` and `C:\Users\ZX\.claude\skills\system-design`; `AGENTS.md` and `CLAUDE.md` define narrow fixed triggers for them.
+- Impact: Use `product-requirements` for unclear or new user-facing feature scope, and `system-design` for broad cross-module architecture decisions; skip both for already-scoped bug fixes, releases, package maintenance, and local refactors.
+
+## 2026-07-19
+
+- Fact: The current upstream Matt Pocock engineering and productivity skill names are present in both Codex and Claude Code skill roots.
+- Evidence: Live GitHub API directory listing for `mattpocock/skills` was compared with `C:\Users\ZX\.codex\skills` and `C:\Users\ZX\.claude\skills`; no current name was missing.
+- Impact: Repository integration requires routing and configuration, not another global installation.
+
+- Fact: The Matt workflow is configured for GitHub Issues, the default five triage labels, and a single-context domain-doc layout.
+- Evidence: User decisions on 2026-07-19, `docs/agents/issue-tracker.md`, `triage-labels.md`, and `domain.md`; live `gh label list` verification found all five labels after the four missing labels were created.
+- Impact: Matt skills can use a consistent tracker and vocabulary; absent `CONTEXT.md` and ADRs are created lazily when needed.
+
+- Fact: Superpowers skills are disabled for this repository by explicit user decision.
+- Evidence: `AGENTS.md`, `CLAUDE.md`, and `docs/agent-memory/active-work.md`; runtime scripts resolve active work without reading `docs/superpowers/`.
+- Impact: Historical files under `docs/superpowers/` remain for audit only and cannot be used as current instructions or skill triggers.
+
+- Fact: Paseo CLI is the execution bridge from Codex handoffs to Claude Code.
+- Evidence: `paseo` resolves to `C:\Users\ZX\.local\bin\paseo.cmd`; `C:\Users\ZX\.paseo\orchestration-preferences.json` maps `providers.impl` to a Claude provider; `AGENTS.md` and `docs/agent-memory/agent-communication.md` define the bounded launch contract.
+- Impact: Codex launches, monitors, and reviews Claude Code work; the user no longer transfers handoffs or operates Claude Code manually.
+
+- Fact: Concurrent `throttledFetch` calls now reserve FIFO admission turns and start at the configured rate-limit interval while response bodies may overlap.
+- Evidence: `src/bilibili/http.ts`, `tests/bilibili-http.test.ts`, and Codex verification recorded in `docs/agent-memory/verification-log.md`.
+- Impact: Shared WBI and non-WBI request callers no longer batch concurrent starts after waiting on the same stale promise.
+
+- Fact: Both transcript and video-info subtitle flows use one private empty-list credential verification helper.
+- Evidence: `verifyLoginForEmptySubtitles` in `src/bilibili/subtitle.ts`, the regression in `tests/bilibili-transcript.test.ts`, and GitHub Issue #3.
+- Impact: A logged-out empty subtitle list now produces `COOKIE_EXPIRED` before transcript description fallback, while logged-in fallback and `NoSubtitleError` behavior remain unchanged.
+
+- Fact: `getVideoInfoWithSubtitle` does not cache description fallbacks created by transient/general subtitle retrieval errors.
+- Evidence: GitHub Issue #4, the retry regression in `tests/bilibili-transcript.test.ts`, and the error-fallback branch in `src/bilibili/subtitle.ts`.
+- Impact: A later call can retry subtitle retrieval after a temporary failure, while successful subtitle results remain cached and `COOKIE_EXPIRED` still propagates.
+
+- Fact: Explicit-limit comment cache entries include `detailLevel` as well as limit, sort, and reply inclusion.
+- Evidence: GitHub Issue #5, `src/bilibili/comments.ts`, and the brief-versus-detailed collision regression in `tests/bilibili-comments-tool.test.ts`.
+- Impact: Brief and detailed comment requests no longer reuse incompatible processed results when their explicit limits match.
+
+- Fact: `npm test` is the repository's real Vitest verification gate, not a stub.
+- Evidence: `package.json` maps `test` to `vitest run`; Issue #6 corrected current rules in `AGENTS.md`, `CLAUDE.md`, and four callable agent definitions; Codex verified 17 files and 160 tests.
+- Impact: Codex, Claude Code, build/package agents, and release verifiers now require and report the actual test result.
+
+- Fact: The MCP stdio startup smoke test waits for the actual stderr ready signal with bounded failure and child-process cleanup.
+- Evidence: GitHub Issue #7 and `tests/mcp-server-smoke.test.ts`; Codex's original loop failed at iteration 6, the latency probe measured up to 453ms, and the final event-driven test passed 20/20 stress iterations.
+- Impact: Full-suite verification no longer depends on a fixed 300ms startup guess while stdout cleanliness and startup logging remain covered.
+
+- Fact: Comment metadata lookup is owned only by `comments-api.ts`, where `aid || cid` is required for the upstream oid.
+- Evidence: GitHub Issue #8, `src/bilibili/comments.ts`, `src/bilibili/comments-api.ts`, and the focused no-outer-metadata-call regression.
+- Impact: Each uncached processed-comment request avoids one redundant Bilibili video-info request without changing comment API arguments, caching, or response shaping.
+
+- Fact: The documented comment `limit` range of 1-50 is implemented through bounded sequential pagination above the upstream per-page maximum of 20.
+- Evidence: GitHub Issue #9, `src/bilibili/comments.ts`, and the pagination regressions in `tests/bilibili-comments-tool.test.ts`.
+- Impact: Requests above 20 fetch pages of at most 20 until the requested top-level count or upstream exhaustion, while detailed-mode child reply expansion and public response shape remain unchanged.
+
+- Fact: Bilibili login-status checks distinguish a successful logged-out response from HTTP, timeout, and connection failures.
+- Evidence: GitHub Issue #10, `checkLoginStatus` and `throttledFetch` in `src/bilibili/http.ts`, HTTP regressions, and the MCP-level `NETWORK_ERROR` regression.
+- Impact: Credential checks no longer misreport an unavailable nav endpoint as invalid credentials; network failures use the existing structured retryable error path without exposing Cookie values.
+
+- Fact: Explicit HTTP status codes are authoritative in the shared retry policy.
+- Evidence: GitHub Issue #11, `src/utils/retry.ts`, and the 403/503/status-less matrix in `tests/retry.test.ts`.
+- Impact: Allowed transient statuses still retry, explicit non-retryable statuses fail immediately, and connection errors without an HTTP status retain type/code-based retries.
+
+- Fact: Subtitle-content HTTP failures preserve the upstream response status on `NetworkError`.
+- Evidence: GitHub Issue #12, `src/bilibili/video-api.ts`, and the focused 403 regression in `tests/bilibili-video-api.test.ts`.
+- Impact: Non-retryable subtitle statuses fail after one request, while the shared transient-status and status-less transport retry rules remain effective.
+
+- Fact: WBI nav HTTP failures preserve their response status before retry classification and through the final wrapped error.
+- Evidence: GitHub Issue #13, `src/bilibili/wbi.ts`, and the focused 403 regression in `tests/bilibili-wbi.test.ts`.
+- Impact: Non-retryable WBI statuses fail after one fetch and remain diagnosable, while existing transient and transport retries are unchanged.
+
+- Fact: Native WBI fetch `TypeError` failures are normalized before shared retry classification, and each attempt clears its request timeout.
+- Evidence: GitHub Issue #14, the local fetch-boundary `try/catch/finally` in `src/bilibili/wbi.ts`, and the focused transport regression in `tests/bilibili-wbi.test.ts`.
+- Impact: Connection failures receive the configured four attempts without leaking per-attempt timeout timers or inventing an HTTP status.
+
+- Fact: Optional buvid fingerprint requests clear their timeout on both success and failure.
+- Evidence: GitHub Issue #15, the `finally` cleanup in `src/bilibili/fingerprint.ts`, and `tests/bilibili-fingerprint.test.ts`.
+- Impact: A rejected fingerprint fetch still performs one attempt and resolves `null` without leaving its request timer pending.

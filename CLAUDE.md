@@ -2,7 +2,7 @@
 
 This file configures Claude Code behavior for `C:\Users\ZX\bilibili-mcp`.
 
-Claude Code is the execution model for this repository. Codex is the planning, direction, review, and risk-control model. The user manually orchestrates both tools.
+Claude Code is the execution model for this repository. Codex is the planning, direction, review, risk-control, and Paseo orchestration model.
 
 Do not hard-code, change, or suggest fixed model configuration unless the user explicitly asks for that exact configuration change.
 
@@ -25,7 +25,7 @@ Do not default to:
 - spawning subagents or extra workflows
 - changing model or tool configuration
 
-If a decision should go back to Codex, stop and state the decision point. The user decides whether to ask Codex.
+If a decision should go back to Codex, stop and state the decision point in the report. Codex owns the follow-up through Paseo.
 
 ## Before Acting
 
@@ -39,28 +39,25 @@ Before substantial work:
 
 If the task comes from a Codex handoff, follow the handoff first. Do not assume extra context that is not written in the handoff or visible in the repository.
 
+If the task comes from a task ticket based on `docs/templates/task-ticket.md` or a GitHub issue produced by the Matt Pocock workflow, treat the ticket as the planning boundary. Follow its dependencies and acceptance criteria, then use the Codex handoff as the execution boundary for files, verification gates, required capabilities, rollback, and stop/report conditions.
+
+Task ticket standard:
+
+- Task takes 30 minutes or less and has no public behavior change: no task ticket required; a direct Codex handoff is enough.
+- Task touches multiple files, tests, security, package/release workflow, or MCP tool behavior: use a task ticket.
+- Task comes from a PRD, roadmap, multi-task split, or Claude Code loop workflow: task ticket is required.
+
 If the task is underspecified:
 
 - ask for the missing boundary
 - do not silently choose a larger scope
 - do not turn a small fix into a broad refactor
 
-## Active Stabilization Plan
+## Active Work
 
-Near-term implementation work should follow:
+There is no active local Superpowers plan. Follow the user-approved GitHub Issue/Matt ticket and its bounded Codex handoff. See `docs/agent-memory/active-work.md`.
 
-- `docs/superpowers/plans/2026-05-27-stabilization-roadmap.md`
-
-Default task order:
-
-1. Remove hard-coded Bilibili credentials without removing Cookie-based access.
-2. Fix npm package entry points to use `dist`.
-3. Remove unused Smithery config, scripts, and dependency.
-4. Add a minimal real test baseline.
-5. Clean published package contents.
-6. Run final build, test, and package verification.
-
-Do not split `src/bilibili/client.ts` or add new MCP tools until the stabilization plan is complete and verified.
+Files under `docs/superpowers/` are historical records only. Do not treat them as current instructions or invoke any `superpowers:*` skill.
 
 ## Project Memory
 
@@ -72,6 +69,7 @@ Before implementing a Codex handoff or doing substantial repository work, Claude
 - `docs/agent-memory/project-facts.md`
 - `docs/agent-memory/decisions.md`
 - `docs/agent-memory/lessons-learned.md`
+- `docs/agent-memory/harness-eval.md` when a roadmap phase, release, or significant harness update should be evaluated
 
 When asked to capture memory, append concise dated entries to the relevant file:
 
@@ -80,6 +78,8 @@ When asked to capture memory, append concise dated entries to the relevant file:
 - `decisions.md` for durable choices
 - `lessons-learned.md` for corrections and repeated pitfalls
 - `project-facts.md` for stable repository facts
+- `codemap.md` for durable changes to code navigation, module ownership, MCP tool flow, test layout, package/release files, or agent harness structure
+- `harness-eval.md` for periodic workflow evaluations after roadmap phases, releases, significant harness updates, or repeated process friction
 
 Do not store secrets, full Cookie values, `.env` content, npm tokens, GitHub tokens, or unverified guesses in memory.
 
@@ -135,24 +135,17 @@ When given a bounded task:
 
 ## Development Commands
 
-Use this as the default verification command:
+Use these as the default verification commands:
 
 ```bash
 npm run build
+npm test
 ```
-
-The current `npm test` script is a stub that exits with an error. Do not treat `npm test` as a valid passing test suite unless real tests are added later.
 
 For package or publishing changes, also run:
 
 ```bash
 npm pack --dry-run
-```
-
-After a real test runner is added, run:
-
-```bash
-npm test
 ```
 
 Manual scripts exist at the repository root, including:
@@ -229,6 +222,7 @@ Disallowed example:
 - When replacing hard-coded credentials in a script, preserve the script's ability to work when the user supplies valid environment variables.
 - Do not print full credential values in logs or final reports.
 - If you find a real credential in a tracked file, remove or externalize it and report that the user should rotate the exposed credential.
+- For changes to agent harness surfaces such as `AGENTS.md`, `CLAUDE.md`, `.claude/`, `.codex/`, hooks, skills, subagents, MCP/tool connector guidance, `docs/agent-memory/`, `docs/templates/`, `docs/research/`, or `docs/qa/`, review `docs/agent-memory/harness-security.md` and preserve its trust-boundary and no-secret rules.
 
 ## Package And Smithery Rules
 
@@ -258,15 +252,15 @@ Disallowed example:
 - Commands or paths stored inside JSON, TOML, hooks, MCP config, or other cross-shell configuration should prefer absolute forward-slash paths when possible.
 - Do not write configuration that depends on the current working directory unless the tool explicitly requires it.
 
-## No Auto-Orchestration
+## Paseo-Bounded Orchestration
 
-This repository is manually orchestrated by the user.
+Codex launches Claude Code through Paseo from a bounded handoff. Claude Code remains an implementation worker, not the workflow owner.
 
-- Do not assume permission to delegate to Codex or any other system.
+- Do not invoke Paseo or delegate to another top-level agent from inside the implementation run.
 - Do not create subagent trees by default.
 - Do not transform a simple execution request into a multi-agent process.
-- Do not switch tools automatically.
-- If the implementation direction is unclear, stop and report the decision point.
+- Use at most one named project subagent when a fixed trigger requires it.
+- If the implementation direction is unclear, stop and report the decision point to Codex.
 
 ## Markdown Agent Communication
 
@@ -276,8 +270,32 @@ Codex and Claude Code should communicate substantial implementation work through
 - Prefer Codex handoffs under `docs/agent-memory/handoffs/YYYY-MM-DD-<topic>-codex-to-claude.md` for release, package, credential, MCP tool, and multi-file implementation work.
 - Return a Markdown report using the template in `agent-communication.md`; if writing a file, use `docs/agent-memory/handoffs/YYYY-MM-DD-<topic>-claude-report.md`.
 - A Claude report must include files changed, commands run, command results, skipped checks, unresolved risks, decision points, and suggested Codex review focus.
+- A Claude report must include a `Harness Artifacts` section that explicitly states: task ticket used/not required with reason; research note created/not required with reason; QA checklist created/not required with reason; codemap updated/checked unchanged/not applicable; harness security reviewed/not applicable; harness eval updated/deferred/not applicable.
 - If the handoff is missing required context, ask for clarification or report the missing context instead of guessing.
 - Do not include secrets, full Cookie values, `.env` contents, npm tokens, GitHub tokens, or private credentials in handoff/report Markdown.
+
+## Agent skills
+
+### Issue tracker
+
+Specs and tickets produced by Matt Pocock skills live in GitHub Issues for `XZXZZX-Ai/bilibili-mcp`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Use the default Matt triage vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, and `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+This is a single-context repository. Read the root `CONTEXT.md` and relevant ADRs under `docs/adr/` when they exist; create them lazily only when domain language or durable decisions need them. See `docs/agents/domain.md`.
+
+### Workflow routing
+
+- Prefer the installed Matt Pocock skills for feature discovery, specification, ticket splitting, bounded implementation, difficult bug diagnosis, and code review.
+- Use `grill-with-docs` for unclear feature work, `to-spec` then `to-tickets` for multi-session work, and `implement` for one approved bounded ticket.
+- A Matt issue remains the planning source; follow the file-backed Codex handoff as the execution boundary and return the normal Claude report.
+- When launched by Paseo, write the requested report file before finishing so Codex can review the result without hidden session context.
+- Do not run the `implement` skill's commit step unless the user explicitly requested a commit. Follow the Git Skill Awareness rules instead.
+- Do not invoke any `superpowers:*` skill. Use the Matt workflow and the repository's narrower project-specific skills. Do not create autonomous agent teams or bypass security and verification rules.
 
 ## Capability Invocation Rules
 
@@ -295,6 +313,11 @@ Skill usage:
 - If the user or Codex handoff names a skill, use it or report that it is unavailable.
 - Use `vitest` for adding, changing, or diagnosing the test baseline.
 - Use `secret-scanning` before commit/publish/PR work when changed or staged files touch credentials, Cookie handling, `.env` examples, package contents, workflow secrets, or release configuration.
+- Use `codex-security` only when it is available in the current runtime and the task is a repository-wide security scan, MCP security review, attack-path analysis, security diff scan, validation of non-trivial findings, or a fix for validated security findings. If unavailable in Claude Code, report that and use `secret-scanning`, `risk-reviewer`, or `credential-sanitizer` as the closest local fallback.
+- Use `product-requirements` only when a new feature, new MCP tool, public behavior change, or unclear request needs requirements clarification before planning; do not use it for already-scoped implementation, bug fixes, release work, or package maintenance.
+- Use `system-design` only for broad architecture decisions that affect multiple modules, data/control flow, deployment/runtime shape, or long-term maintainability; prefer `codebase-design` for smaller module-interface or seam work.
+- Use `domain-modeling` only when the task changes or formalizes project language, core concepts, glossary terms, or durable architectural decisions; do not invoke it for ordinary bug fixes, package maintenance, release work, or code review that only consumes existing terminology.
+- Use `codebase-design` only when designing or changing module interfaces, seams, adapter boundaries, testability structure, or a non-trivial refactor; do not invoke it for narrow edits that leave module shape unchanged.
 - Use the Git skills in the Git Skill Awareness section for commit, push, PR, CI, review-comment, and GitHub Actions workflows.
 - Do not assume a skill under `C:\Users\ZX\.agents\skills` or `C:\Users\ZX\.codex\skills` is available to Claude Code unless it also exists under `C:\Users\ZX\.claude\skills`.
 
@@ -303,6 +326,7 @@ MCP/tool usage:
 - Use the local repository and shell commands as the authority for worktree state, package metadata, tests, build output, and diffs.
 - Use GitHub tooling or GitHub skills for live PRs, issues, review comments, Actions logs, remote checks, and repository state.
 - Use docs-grounded tools or installed documentation skills for GitHub Actions, npm publishing, MCP SDK, OpenAI/Codex behavior, or any external behavior likely to have changed.
+- When external research materially affects implementation, release workflow, security conclusions, third-party examples, or architecture decisions, use `docs/templates/research-note.md` and save the note under `docs/research/`. Do not create research notes for local worktree facts.
 - Do not guess remote state, current documentation, or MCP behavior from memory when a tool or official source can verify it.
 
 Fixed MCP/tool triggers:
@@ -340,11 +364,16 @@ Fixed invocation triggers:
 
 - For tests, test helpers, fixtures, Vitest configuration, or diagnosing test failures, use the `vitest` skill. Use `test-baseline-builder` when adding or maintaining deterministic test coverage.
 - For credential, Cookie, `.env`, token, redaction, package-secret, pre-commit secret, or pre-publish secret-risk work, use `secret-scanning`. Use `credential-sanitizer` for credential cleanup and `risk-reviewer` for post-change leak review.
+- For MCP security review, repository-wide security scanning, attack-path analysis, security diff review, or fixing validated security findings, prefer Codex with `codex-security`; in Claude Code, report if that skill is unavailable and use `risk-reviewer`, `credential-sanitizer`, or `secret-scanning` only for the bounded local portion.
 - For `npm run build`, TypeScript, Node ESM, import/export, MCP compilation, or failing build output, use `build-error-resolver`.
 - For `package.json`, `package-lock.json`, npm scripts, package entry points, package contents, `npm pack --dry-run`, or Smithery cleanup, use `package-maintainer`.
 - For release, tag, npm publish, GitHub Release, provenance, trusted publishing, or final release readiness work, use `release-verifier` before reporting completion. Use `github-actions-docs` for workflow/OIDC/npm documentation questions.
 - For completed changes that affect MCP tools, credentials, package publishing, release workflow, or shared Bilibili API behavior, use `risk-reviewer` before reporting the change as accepted.
 - For GitHub Actions, npm publishing workflow YAML, OIDC, permissions, secrets, runners, artifacts, or caching, use `github-actions-docs`; for concrete failed checks or publish runs, use `gh-fix-ci`.
+- For new MCP tools, feature additions, public response-shape changes, or ambiguous user-facing behavior where success criteria are not yet clear, use `product-requirements` before implementation or report that requirements are missing.
+- For cross-module architecture changes, new runtime subsystems, major flow redesigns, or changes that affect both MCP tool boundaries and Bilibili integration structure, use `system-design` before implementation; skip it for local refactors where `codebase-design` is sufficient.
+- For work that defines or renames project concepts such as BVID handling, credential source, transcript/subtitle semantics, MCP tool terminology, fallback behavior, or error categories, use `domain-modeling` and record the resulting durable term or decision only when it actually crystallizes.
+- For work that splits `src/bilibili/client.ts`, reshapes `src/server.ts` handlers, introduces or removes adapters/seams, changes shared Bilibili API module interfaces, or redesigns test seams, use `codebase-design` before implementation or when following a Codex handoff that names it.
 - For local commit only, use `git-local-commit`; for commit plus push, use `git-publish`; for branch plus draft PR workflow, use `yeet` only when explicitly requested.
 - For substantial planning, roadmap synchronization, handoffs, verification records, or durable project rules, use `bilibili-mcp-memory` and update the matching `docs/agent-memory/` file when a verified durable fact, decision, lesson, handoff, or verification result is produced.
 
@@ -381,6 +410,10 @@ This repository uses the following Git skill workflow:
 - `github-actions-docs`: use for docs-grounded GitHub Actions workflow authoring, OIDC, secrets, runners, artifacts, caching, and npm publish workflow guidance. Installed for Claude Code at `C:\Users\ZX\.claude\skills\github-actions-docs`.
 - `secret-scanning`: use for secret scanning, push protection, custom patterns, and remediation guidance. Installed for Claude Code at `C:\Users\ZX\.claude\skills\secret-scanning`.
 - `vitest`: use when adding or maintaining the minimal Vitest test baseline. Installed for Claude Code at `C:\Users\ZX\.claude\skills\vitest`.
+- `product-requirements`: use only when unclear or new user-facing functionality needs requirements clarification before implementation. Installed for Claude Code at `C:\Users\ZX\.claude\skills\product-requirements`.
+- `system-design`: use only for broad architecture decisions or cross-module design work, not routine refactors. Installed for Claude Code at `C:\Users\ZX\.claude\skills\system-design`.
+- `domain-modeling`: use only when project terminology, domain concepts, glossary entries, or durable architectural decisions are being defined or changed. Installed for Claude Code at `C:\Users\ZX\.claude\skills\domain-modeling`.
+- `codebase-design`: use only when designing module interfaces, seams, adapter boundaries, testability structure, or non-trivial refactors. Installed for Claude Code at `C:\Users\ZX\.claude\skills\codebase-design`.
 
 Use `github-actions-docs` for workflow design and official documentation guidance. Use `gh-fix-ci` for specific failing checks and log inspection.
 
@@ -431,7 +464,9 @@ When returning work to the user or Codex, report:
 - commands run
 - command results
 - package dry-run result when package metadata or publish contents changed
-- test status, including whether `npm test` is still a stub
+- test status
+- whether `docs/agent-memory/codemap.md` was updated, or why it was checked and left unchanged
+- harness artifacts status: task ticket, research note, QA checklist, codemap, harness security, and harness eval
 - what remains uncertain
 - blockers or follow-ups
 
@@ -450,3 +485,5 @@ Good behavior in this repository looks like:
 - package metadata points at `dist`
 - encoding does not get worse
 - verification is explicit
+- `docs/agent-memory/codemap.md` stays synchronized when structural code, MCP tool flow, tests, release flow, or harness navigation changes
+- `docs/templates/qa-checklist.md` is used under `docs/qa/` when changes affect release/install paths, npm package contents, MCP stdio startup, tool discovery, public tool schemas/responses, credential setup/checking, README install guidance, or post-release client verification

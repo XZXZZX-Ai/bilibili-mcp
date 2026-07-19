@@ -40,8 +40,7 @@ def main() -> int:
         ROOT / "AGENTS.md",
         ROOT / "CLAUDE.md",
         ROOT / "docs" / "agent-memory" / "README.md",
-        ROOT / "docs" / "superpowers" / "plans" / "2026-05-27-stabilization-roadmap.md",
-        ROOT / "docs" / "superpowers" / "specs" / "2026-05-28-agent-hooks-design.md",
+        ROOT / "docs" / "agent-memory" / "active-work.md",
     ]
     rows: list[tuple[str, int, int]] = []
     for path in files:

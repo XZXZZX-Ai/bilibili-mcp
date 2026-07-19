@@ -13,6 +13,9 @@ Project-local hooks are enabled as a later upgrade. They can load bounded startu
 - `lessons-learned.md`: corrections, mistakes, and reusable operating lessons.
 - `handoff-log.md`: Codex-to-Claude execution handoffs and Claude-to-Codex reports.
 - `verification-log.md`: important command results and verification caveats.
+- `codemap.md`: concise navigation index for runtime entry points, MCP tool flow, Bilibili integration, tests, package/release files, and agent harness files.
+- `harness-security.md`: security baseline and review checklist for agent harness surfaces such as rules, hooks, skills, subagents, MCP/tool config, memory, handoffs, templates, research, and QA notes.
+- `harness-eval.md`: periodic evaluation record for whether skills, subagents, hooks, templates, memory, handoffs, and fixed triggers improve the workflow or add unnecessary process.
 - `context-budget-report.md`: lightweight context overhead audit for always-relevant agent docs and project hooks.
 - `pending-learning-proposals.md`: generated review queue for candidate lessons that require Codex and user approval before promotion.
 
@@ -25,6 +28,7 @@ Project-local hooks are enabled as a later upgrade. They can load bounded startu
 - A verification result changes the known project state.
 - A repeated pitfall is discovered.
 - Broad hooks, MCP servers, rules, skills, or always-loaded instructions are added and context overhead should be rechecked.
+- A roadmap phase, release, or significant harness update completes and the agent workflow itself should be evaluated.
 
 ## Do Not Store
 
@@ -60,4 +64,4 @@ Promotion remains manual:
 
 Do not treat pending proposals as formal memory.
 
-Review reminders are phase-gated. The hook state automatically resolves the current incomplete implementation plan under `docs/superpowers/plans/`, compares completed `### Task N` sections in that active plan, and only reminds after the completed phase count increases.
+The active-work pointer is `docs/agent-memory/active-work.md`. Because Matt work is tracked in GitHub Issues instead of a local phase plan, phase-count reminders remain inactive; proposal review and promotion are still manual.

@@ -38,12 +38,12 @@ if ($Status) {
     Write-Output "Clean or git status unavailable."
 }
 
-Write-Section "Active Roadmap"
+Write-Section "Active Work"
 $Tracker = Join-Path $Root ".codex\scripts\plan_tracker.py"
 if (Test-Path -LiteralPath $Tracker) {
     python $Tracker 2>$null
 } else {
-    Write-Output "docs/superpowers/plans/2026-05-27-stabilization-roadmap.md"
+    Write-Output "docs/agent-memory/active-work.md"
 }
 
 Write-Preview (Join-Path $MemoryRoot "README.md") "Memory README" 35

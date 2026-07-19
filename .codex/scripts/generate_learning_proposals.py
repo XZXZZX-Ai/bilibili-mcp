@@ -7,7 +7,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any
 
-from plan_tracker import resolve_active_plan, task_section_completed_count
+from plan_tracker import resolve_active_work, task_section_completed_count
 
 ROOT = Path(__file__).resolve().parents[2]
 PROPOSAL_PATH = ROOT / "docs" / "agent-memory" / "pending-learning-proposals.md"
@@ -96,19 +96,19 @@ def phase_boundary_message(source: str, proposal_count: int) -> str | None:
     state_path = runtime / "learning-proposal-phase-state.json"
     reminder_path = runtime / "learning-proposal-reminder.md"
 
-    previous_plan = None
+    previous_work = None
     previous = 0
     if state_path.exists():
         try:
             state = json.loads(state_path.read_text(encoding="utf-8"))
             previous = int(state.get("completed_phase_count", 0))
-            previous_plan = state.get("active_plan")
+            previous_work = state.get("active_work") or state.get("active_plan")
         except (ValueError, json.JSONDecodeError, AttributeError):
             previous = 0
 
-    active_plan = resolve_active_plan(previous_plan)
-    completed = task_section_completed_count(active_plan)
-    if previous_plan and Path(str(previous_plan)) != active_plan:
+    active_work = resolve_active_work()
+    completed = task_section_completed_count(active_work)
+    if previous_work and Path(str(previous_work)) != active_work:
         previous = 0
 
     state_path.write_text(
@@ -116,7 +116,7 @@ def phase_boundary_message(source: str, proposal_count: int) -> str | None:
             {
                 "completed_phase_count": completed,
                 "updated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
-                "active_plan": str(active_plan),
+                "active_work": str(active_work),
             },
             ensure_ascii=False,
             indent=2,
@@ -128,7 +128,7 @@ def phase_boundary_message(source: str, proposal_count: int) -> str | None:
     if completed > previous and proposal_count > 0:
         message = (
             f"Learning proposal review reminder: completed plan phases increased "
-            f"from {previous} to {completed} for {active_plan.name}. Review {PROPOSAL_PATH} and approve with "
+            f"from {previous} to {completed} for {active_work.name}. Review {PROPOSAL_PATH} and approve with "
             "the agreed approval phrase if the proposals should be promoted."
         )
         reminder_path.write_text(message + "\n", encoding="utf-8")

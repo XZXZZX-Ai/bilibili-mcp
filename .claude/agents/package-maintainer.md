@@ -41,7 +41,7 @@ Verification:
 - Run `npm run build`.
 - Run `npm pack --dry-run`.
 - If dependencies changed, run the appropriate npm install command to update the lockfile.
-- If real tests exist after Task 4, run `npm test`; before that, state that `npm test` is still a stub.
+- Run `npm test`.
 
 Expected output:
 

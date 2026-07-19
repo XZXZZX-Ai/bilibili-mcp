@@ -99,10 +99,15 @@ Before release-oriented work, verify local package state with `npm pack --dry-ru
 - `docs/agent-memory/harness-security.md`: trust-boundary and safety baseline for rules, hooks, skills, subagents, MCP/tool config, memory, handoffs, templates, research, and QA notes.
 - `docs/agent-memory/harness-eval.md`: periodic workflow evaluation file for deciding whether harness components reduce risk/rework or add overhead.
 - `docs/agent-memory/pending-learning-proposals.md`: generated learning proposal queue; not formal memory until reviewed and approved.
+- `docs/agent-memory/active-work.md`: current Matt/GitHub work pointer and explicit no-Superpowers rule.
+- `C:\Users\ZX\.paseo\orchestration-preferences.json`: live provider routing for Paseo-managed implementation; read before launch and do not copy model choices into repository config.
 - `docs/agent-memory/context-budget-report.md`: context overhead audit for always-loaded rules and hooks.
 - `docs/templates/task-ticket.md`: optional execution-ticket template used under the three-tier ticket standard.
 - `docs/templates/research-note.md`: external-fact research cache template.
 - `docs/templates/qa-checklist.md`: human-facing QA checklist template for release/install/MCP/credential/client flows.
+- `docs/agents/issue-tracker.md`: GitHub issue operations and remote-write boundaries for Matt Pocock skills.
+- `docs/agents/triage-labels.md`: canonical Matt triage roles mapped to GitHub labels.
+- `docs/agents/domain.md`: single-context `CONTEXT.md` and `docs/adr/` consumption rules.
 - `docs/research/`: cached research notes for external facts that affect project decisions.
 - `docs/qa/`: human-facing QA checklist instances.
 
@@ -117,6 +122,7 @@ Claude reports must include a `Harness Artifacts` section covering task ticket, 
 - `.codex/scripts/generate_learning_proposals.py`: generated proposal queue writer.
 - `.codex/scripts/context_budget.py`: context budget auditing.
 - `.codex/scripts/stop_summary.py`: lightweight stop summaries, strategic compact advice, phase learning reminders, and non-mutating harness artifact reminders for codemap, harness-security, and harness-eval checks.
+- `.codex/scripts/test_stop_summary.py`: deterministic stdlib-only tests for path matching and all three reminder branches.
 - `.codex/scripts/pre_compact.py`: pre-compact checkpoint support.
 - `.codex/scripts/post_tool_use.py`: failed shell observation capture and candidate scoring.
 
@@ -143,6 +149,8 @@ Codex custom agents:
 - `.codex/agents/release-verifier.toml`: release readiness verification.
 
 Fixed skill trigger details live in `AGENTS.md` and `CLAUDE.md`. Do not assume Codex skills, `.agents\skills`, and Claude Code skills are shared unless the skill exists in the target runtime.
+
+Matt Pocock workflow skills are installed in both Codex and Claude Code. GitHub Issues hold Matt specs and tickets, substantial Claude implementation continues through file-backed handoffs, and Codex uses Paseo CLI to launch one bounded implementation agent. Do not invoke Superpowers skills; project Git, security, verification, and no-autonomous-team rules override conflicting skill defaults.
 
 ## Common Change Routes
 

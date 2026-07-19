@@ -65,3 +65,65 @@
 - Lesson: Credential-status tests that assert `source: none` must hide the developer machine's global Bilibili config.
 - Evidence: Focused credential guidance tests failed on a machine with global credentials configured because `credentialManager.clearCredentials()` only clears in-memory state and does not remove `~/.bilibili-mcp/config.json`.
 - Future behavior: Mock or isolate global config file detection when testing the no-credential branch; do not depend on a developer machine having no configured Cookies.
+
+## 2026-07-19
+
+- Lesson: A single promise that represents only the current rate-limit wait does not form a concurrent request queue.
+- Evidence: Three simultaneous `throttledFetch` calls produced a minimum start gap of about `0.155ms` against a configured `500ms` interval because multiple callers awaited the same old promise and then waited together.
+- Future behavior: Reserve a caller's place synchronously in a normalized promise chain, test concurrent starts directly, and distinguish prior queue time from the caller's own timeout-covered wait.
+
+- Lesson: A completed Paseo top-level task can remain `running` when a requested Claude subagent does not return.
+- Evidence: Both `test-baseline-builder` and `risk-reviewer` invocations failed to return promptly even though the top-level agent completed the implementation, verification, and report; Codex explicitly stopped only that agent after preserving its output.
+- Future behavior: Use bounded wait windows, let the top-level agent complete the same scoped work when a subagent stalls, and stop the finished agent without restarting the Paseo daemon or touching unrelated agents.
+
+- Lesson: Adding a second public subtitle flow without reusing the existing empty-list credential policy caused documented behavior to drift.
+- Evidence: `getVideoInfoWithSubtitle` verified login on an empty subtitle list, while `getVideoTranscriptData` silently returned description when fallback was enabled; the focused test reproduced the mismatch in 9ms.
+- Future behavior: Keep credential interpretation in one private helper and test the documented public interface whenever a sibling flow is added or changed.
+
+- Lesson: A fallback intended to keep an operation available must not be cached when the triggering error may be transient.
+- Evidence: The general subtitle-error branch cached a description fallback for one hour, so a second call with a successful mocked subtitle response still returned `description` and never retried `getVideoSubtitle`.
+- Future behavior: Test fallback cache policy with two calls using the same key: transient failure first, recovery second; preserve caching only for durable successful results.
+
+- Lesson: Cache keys must include every option that changes post-processing, not only options sent to the upstream API.
+- Evidence: With an explicit limit, brief and detailed comment calls shared `limit-5` even though detailed mode appends child replies; the second call returned the cached one-comment brief result instead of four processed comments.
+- Future behavior: For option-sensitive caches, add paired-call tests that vary one output-affecting option while holding upstream pagination options constant.
+
+- Lesson: Correcting always-loaded agent rules is incomplete if callable custom-agent definitions keep the same stale instruction.
+- Evidence: After `AGENTS.md` and `CLAUDE.md` were corrected, completion audit found four `.claude/agents` and `.codex/agents` files still directing agents to treat `npm test` as a stub.
+- Future behavior: When a durable harness fact changes, scan all current rule consumers while preserving dated historical records; do not limit verification to the two top-level instruction files.
+
+- Lesson: Process readiness tests should wait for the observable ready event, not an elapsed-time guess.
+- Evidence: The stdio smoke test killed the server after 300ms; 5 of 20 measured starts needed more than 300ms even though all succeeded, producing empty-stderr flakes.
+- Future behavior: Use a bounded event-driven readiness promise, reject on spawn error or premature exit, register close observation before kill, and await cleanup; keep the internal timeout below the test framework timeout.
+
+- Lesson: Wrapper layers should not prefetch data that the delegated API layer already owns, especially when the fetched value is unused.
+- Evidence: `getVideoCommentsData` fetched video info and assigned `cid` without reading it, while `getVideoComments` immediately fetched the same metadata to compute the required oid.
+- Future behavior: Trace ownership through compatibility re-exports before optimizing; lock the wrapper boundary with a dependency-call regression, then delete the unused request instead of adding metadata parameters.
+
+- Lesson: A validated public maximum is not implemented if a lower layer silently caps one request below it and the orchestration never paginates.
+- Evidence: Comment `limit` accepted 1-50, but the API capped `ps` at 20 and the wrapper requested only page 1; the failing-first regression observed one call instead of page sizes 20, 20, and 10.
+- Future behavior: When public counts exceed upstream page sizes, test the boundary with sequential page calls, early exhaustion, defensive truncation, and any post-processing that can expand the final result.
+
+- Lesson: A boolean status helper must not collapse transport failure into a definitive negative state.
+- Evidence: `checkLoginStatus` returned `isLogin:false` for HTTP 503 and thrown fetch failures, causing credential callers to treat an unknown network state as logged out.
+- Future behavior: Reuse the shared HTTP path, preserve successful false responses only, and verify both the low-level error type and the public MCP structured error shape.
+
+- Lesson: A retry allowlist is ineffective when a later broad error-type check can override a rejected explicit status.
+- Evidence: `NetworkError` with status 403 missed the transient status allowlist but then matched the generic `NetworkError` name branch and executed four attempts.
+- Future behavior: Treat an explicit numeric status as a final allowlist decision; use name/code retries only when no HTTP status exists, and lock all three branches in one compact matrix.
+
+- Lesson: A correct retry policy still fails when one HTTP caller omits status metadata while constructing its shared error type.
+- Evidence: `getSubtitleContent` received HTTP 403 but created `NetworkError` without `response.status`, so the error looked status-less and retried four times.
+- Future behavior: When adding an HTTP error call site, preserve the response status and test retry behavior through the real caller seam, not only through the retry utility.
+
+- Lesson: Error metadata must survive both the original throw and any outer wrapping layer.
+- Evidence: The WBI nav path omitted `navRes.status` at the source and its outer catch created another `NetworkError` without carrying nested status metadata.
+- Future behavior: Trace shared errors end to end; a regression should assert both retry count and the final observable metadata.
+
+- Lesson: Transport errors must be normalized before retry classification, and request timers need cleanup on failure as well as success.
+- Evidence: Raw WBI `TypeError` reached `withRetry` unrecognized and stopped after one attempt, while `clearTimeout` was skipped because it followed the failed await.
+- Future behavior: Put normalization and cleanup at the fetch boundary with `try/catch/finally`, then assert attempts, cleanup count, and final error metadata together.
+
+- Lesson: Optional best-effort requests still need deterministic resource cleanup even when failure is intentionally swallowed.
+- Evidence: `getBuvid` correctly returned `null` on fetch rejection but skipped `clearTimeout`, leaving the timer pending.
+- Future behavior: Keep fallback semantics separate from cleanup guarantees, and assert both the fallback result and exact request/cleanup counts.
