@@ -940,3 +940,15 @@
 - Commands: annotated tag push; GitHub Actions run inspection; `npm view @xzxzzx/bilibili-mcp`; post-publish `npx -y @xzxzzx/bilibili-mcp@1.6.4 --help`; npm attestation lookup; GitHub Release inspection; GitHub Issue closure checks.
 - Result: The initial tag-triggered run failed before install because `npm@latest` resolved to npm 12.0.1, whose Node engine excluded the workflow's Node 22.14.0. Commit `3fd6f6f` pins npm 11.18.0, whose engine supports Node 22.14.0; the manual rerun `29695975757` then passed install, tests, build, and trusted publication. npm reports version/latest 1.6.4 with SLSA provenance, the fresh CLI help smoke passes, the non-draft GitHub Release exists, and Issues #2-#15 are closed.
 - Caveat: The annotated `v1.6.4` tag remains on release commit `47b5486`; the workflow-only compatibility fix is the next commit on `master` and was used by the successful manual publish. The Actions runtime emitted a non-blocking notice that `actions/checkout@v4` and `actions/setup-node@v4` are forced from Node 20 to Node 24 by GitHub.
+
+## 2026-07-20 MCP Server Version Synchronization
+
+- Commands: Paseo-managed Claude Code implementation; `npm run build`; `npm test`; compiled `dist/server.js` metadata comparison against `package.json.version`; `git diff --check`; narrow `test-baseline-builder` and `risk-reviewer` reviews.
+- Result: `src/server.ts` now reuses the root package version through the same Node ESM file-loading pattern already used by the CLI. The regression compares MCP SDK server metadata with `package.json.version`. Codex independently verified 20 test files and 181 tests, a clean build, and compiled server metadata version `1.6.4`.
+- Caveat: The regression reads the SDK's private `_serverInfo` field, matching the repository's existing test-only `_requestHandlers` access. No dependency, package version, tool schema, response shape, release action, commit, or push changed; CRLF warnings remain informational.
+
+## 2026-07-20 v1.6.5 Source Preparation
+
+- Commands: `npm version 1.6.5 --no-git-tag-version`; `npm run build`; `npm test`; `npm audit --omit=dev --json`; `npm pack --dry-run --json`; compiled entry checks; clean-UTF-8 checks; intended-added-content credential scan; `git diff --check`; live `npm view`; `git fetch origin master`; Paseo `release-verifier` review.
+- Result: Package and lockfile now report `1.6.5`; Chinese and English changelogs describe the MCP metadata version fix. Codex independently verified 20 files and 181 tests, a clean build, zero production vulnerabilities, 120 expected tarball entries with main/types/bin present and tests/internal handoffs excluded, zero high-confidence secret hits in intended added content, and no local/remote master divergence before commit.
+- Caveat: The requested Paseo `package-maintainer` repair could not finish because the Paseo daemon stopped and repository rules prohibit restarting it without approval; Codex completed the same package metadata, dependency-diff, tarball-content, and lockfile checklist directly. No tag, npm publish, GitHub Release, or workflow change was performed.

@@ -156,3 +156,17 @@
 - Files in scope: `src/bilibili/fingerprint.ts`, `tests/bilibili-fingerprint.test.ts`, and the Codex/Claude handoff reports.
 - Constraints: Move only existing cleanup into a guaranteed path; no retry, abstraction, fallback/cache/caller change, prior dirty-work reversal, Superpowers, or Git mutation.
 - Result: Paseo agent `314f3acd-c916-4267-864f-6a6c20cd4782` moved cleanup into `finally`. `risk-reviewer` accepted the diff; `test-baseline-builder` added the missing one-fetch assertion. Codex independently verified 28 related and 178 full-suite tests, build, and diff checks before marking Issue #15 `ready-for-human` and archiving the agent. No commit or push was performed.
+
+## 2026-07-20 MCP Server Version Synchronization
+
+- Owner: Codex created a bounded local task ticket and launched Paseo agent `f0bd3173-6b18-497a-8392-f28e6667bc32` for implementation.
+- Objective: Remove the stale hard-coded MCP server version and prevent future drift from `package.json.version`.
+- Files in scope: `src/server.ts`, `tests/mcp-server-smoke.test.ts`, and the Codex/Claude handoff records.
+- Result: The agent reused the CLI's existing Node ESM package-version loading pattern and added one Vitest regression. Codex independently verified the compiled server reports `1.6.4`, all 181 tests and the build pass, and no package, dependency, tool, credential, release, commit, or push change occurred.
+
+## 2026-07-20 v1.6.5 Source Preparation
+
+- Owner: Codex created a bounded task ticket and launched Paseo agent `0fb72c3f-dff0-4dc1-96d6-027979b8a628` for package-source preparation.
+- Objective: Prepare the MCP metadata fix as patch version `1.6.5` for a scoped commit and push without triggering publication.
+- Files in scope: package metadata, bilingual changelogs, prior version-fix source/test files, and handoff/verification records; the generated learning-proposal file remained excluded.
+- Result: The agent synchronized package versions and changelogs; `release-verifier` found no blocker. The Paseo daemon stopped before the requested `package-maintainer` repair completed, so Codex performed the equivalent package/lock/tarball audit, independently passed all release gates, and retained tag/npm publication as a separate unauthorized step.

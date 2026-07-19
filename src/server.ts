@@ -5,6 +5,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
+import fs from "fs";
 import { redactSecrets } from "./utils/logger.js";
 import { toolSchemas } from "./server/tool-schemas.js";
 import { handleToolCall } from "./server/tool-handlers.js";
@@ -13,11 +14,15 @@ import {
   toErrorTextContent,
 } from "./server/error-response.js";
 
+const packageJson = JSON.parse(
+  fs.readFileSync(new URL("../package.json", import.meta.url), "utf8")
+);
+
 // 创建 MCP 服务器实例
 export const server = new Server(
   {
     name: "bilibili-mcp-server",
-    version: "1.0.0",
+    version: packageJson.version,
   },
   {
     capabilities: {

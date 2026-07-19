@@ -21,6 +21,16 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.6.5] - 2026-07-20
+
+### Fixed
+- MCP server metadata version now reads from `package.json` at runtime instead of the hard-coded `"1.0.0"`, so tool discovery surfaces the actual package version.
+
+### Verification
+- Passed 181 tests across 20 Vitest files, the TypeScript build, production dependency audit, npm package dry-run, and credential-pattern scan.
+
+---
+
 ## [1.6.3] - 2026-06-19
 
 ### Fixed

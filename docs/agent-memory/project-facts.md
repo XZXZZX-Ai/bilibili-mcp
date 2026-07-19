@@ -156,6 +156,10 @@
 
 ## 2026-07-20
 
+- Fact: MCP server initialization metadata reads its version from the root `package.json` instead of maintaining a separate hard-coded value.
+- Evidence: `src/server.ts`, the version regression in `tests/mcp-server-smoke.test.ts`, and Codex verification against compiled `dist/server.js`.
+- Impact: Future package version updates automatically remain aligned with the version reported to MCP clients.
+
 - Fact: v1.6.4 is the current published npm and GitHub release.
 - Evidence: npm registry metadata and SLSA attestation for `@xzxzzx/bilibili-mcp@1.6.4`, successful GitHub Actions run `29695975757`, and GitHub Release `v1.6.4`.
 - Impact: Issues #2 through #15 are released and closed; future work starts from npm/latest 1.6.4 and `master` after commit `3fd6f6f`.

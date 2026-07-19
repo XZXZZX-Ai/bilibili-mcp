@@ -1,8 +1,10 @@
 import { spawn } from "node:child_process";
 import { execSync } from "node:child_process";
+import fs from "node:fs";
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { getMcpHandler } from "./helpers/mcp.js";
+import { server } from "../src/server.js";
 
 type ListToolsRequest = {
   method: "tools/list";
@@ -102,5 +104,17 @@ describe("MCP stdio entrypoint", () => {
       "get_video_transcript",
       "get_video_metadata",
     ]);
+  });
+
+  it("server metadata version matches package.json version", () => {
+    const pkg = JSON.parse(
+      fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+    );
+
+    type ServerWithInfo = { _serverInfo?: { name: string; version: string } };
+    const info = (server as unknown as ServerWithInfo)._serverInfo;
+
+    expect(info).toBeDefined();
+    expect(info!.version).toBe(pkg.version);
   });
 });
