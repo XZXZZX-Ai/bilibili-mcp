@@ -1,5 +1,5 @@
 // 评论处理逻辑
-import { getVideoInfo, getVideoComments } from "./client.js";
+import { getVideoComments } from "./client.js";
 import {
   Comment,
   CommentOptions,
@@ -109,7 +109,7 @@ export async function getVideoCommentsData(
   const bvid = extractBVId(bvidOrUrl);
 
   // 生成缓存键：包含有效的 detailLevel/limit/sort/includeReplies
-  const cacheDetail = limit !== undefined ? `limit-${limit}` : detailLevel;
+  const cacheDetail = limit !== undefined ? `${detailLevel}-limit-${limit}` : detailLevel;
   const cacheKey = cacheManager.generateKey(
     "comments",
     bvid,
@@ -128,23 +128,42 @@ export async function getVideoCommentsData(
 
     logger.debug("Comments cache miss", { bvid, cacheKey }, { type: "comments" });
 
-    // 获取视频基本信息以获取 CID
-    const videoData = await getVideoInfo(bvid);
-    const cid = videoData.cid;
-
     // 评论数量：优先使用显式 limit，否则根据 detailLevel 决定
     const commentCount = limit ?? (detailLevel === "brief" ? 10 : 20);
 
-    // 获取评论
-    const commentsData = (await getVideoComments(
-      bvidOrUrl,
-      1,
-      commentCount,
-      sort,
-      includeReplies,
-    )) as CommentsResponse;
-
-    const rawComments = commentsData?.replies || [];
+    // 获取评论：limit ≤ 20 单次请求，> 20 顺序分页拉取
+    let rawComments: Comment[];
+    if (commentCount <= 20) {
+      const commentsData = (await getVideoComments(
+        bvidOrUrl,
+        1,
+        commentCount,
+        sort,
+        includeReplies,
+      )) as CommentsResponse;
+      rawComments = commentsData?.replies || [];
+    } else {
+      rawComments = [];
+      let page = 1;
+      let remaining = commentCount;
+      while (remaining > 0) {
+        const pageSize = Math.min(remaining, 20);
+        const pageData = (await getVideoComments(
+          bvidOrUrl,
+          page,
+          pageSize,
+          sort,
+          includeReplies,
+        )) as CommentsResponse;
+        const pageReplies = pageData?.replies || [];
+        if (pageReplies.length === 0) break;
+        rawComments.push(...pageReplies);
+        if (pageReplies.length < pageSize) break;
+        remaining -= pageReplies.length;
+        page++;
+      }
+      rawComments = rawComments.slice(0, commentCount);
+    }
 
     // 处理评论
     let processedComments = rawComments.map((comment) =>

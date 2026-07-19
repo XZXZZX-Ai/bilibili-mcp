@@ -74,6 +74,12 @@ afterEach(() => {
 });
 
 describe("getVideoCommentsData - old positional API", () => {
+  it("does not fetch video metadata before delegating to the comments API", async () => {
+    await getVideoCommentsData("BV1T6PQzQErF");
+
+    expect(mockGetVideoInfo).not.toHaveBeenCalled();
+  });
+
   it("brief default: passes pageSize 10, sort 1, includeReplies true", async () => {
     await getVideoCommentsData("BV1T6PQzQErF");
 
@@ -199,6 +205,23 @@ describe("getVideoCommentsData - new options API", () => {
 });
 
 describe("getVideoCommentsData - cache key behavior", () => {
+  it("does not share cached results between brief and detailed modes with the same limit", async () => {
+    const brief = await getVideoCommentsData("BV1T6PQzQErF", {
+      detailLevel: "brief",
+      limit: 5,
+      includeReplies: true,
+    });
+    const detailed = await getVideoCommentsData("BV1T6PQzQErF", {
+      detailLevel: "detailed",
+      limit: 5,
+      includeReplies: true,
+    });
+
+    expect(brief.comments).toHaveLength(1);
+    expect(detailed.comments).toHaveLength(4);
+    expect(mockGetVideoComments).toHaveBeenCalledTimes(2);
+  });
+
   it("different options produce different cache keys", async () => {
     // First call
     await getVideoCommentsData("BV1T6PQzQErF", { limit: 5, sort: "hot" });
@@ -216,5 +239,145 @@ describe("getVideoCommentsData - cache key behavior", () => {
     // Same params -> same cache key -> should NOT call API again
     await getVideoCommentsData("BV1T6PQzQErF", { limit: 3, sort: "time" });
     expect(mockGetVideoComments.mock.calls.length).toBe(callsBefore);
+  });
+});
+
+describe("getVideoCommentsData - pagination for limits above 20", () => {
+  it("limit: 50 fetches pages 1, 2, 3 with page sizes 20, 20, 10", async () => {
+    mockGetVideoComments.mockImplementation(
+      async (_url: string, page: number, pageSize: number, _sort: number, _includeReplies: boolean) => {
+        const start = (page - 1) * 20 + 1;
+        return { replies: Array.from({ length: pageSize }, (_, i) => ({
+          rpid: start + i,
+          member: { uname: `User${start + i}`, avatar: "" },
+          content: { message: `Comment ${start + i}` },
+          like: start + i,
+          replies: [],
+        })) };
+      },
+    );
+
+    await getVideoCommentsData("BV1T6PQzQErF", { limit: 50, includeReplies: false });
+
+    const calls = mockGetVideoComments.mock.calls;
+    expect(calls).toHaveLength(3);
+    expect(calls[0][1]).toBe(1);
+    expect(calls[0][2]).toBe(20);
+    expect(calls[1][1]).toBe(2);
+    expect(calls[1][2]).toBe(20);
+    expect(calls[2][1]).toBe(3);
+    expect(calls[2][2]).toBe(10);
+  });
+
+  it("limit: 50 returns exactly 50 top-level comments", async () => {
+    mockGetVideoComments.mockImplementation(
+      async (_url: string, page: number, pageSize: number, _sort: number, _includeReplies: boolean) => {
+        const start = (page - 1) * 20 + 1;
+        return { replies: Array.from({ length: pageSize }, (_, i) => ({
+          rpid: start + i,
+          member: { uname: `User${start + i}`, avatar: "" },
+          content: { message: `Comment ${start + i}` },
+          like: start + i,
+          replies: [],
+        })) };
+      },
+    );
+
+    const result = await getVideoCommentsData("BV1T6PQzQErF", { limit: 50, includeReplies: false });
+
+    expect(result.comments).toHaveLength(50);
+    expect(result.summary.total_comments).toBe(50);
+  });
+
+  it("stops early when a page returns empty", async () => {
+    mockGetVideoComments.mockImplementation(
+      async (_url: string, page: number, pageSize: number, _sort: number, _includeReplies: boolean) => {
+        if (page === 1) {
+          return { replies: Array.from({ length: pageSize }, (_, i) => ({
+            rpid: i + 1,
+            member: { uname: `User${i + 1}`, avatar: "" },
+            content: { message: `Comment ${i + 1}` },
+            like: i + 1,
+            replies: [],
+          })) };
+        }
+        return { replies: [] };
+      },
+    );
+
+    const result = await getVideoCommentsData("BV1T6PQzQErF", { limit: 50, includeReplies: false });
+
+    expect(mockGetVideoComments).toHaveBeenCalledTimes(2);
+    expect(result.comments).toHaveLength(20);
+  });
+
+  it("stops early when a page returns fewer than requested", async () => {
+    mockGetVideoComments.mockImplementation(
+      async (_url: string, page: number, _pageSize: number, _sort: number, _includeReplies: boolean) => {
+        if (page === 1) {
+          return { replies: Array.from({ length: 20 }, (_, i) => ({
+            rpid: i + 1,
+            member: { uname: `User${i + 1}`, avatar: "" },
+            content: { message: `Comment ${i + 1}` },
+            like: i + 1,
+            replies: [],
+          })) };
+        }
+        return { replies: Array.from({ length: 5 }, (_, i) => ({
+          rpid: 21 + i,
+          member: { uname: `User${21 + i}`, avatar: "" },
+          content: { message: `Comment ${21 + i}` },
+          like: 21 + i,
+          replies: [],
+        })) };
+      },
+    );
+
+    const result = await getVideoCommentsData("BV1T6PQzQErF", { limit: 50, includeReplies: false });
+
+    expect(mockGetVideoComments).toHaveBeenCalledTimes(2);
+    expect(result.comments).toHaveLength(25);
+  });
+
+  it("limit at or below 20 still makes a single request", async () => {
+    await getVideoCommentsData("BV1T6PQzQErF", { limit: 20, includeReplies: false });
+    expect(mockGetVideoComments).toHaveBeenCalledTimes(1);
+    expect(mockGetVideoComments).toHaveBeenCalledWith("BV1T6PQzQErF", 1, 20, 1, false);
+
+    vi.clearAllMocks();
+
+    await getVideoCommentsData("BV1T6PQzQErF", { limit: 5, includeReplies: false });
+    expect(mockGetVideoComments).toHaveBeenCalledTimes(1);
+    expect(mockGetVideoComments).toHaveBeenCalledWith("BV1T6PQzQErF", 1, 5, 1, false);
+  });
+
+  it("detailed mode with limit: 50 does not multiply reply expansion", async () => {
+    const makeCommentWithReplies = (id: number) => ({
+      rpid: id,
+      member: { uname: `User${id}`, avatar: "" },
+      content: { message: `Comment ${id}` },
+      like: id,
+      replies: [
+        {
+          rpid: id * 100,
+          member: { uname: `Replier${id}`, avatar: "" },
+          content: { message: `reply to ${id}` },
+          like: 1,
+        },
+      ],
+    });
+
+    mockGetVideoComments.mockImplementation(
+      async (_url: string, page: number, pageSize: number, _sort: number, _includeReplies: boolean) => {
+        const start = (page - 1) * 20 + 1;
+        return { replies: Array.from({ length: pageSize }, (_, i) => makeCommentWithReplies(start + i)) };
+      },
+    );
+
+    const result = await getVideoCommentsData("BV1T6PQzQErF", { limit: 50, detailLevel: "detailed" });
+
+    // 50 top-level + 50 expanded replies = 100
+    expect(result.comments).toHaveLength(100);
+    expect(result.summary.total_comments).toBe(100);
   });
 });
