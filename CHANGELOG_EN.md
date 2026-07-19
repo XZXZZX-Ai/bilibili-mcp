@@ -4,6 +4,23 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.6.4] - 2026-07-20
+
+### Fixed
+- Concurrent HTTP requests now receive start admission at the configured interval while response bodies remain free to overlap.
+- Empty subtitle lists share one login-status check, and description fallbacks caused by transient subtitle failures are no longer cached.
+- Comment cache keys include detail level and explicit limit; redundant metadata lookup was removed; bounded pagination now honors `limit: 1-50`.
+- Login-status, subtitle, and WBI requests preserve HTTP status for retry decisions, normalize transport failures, and clean up request timers deterministically.
+- The MCP stdio startup test now waits for the observable ready signal instead of a fixed 300ms delay.
+
+### Security
+- Updated the transitive Hono dependency from 4.12.23 to 4.12.31, clearing the high-severity production dependency audit finding.
+
+### Verification
+- Passed 180 tests across 20 Vitest files, the TypeScript build, production dependency audit, npm package dry-run, MCP stdio smoke, and credential-pattern scan.
+
+---
+
 ## [1.6.3] - 2026-06-19
 
 ### Fixed

@@ -100,3 +100,70 @@ Remove or stop using:
 - [ ] `harness-security.md`
 - [ ] `AGENTS.md`
 - [ ] `CLAUDE.md`
+
+### 2026-07-20 Harness Eval: v1.6.4 multi-ticket release preparation
+
+#### Period
+
+- Start: 2026-07-19
+- End: 2026-07-20 pre-release review
+- Related tasks, tickets, releases, or plans: GitHub Issues #2-#15 and v1.6.4
+
+#### Harness Changes Under Review
+
+- Matt GitHub tickets, file-backed Codex-to-Claude handoffs, one-agent Paseo execution, project QA records, capability triggers, and stop-summary reminders.
+
+#### Signals
+
+Useful positive signals:
+
+- Focused tickets kept thirteen reliability fixes independently testable and made the final release diff separable into scoped commits.
+- File-backed handoffs and reports preserved exact commands, constraints, skipped checks, and decision points across repeated implementation runs.
+- Release review found and fixed two missing WBI retry regressions, added direct hook-script tests, excluded the generated learning queue, and caught a production Hono advisory before publication.
+
+Useful negative signals:
+
+- Repeated per-ticket reports created substantial documentation volume, and several delegated risk-review subagents stalled or needed top-level fallback review.
+- The final release still required a separate consolidation pass to distinguish production blockers from development-only audit findings.
+
+Candidate metrics:
+
+- task-ticket uses: 14 GitHub Issues
+- QA checklists created: release plus focused comment-pagination QA
+- issues caught before release: missing WBI retry coverage, untested hook branching, production Hono advisory, generated learning queue exclusion
+- issues missed until after release: 0 at pre-release cutoff
+- subagent/skill trigger mismatches: 0; stalled reviews were completed through bounded fallback
+
+#### Findings
+
+- The workflow improved containment and auditability for a multi-ticket release, but the per-ticket reporting layer is heavier than necessary for future low-risk changes.
+- One Paseo implementation agent remains the right default. Independent release verification adds value at the final boundary; additional autonomous agent trees would add noise.
+
+#### Keep / Change / Remove
+
+Keep:
+
+- GitHub ticket as planning source, file-backed handoff for substantial implementation, one Paseo agent, focused tests, and independent final release verification.
+
+Change:
+
+- Use lighter reports for single-file, behavior-preserving fixes and consolidate repeated verification evidence into the release QA record.
+
+Remove or stop using:
+
+- Do not retry stalled review subagents indefinitely; use the documented top-level bounded fallback and record the gap.
+
+#### Decisions Or Follow-Up
+
+- [ ] Address development-only npm audit findings in a separate tooling-maintenance task rather than broadening v1.6.4.
+- [ ] Re-evaluate report volume after the next multi-ticket release.
+
+#### Memory Updates Needed
+
+- [x] `project-facts.md`
+- [ ] `decisions.md`
+- [x] `lessons-learned.md`
+- [x] `codemap.md`
+- [x] `harness-security.md`
+- [x] `AGENTS.md`
+- [x] `CLAUDE.md`

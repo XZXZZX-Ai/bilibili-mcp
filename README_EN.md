@@ -6,7 +6,7 @@
 
 MCP server that gives AI clients access to Bilibili video subtitles, transcripts, metadata, and popular comments.
 
-View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.6.3](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.6.3)
+View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.6.4](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.6.4)
 
 > [!TIP]
 > ⚠️ You can copy the "Install With Your Agent" prompt below to Codex, Claude Code, Cursor, or another agent and let it add this MCP server to your client and guide Cookie setup. For reliable subtitles, transcripts, and comments, you still need to configure Bilibili Cookies after installation; do not write Cookies into MCP client config. Metadata may work without cookies. See [**Credential Configuration**](#-credential-configuration).
@@ -1439,7 +1439,7 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 
 1.  **Initial Generation**: Core architecture and base logic were rapidly built by **Claude Code** (powered by **GLM-4.7** model).
 2.  **Debugging & Optimization**: Bugs were fixed and features enhanced using **Claude** and **Gemini** models within the **Antigravity** environment, ensuring stable subtitle extraction and comment analysis.
-3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** executes implementation; now covers 30+ AI client MCP configurations, 7 MCP tools, and 145 unit tests.
+3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** executes implementation; now covers 30+ AI client MCP configurations, 7 MCP tools, and 180 unit tests.
 
 ---
 

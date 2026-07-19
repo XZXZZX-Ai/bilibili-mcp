@@ -928,3 +928,9 @@
 - Commands: pre-fix/post-fix focused fingerprint test; combined fingerprint/video/comment tests; full `npm test`; `npm run build`; `git diff --check`; scoped caller/diff review; Paseo Claude implementation; `test-baseline-builder` and `risk-reviewer` reviews.
 - Result: The pre-fix test observed a `null` fallback with zero timeout cleanups. `getBuvid` now clears the existing timer in `finally`. Codex independently verified one fetch, one cleanup, preserved `null`, 28/28 related tests, and 178/178 full-suite tests across 20 files; build and diff checks passed.
 - Caveat: No live Bilibili fingerprint failure, package contents, public interface, commit, push, release, or Issue close was exercised. Issue #15 is `ready-for-human` pending Git authorization.
+
+## 2026-07-20 v1.6.4 Pre-Release Gates
+
+- Commands: `npm ci`; `npm run build`; `npm test`; focused MCP stdio smoke; `.codex/scripts/test_stop_summary.py`; `npm audit --omit=dev --json`; `npm pack --dry-run --json`; package-entry existence checks; high-confidence tracked-file secret scan; `git diff --check`.
+- Result: Build passed; 20 Vitest files and 180 tests passed; the focused stdio smoke passed 2/2; hook tests passed 8/8; the production dependency audit reported zero vulnerabilities; the 1.6.4 tarball contains 120 expected files and excludes tests, local agent configuration, internal docs, and credential files; built main/types/bin targets exist; no high-confidence credential or token pattern was found.
+- Caveat: The full development dependency audit reports four transitive development-tooling advisories (three moderate and one high). They are not production dependencies and are excluded from the published tarball, so they are recorded as non-blocking follow-up maintenance rather than expanded into the v1.6.4 reliability release. Live Bilibili and desktop-client matrix checks were not run.
