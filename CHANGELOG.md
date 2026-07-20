@@ -7,7 +7,7 @@
 ## [1.7.1] - 2026-07-20
 
 ### 文档
-- 中英文 README 发布链接更新为当前已发布的 `v1.7.0`。
+- 中英文 README 发布链接更新为 `v1.7.1`。
 - 补充运行时调节环境变量 `BILIBILI_CACHE_SIZE` 与 `USER_AGENT` 的说明，并标注重启生效。
 - 构建命令措辞更新为“清理 `dist/` 后编译 TypeScript”。
 - 开发过程统计更新为 8 个 MCP 工具、244 个单元测试，并明确 Codex/Paseo/Claude 协作流程。
@@ -19,8 +19,6 @@
 
 ### 验证
 - 通过 23 个 Vitest 文件中的 244 项测试、TypeScript 构建、npm package dry-run 与凭据模式扫描。
-- 源版本 `1.7.1` 仅供源码准备；npm latest 和 GitHub Release 仍为 `1.7.0`，待另行发布。
-
 ---
 
 ## [1.7.0] - 2026-07-20

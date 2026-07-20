@@ -2,7 +2,7 @@
 
 Workflow: Matt Pocock skills with GitHub Issues, bounded Codex-to-Claude handoffs, and Paseo CLI execution.
 
-Active work: none. The README sync and v1.7.1 source-preparation handoff is complete and retained under `docs/agent-memory/handoffs/`.
+Active work: bounded v1.7.1 release execution under `docs/agent-memory/handoffs/2026-07-20-v1.7.1-release-codex-to-claude.md`. Documentation is future-proofed; publication (tag, npm publish, GitHub Release) is pending Codex execution.
 
 Status: version `1.7.0` remains the latest npm and GitHub Release. Source version `1.7.1` contains the README sync and legacy auth/config cleanup; no `v1.7.1` tag, npm publication, or GitHub Release has been created.
 
