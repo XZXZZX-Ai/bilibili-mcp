@@ -177,3 +177,19 @@
 - Objective: Add timestamped/one-sided-or-bounded transcript reads, explicit multi-Part selection, normalized Part discovery, and platform-provided Chapters without changing existing defaults or adding dependencies.
 - Review: Codex's Standards/Spec review found incorrect `view_points` mapping, duplicate default requests, swallowed errors, metadata scope creep, schema drift, and missing package synchronization. Same-scope repairs plus `test-baseline-builder`, `package-maintainer`, `risk-reviewer`, and `release-verifier` closed the findings; a final Codex pass moved cache lookup before networking and aligned returned Part identity with the selected CID.
 - Result: Codex independently passed 93 focused and 243 full-suite tests, build, zero-production-vulnerability audit, 128-file package dry run, real stdio discovery, UTF-8/diff/secret scans, and live read-only checks showing 19 Parts and 6 valid Chapters. Commit `bd15438` was pushed, annotated tag `v1.7.0` triggered successful trusted npm publication, and the non-draft GitHub Release was created.
+
+## 2026-07-20 README Sync And v1.7.1
+
+- Owner: Codex prepared the handoff; Claude Code executed directly.
+- Objective: Bring both READMEs in line with current source facts (8 tools, 244 tests, runtime env vars, build wording, Codex/Paseo/Claude workflow) and prepare source version `1.7.1` without publication.
+- Files in scope: `README.md`, `README_EN.md`, `CHANGELOG.md`, `CHANGELOG_EN.md`, `package.json`, `package-lock.json`, `docs/agent-memory/active-work.md`, `project-facts.md`, `handoff-log.md`, `verification-log.md`.
+- Constraints: No MCP tool, runtime, dependency, test, workflow, or dist/ changes. No commit, push, tag, or publish. Preserve prior task's uncommitted legacy-auth/config cleanup changes. Do not edit `pending-learning-proposals.md`.
+- Verification passed: Codex independently confirmed a clean build, 244/244 tests, npm pack dry-run (`v1.7.1`, 124 entries, no `auth.*` artifacts), diff integrity, README/source consistency, and a scoped added-content secret scan. The delegated risk-reviewer did not finish within its bounded wait, so Codex performed the final review.
+- Unresolved risks: npm latest and GitHub Release remain `v1.7.0` until separately published.
+
+## 2026-07-20 Legacy Auth And Config Cleanup
+
+- Owner: Codex created a bounded local task ticket and launched Paseo agent `85330923-8d1a-45b7-af04-69cdf187ba2b`; the agent used the project `package-maintainer` subagent for the package/build repair.
+- Objective: Delete the unused authentication module, remove inert package configuration, connect runtime cache sizing, remove stale Smithery wording, and prevent deleted modules from surviving in publishable build output.
+- Files in scope: `src/bilibili/auth.ts`, `src/utils/cache.ts`, `src/index.ts`, `tests/cache.test.ts`, `package.json`, the codemap, and task handoff/report records.
+- Result: The unused 220-line module and inert package block were deleted, both caches now use `config.maxCacheSize`, and the build performs a guarded portable `dist` clean before `tsc`. Codex independently verified the clean build, 244/244 tests, a 124-entry package with no `auth.*` or sentinel artifact, scoped reference scans, and `git diff --check`. No commit, push, PR, release, or publish was performed.

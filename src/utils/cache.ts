@@ -3,11 +3,7 @@
  * 使用LRU缓存实现视频信息和评论的缓存
  */
 import QuickLRU from 'quick-lru';
-
-interface CacheOptions {
-  maxSize: number;
-  maxAge: number;
-}
+import { config } from '../config.js';
 
 export class CacheManager<VideoValue = unknown, CommentValue = unknown> {
   private videoCache: QuickLRU<string, VideoValue>;
@@ -20,20 +16,13 @@ export class CacheManager<VideoValue = unknown, CommentValue = unknown> {
   };
 
   constructor() {
-    const defaultOptions: CacheOptions = {
-      maxSize: 100,
-      maxAge: 60 * 60 * 1000 // 1 hour
-    };
-
     this.videoCache = new QuickLRU({
-      ...defaultOptions,
-      maxSize: 100,
+      maxSize: config.maxCacheSize,
       maxAge: 60 * 60 * 1000 // 1 hour for video info
     });
 
     this.commentCache = new QuickLRU({
-      ...defaultOptions,
-      maxSize: 100,
+      maxSize: config.maxCacheSize,
       maxAge: 30 * 60 * 1000 // 30 minutes for comments
     });
   }

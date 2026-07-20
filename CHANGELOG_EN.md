@@ -4,6 +4,25 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.7.1] - 2026-07-20
+
+### Docs
+- Updated both README release links to the current published `v1.7.0`.
+- Documented `BILIBILI_CACHE_SIZE` and `USER_AGENT` runtime tuning environment variables, noting that a restart is required.
+- Updated build command wording to "Clean `dist/` then compile TypeScript".
+- Updated development-process facts to 8 MCP tools, 244 unit tests, and the current bounded Codex/Paseo/Claude workflow.
+
+### Maintenance
+- Deleted the legacy authentication module (`src/bilibili/auth.ts`) and inert package configuration code.
+- Runtime cache capacity is now wired to `config.maxCacheSize`; the previous hard-coded value was removed.
+- `npm run build` cleans `dist/` before TypeScript compilation so deleted modules no longer survive as publishable artifacts.
+
+### Verification
+- Passed 244 tests across 23 Vitest files, the TypeScript build, npm package dry-run, and credential-pattern scan.
+- Source version `1.7.1` is source-prepared only; npm latest and GitHub Release remain `1.7.0` until separately published.
+
+---
+
 ## [1.7.0] - 2026-07-20
 
 ### Added

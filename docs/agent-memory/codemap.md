@@ -7,7 +7,7 @@ This file is a navigation index for `@xzxzzx/bilibili-mcp`. It is not a design s
 - `src/index.ts`: stdio startup entry point. Loads environment configuration and connects the reusable MCP server to `StdioServerTransport`.
 - `src/server.ts`: reusable MCP `Server` instance. Registers `tools/list` and `tools/call`, delegates schemas and handlers, and applies generic secret-redacted error handling.
 - `src/cli.ts`: package CLI entry point for local credential setup and health checks.
-- `src/config.ts`: runtime configuration and preferred subtitle language normalization.
+- `src/config.ts`: runtime configuration (rate limits, timeouts, cache sizing) and preferred subtitle language normalization.
 
 ## MCP Tool Surface
 
@@ -28,7 +28,6 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 
 - `src/bilibili/client.ts`: compatibility-oriented client layer and shared request behavior.
 - `src/bilibili/http.ts`: HTTP helpers and login-status behavior.
-- `src/bilibili/auth.ts`: Bilibili credential/auth helpers.
 - `src/bilibili/wbi.ts`: WBI signing support.
 - `src/bilibili/fingerprint.ts`: buvid/fingerprint support.
 - `src/bilibili/video-api.ts`: video/subtitle/player API calls and response safety checks.
@@ -50,7 +49,7 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 - `src/utils/errors.ts`: domain-specific error classes and codes.
 - `src/utils/logger.ts`: secret redaction and debug logging helpers.
 - `src/utils/retry.ts`: retry behavior with redacted retry logging.
-- `src/utils/cache.ts`: cache wrapper and cache-related types.
+- `src/utils/cache.ts`: LRU cache wrapper using runtime `config.maxCacheSize` from `src/config.ts`.
 - `src/utils/update-check.ts`: npm latest package freshness check and safe update guidance for MCP clients and global installs.
 
 ## Tests

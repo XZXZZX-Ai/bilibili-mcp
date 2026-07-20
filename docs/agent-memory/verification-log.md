@@ -1,5 +1,27 @@
 # Verification Log
 
+## 2026-07-20
+
+- Command: `npm run build`
+- Result: Passed. TypeScript compiled after dist/ clean.
+- Area: v1.7.1 source preparation.
+
+- Command: `npm test`
+- Result: 23 files, 244 tests passed.
+- Area: Full Vitest suite.
+
+- Command: `npm pack --dry-run --json`
+- Result: Version 1.7.1, 124 entries, no auth.* or sentinel artifacts.
+- Area: npm package contents.
+
+- Command: `git diff --check`
+- Result: Clean (LF/CRLF warnings only, expected on Windows).
+- Area: Whitespace/conflict validation.
+
+- Command: scoped status/diff review of `docs/agent-memory/pending-learning-proposals.md`
+- Result: Its pre-existing generated-date modification remains outside this task and is excluded from the commit.
+- Area: Scope boundary enforcement and preservation of user/runtime changes.
+
 ## 2026-05-27
 
 - Command: `npm run build`
@@ -964,3 +986,9 @@
 - Commands: annotated tag creation/push; GitHub Actions run inspection; `npm view @xzxzzx/bilibili-mcp@1.7.0`; npm attestation inspection; published `npx -y @xzxzzx/bilibili-mcp@1.7.0 --help`; GitHub Release creation and inspection.
 - Result: Tag `v1.7.0` points to `bd15438`; Actions run `29704348924` passed install, 243 tests, build, and trusted publication. npm latest is `1.7.0` with SLSA provenance, the published CLI help smoke passes, and the GitHub Release is non-draft and non-prerelease.
 - Caveat: The release uses undocumented Bilibili consumer endpoints for Part/Chapter reads; the defensive parsing and empty-Chapter behavior remain the compatibility boundary.
+
+## 2026-07-20 Legacy Auth And Config Cleanup
+
+- Commands: Paseo-managed Claude Code implementation; `package-maintainer` build/package repair; sentinel clean-build check; `npm run build`; full `npm test`; `npm pack --dry-run --json`; `git diff --check`; scoped `rg` checks for `BilibiliAuth`, `src/bilibili/auth`, and Smithery wording.
+- Result: `src/bilibili/auth.ts` is deleted with no live references; `config.maxCacheSize` controls both QuickLRU instances; the stale Smithery comment and inert `package.json.config.bilibili` block are gone. Codex independently verified 23 files and 244 tests, a clean TypeScript build, and 124 package entries with zero `dist/bilibili/auth.*` or sentinel artifacts.
+- Caveat: The cache regression uses a file-scoped hoisted `BILIBILI_CACHE_SIZE=3` and restores the previous value after the file. No live Bilibili request, MCP public behavior, credential behavior, dependency, version, commit, push, release, or publish changed.

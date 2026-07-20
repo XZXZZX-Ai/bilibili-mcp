@@ -6,7 +6,7 @@
 
 Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取 Bilibili 视频字幕、转录、元数据和热门评论的 MCP server。
 
-🌐 [English Documentation](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README_EN.md) · 📜 [更新日志](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.6.4](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.6.4)
+🌐 [English Documentation](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README_EN.md) · 📜 [更新日志](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.7.0](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.7.0)
 
 > [!TIP]
 > ⚠️ 你可以把下方“用 agent 工具帮你安装”的提示词复制给 Codex、Claude Code、Cursor 等 agent，让它帮你完成 MCP 客户端接入和 Cookie 配置引导。为了稳定获取字幕、转录和评论，安装后仍需配置 B 站 Cookie(agent会引导你)；不要把 Cookie 写进 MCP 客户端配置。Metadata 可能无需 Cookie。详见 [**凭证配置**](#️-凭证配置)。
@@ -1423,6 +1423,10 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 - **执行方式**：对 API 请求启动做节流，避免瞬时大并发；适合本地单用户 MCP 使用。
 - **重试策略**：对 408、429、5xx、网络错误和超时进行最多 3 次指数退避重试。
 - **超时控制**：默认 10 秒，可通过 `BILIBILI_REQUEST_TIMEOUT_MS` 调整。
+- **缓存容量**：默认 100 条，可通过 `BILIBILI_CACHE_SIZE` 调整。
+- **User-Agent**：可通过 `USER_AGENT` 覆盖默认请求头。
+
+以上环境变量均在 MCP server 进程启动时读取，修改后需重启 MCP 客户端或重连 MCP server 才能生效。
 
 ---
 
@@ -1450,7 +1454,7 @@ npm run watch
 
 | 命令 | 用途 |
 |---|---|
-| `npm run build` | 编译 TypeScript 到 `dist/` |
+| `npm run build` | 清理 `dist/` 后编译 TypeScript |
 | `npm test` | 运行 Vitest 单元测试 |
 | `npm run watch` | 开发时持续编译 |
 | `npm start` | 运行已编译的 stdio MCP server |
@@ -1486,7 +1490,7 @@ npm run watch
 
 1.  **初版生成**：由 **Claude Code** (搭载 **GLM-4.7** 模型) 快速搭建核心架构与基础逻辑。
 2.  **调试与优化**：在 **Antigravity** 环境下，利用 **Claude** 和 **Gemini** 模型进行深度的 Bug 修复与功能增强，确保了字幕提取与评论分析的稳定性。
-3.  **迭代与扩展**：由 **Codex** 进行架构决策与计划分解，**Claude Code** 执行实现；目前覆盖 30+ AI 客户端的 MCP 接入配置、7 个 MCP 工具、180 个单元测试。
+3.  **迭代与扩展**：由 **Codex** 进行架构决策与计划分解，通过 **Paseo** 启动 **Claude Code** 执行实现；目前覆盖 30+ AI 客户端的 MCP 接入配置、8 个 MCP 工具、244 个单元测试。
 
 ---
 

@@ -6,7 +6,7 @@
 
 MCP server that gives AI clients access to Bilibili video subtitles, transcripts, metadata, and popular comments.
 
-View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.6.4](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.6.4)
+View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.7.0](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.7.0)
 
 > [!TIP]
 > ⚠️ You can copy the "Install With Your Agent" prompt below to Codex, Claude Code, Cursor, or another agent and let it add this MCP server to your client and guide Cookie setup. For reliable subtitles, transcripts, and comments, you still need to configure Bilibili Cookies after installation; do not write Cookies into MCP client config. Metadata may work without cookies. See [**Credential Configuration**](#-credential-configuration).
@@ -1423,6 +1423,10 @@ Built-in request controls reduce the chance of triggering Bilibili risk checks o
 - **Execution model**: throttles API request starts to avoid burst concurrency; intended for local single-user MCP usage.
 - **Retry strategy**: retries 408, 429, 5xx, network errors, and timeouts up to 3 times with exponential backoff.
 - **Timeout**: defaults to 10 seconds, configurable with `BILIBILI_REQUEST_TIMEOUT_MS`.
+- **Cache capacity**: defaults to 100 entries, configurable with `BILIBILI_CACHE_SIZE`.
+- **User-Agent**: overridable via `USER_AGENT`.
+
+All of the above environment variables are read at MCP server process startup. After changing them, restart the MCP client or reconnect the MCP server for the new values to take effect.
 
 ---
 
@@ -1450,7 +1454,7 @@ Common commands:
 
 | Command | Purpose |
 |---|---|
-| `npm run build` | Compile TypeScript into `dist/` |
+| `npm run build` | Clean `dist/` then compile TypeScript |
 | `npm test` | Run the Vitest unit tests |
 | `npm run watch` | Continuously compile during development |
 | `npm start` | Run the compiled stdio MCP server |
@@ -1483,7 +1487,7 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 
 1.  **Initial Generation**: Core architecture and base logic were rapidly built by **Claude Code** (powered by **GLM-4.7** model).
 2.  **Debugging & Optimization**: Bugs were fixed and features enhanced using **Claude** and **Gemini** models within the **Antigravity** environment, ensuring stable subtitle extraction and comment analysis.
-3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, while **Claude Code** executes implementation; now covers 30+ AI client MCP configurations, 7 MCP tools, and 180 unit tests.
+3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, launching **Claude Code** via **Paseo** for implementation; now covers 30+ AI client MCP configurations, 8 MCP tools, and 244 unit tests.
 
 ---
 

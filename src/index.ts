@@ -18,8 +18,7 @@ try {
   // .env is optional
 }
 
-// 供 Smithery 沙盒反射使用的纯净实例导出
-// 绝不能在这里执行任何副作用
+// Reusable default server export for programmatic use
 export default server;
 
 // 启动服务器的入口点

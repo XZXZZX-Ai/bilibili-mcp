@@ -1,6 +1,6 @@
 {
   "name": "@xzxzzx/bilibili-mcp",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "Bilibili MCP tool for video metadata, transcripts, subtitles, and comment summarization",
   "type": "module",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
     "bilibili-mcp": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "node --input-type=commonjs -e \"const{rmSync}=require('fs');const{resolve,dirname,basename}=require('path');const d=resolve('dist');if(dirname(d)!==process.cwd()||basename(d)!=='dist'){console.error('Safety check failed: '+d);process.exit(1);}rmSync(d,{recursive:true,force:true});\" && tsc",
     "watch": "tsc --watch",
     "start": "node dist/index.js",
     "prepublishOnly": "npm run build",
@@ -18,13 +18,6 @@
     "test:watch": "vitest",
     "test:env": "node -e \"console.log('检查环境变量...'); console.log('BILIBILI_SESSDATA:', process.env.BILIBILI_SESSDATA ? '✅ 已配置' : '❌ 未配置'); console.log('BILIBILI_BILI_JCT:', process.env.BILIBILI_BILI_JCT ? '✅ 已配置' : '❌ 未配置'); console.log('BILIBILI_DEDEUSERID:', process.env.BILIBILI_DEDEUSERID ? '✅ 已配置' : '❌ 未配置');\"",
     "release": "semantic-release"
-  },
-  "config": {
-    "bilibili": {
-      "rateLimitMs": 500,
-      "requestTimeoutMs": 10000,
-      "cacheSize": 100
-    }
   },
   "files": [
     "dist",

@@ -137,3 +137,7 @@
 - Lesson: Shared navigation must not move cache checks behind a new network request or duplicate an existing view request.
 - Evidence: The first implementation fetched video info inside the resolver and again in callers, and the first repair still checked the video-info cache after resolution.
 - Future behavior: Add exact dependency-call regressions for default flows and cache hits whenever a shared fetch/selection seam is introduced.
+
+- Lesson: Deleting a TypeScript source file is incomplete when `tsc` writes into an uncleared output directory used by `npm pack`.
+- Evidence: After deleting unused `src/bilibili/auth.ts`, the first build and package dry run still included four stale `dist/bilibili/auth.*` artifacts; a guarded clean-before-compile step reduced the package from 128 to 124 entries.
+- Future behavior: For source deletions, verify package contents as well as imports and compilation, and keep the build clean step portable rather than hard-coding a checkout path.

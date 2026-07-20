@@ -1,4 +1,18 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi, afterAll } from "vitest";
+
+const envCleanup = vi.hoisted(() => {
+  const prev = process.env.BILIBILI_CACHE_SIZE;
+  process.env.BILIBILI_CACHE_SIZE = "3";
+  return () => {
+    if (prev === undefined) {
+      delete process.env.BILIBILI_CACHE_SIZE;
+    } else {
+      process.env.BILIBILI_CACHE_SIZE = prev;
+    }
+  };
+});
+// ponytail: hoisted env set for this file's eviction test; cleanup via return
+
 import { CacheManager } from "../src/utils/cache.js";
 
 describe("CacheManager", () => {
@@ -53,4 +67,22 @@ describe("CacheManager", () => {
       comments: ["first"],
     });
   });
+});
+
+describe("CacheManager LRU capacity (env-driven)", () => {
+  it("evicts oldest entries when configured maxCacheSize is small", () => {
+    const cache = new CacheManager();
+
+    // ponytail: QuickLRU v7 two-gen — maxSize=3 holds 6, 7th insert evicts oldest
+    for (let i = 0; i < 7; i++) {
+      cache.setVideoInfo(`key-${i}`, { title: `Video ${i}` });
+    }
+
+    expect(cache.getVideoInfo("key-0")).toBeUndefined();
+    expect(cache.getVideoInfo("key-6")).toEqual({ title: "Video 6" });
+  });
+});
+
+afterAll(() => {
+  envCleanup();
 });

@@ -154,6 +154,14 @@
 - Evidence: GitHub Issue #15, the `finally` cleanup in `src/bilibili/fingerprint.ts`, and `tests/bilibili-fingerprint.test.ts`.
 - Impact: A rejected fingerprint fetch still performs one attempt and resolves `null` without leaving its request timer pending.
 
+- Fact: Source version `1.7.1` combines the README synchronization with the legacy auth/config/cache/build cleanup, without a tag or publication.
+- Evidence: `package.json` version, bilingual changelog entries, build/test/pack verification, and the README sync handoff.
+- Impact: npm latest and GitHub Release remain `1.7.0`; publishing `1.7.1` requires a separate authorized step.
+
+- Fact: Both READMEs now document `BILIBILI_CACHE_SIZE`, `USER_AGENT`, and the restart requirement for runtime tuning environment variables.
+- Evidence: `README.md` and `README_EN.md` API rate limiting sections, `src/config.ts` environment variable loading.
+- Impact: Users can discover all four runtime-tuning variables and the restart constraint from the README without reading source code.
+
 ## 2026-07-20
 
 - Fact: Source version `1.7.0` exposes eight MCP tools, adding navigable transcripts, multi-Part selection, and Bilibili-provided Chapters.
@@ -175,3 +183,11 @@
 - Fact: The npm publish workflow pins npm 11.18.0 while using Node 22.14.0.
 - Evidence: The initial v1.6.4 tag run failed when `npm@latest` selected npm 12.0.1, whose engine requires a newer Node version; npm 11.18.0 supports Node 22.14.0 and completed trusted publishing successfully.
 - Impact: Do not restore an unbounded `npm@latest` install without also updating and verifying the workflow Node version; keep the trusted-publishing minimum and engine compatibility explicit.
+
+- Fact: Runtime cache capacity is owned by `src/config.ts`, and `BILIBILI_CACHE_SIZE` controls both video and comment QuickLRU instances.
+- Evidence: `src/utils/cache.ts` uses `config.maxCacheSize`; the env-driven regression in `tests/cache.test.ts` verifies eviction with a small configured capacity.
+- Impact: Do not duplicate cache capacity in package metadata or hard-code a second value in the cache wrapper.
+
+- Fact: The normal package build removes the guarded repository `dist` directory before TypeScript compilation.
+- Evidence: `package.json` uses a Node stdlib clean step before `tsc`; a sentinel and the deleted module's stale compiled files were absent after the build and from the 124-entry package dry run.
+- Impact: Deleted source modules no longer survive as publishable stale artifacts, without adding a cleanup dependency.
