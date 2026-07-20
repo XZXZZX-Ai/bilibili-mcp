@@ -149,3 +149,46 @@ export function validateBoolean(value: unknown, name: string): void {
     throw new Error(`${name} must be a boolean`);
   }
 }
+
+/**
+ * 验证搜索 query：trim 后非空，最多 100 字符
+ */
+export function validateQuery(query: unknown): void {
+  if (query === undefined) return;
+  if (typeof query !== "string") {
+    throw new Error("query must be a string");
+  }
+  const trimmed = query.trim();
+  if (trimmed.length === 0) {
+    throw new Error("query must not be empty");
+  }
+  if (trimmed.length > 100) {
+    throw new Error("query must not exceed 100 characters");
+  }
+}
+
+/**
+ * 验证 max_matches：整数 1-20
+ */
+export function validateMaxMatches(value: unknown): void {
+  if (value === undefined) return;
+  if (typeof value !== "number" || !Number.isInteger(value)) {
+    throw new Error("max_matches must be an integer between 1 and 20");
+  }
+  if (value < 1 || value > 20) {
+    throw new Error("max_matches must be between 1 and 20");
+  }
+}
+
+/**
+ * 验证 context_segments：整数 0-5
+ */
+export function validateContextSegments(value: unknown): void {
+  if (value === undefined) return;
+  if (typeof value !== "number" || !Number.isInteger(value)) {
+    throw new Error("context_segments must be an integer between 0 and 5");
+  }
+  if (value < 0 || value > 5) {
+    throw new Error("context_segments must be between 0 and 5");
+  }
+}

@@ -164,6 +164,10 @@
 
 ## 2026-07-20
 
+- Fact: `get_video_transcript` supports optional keyword search (`query`, `max_matches`, `context_segments`), returning case-insensitive literal `Transcript Match` results with bounded timestamped context. Eight MCP tools preserved; zero extra Bilibili requests.
+- Evidence: `src/bilibili/subtitle.ts` searchTranscript helper, `src/bilibili/types.ts` TranscriptMatch/TranscriptSearchOptions types, `src/utils/validation.ts` query/max_matches/context_segments validators, 286-test suite, and the PRD at `docs/transcript-keyword-search-prd.md`.
+- Impact: Search mode requires real subtitles and rejects description fallback; no-query behavior, request counts, and public tool list are unchanged.
+
 - Fact: Source version `1.7.0` exposes eight MCP tools, adding navigable transcripts, multi-Part selection, and Bilibili-provided Chapters.
 - Evidence: `src/server/tool-schemas.ts`, `src/bilibili/navigation.ts`, `src/bilibili/chapters.ts`, the 243-test Vitest suite, real stdio `tools/list`, and live read-only Part/Chapter checks.
 - Impact: Metadata callers can discover normalized Parts; transcript and video-info callers can select a one-based Part; transcript callers can request one-sided or bounded time ranges and timestamped lines; Chapter callers receive only bounded platform-provided intervals.

@@ -20,6 +20,14 @@ _Avoid_: Chapter, caption block
 A requested time interval used to select overlapping Subtitle Segments from one Part.
 _Avoid_: Chapter range, clip
 
+**Transcript Match**:
+A Subtitle Segment whose text contains a case-insensitive literal query after Transcript Range filtering. One Subtitle Segment counts as at most one match, even when the query occurs more than once.
+_Avoid_: Semantic match, keyword occurrence
+
+**Transcript Context**:
+The bounded neighboring Subtitle Segments returned before and after one Transcript Match. Context stays inside the requested Transcript Range.
+_Avoid_: Full transcript, Chapter
+
 **Chapter**:
 A named time interval supplied by Bilibili for one Part. Chapters are returned as provided and are never inferred by this server.
 _Avoid_: Subtitle Segment, AI chapter

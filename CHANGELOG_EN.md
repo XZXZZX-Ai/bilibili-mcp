@@ -4,6 +4,25 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [Unreleased]
+
+---
+
+## [1.7.2] - 2026-07-20
+
+### Added
+- `get_video_transcript` supports optional keyword search: new `query`, `max_matches`, `context_segments` parameters, returning timestamped `Transcript Match` entries with bounded context and a compact transcript. Case-insensitive literal matching with zero extra network requests.
+- New validators: `validateQuery`, `validateMaxMatches`, `validateContextSegments`.
+
+### Changed
+- Keyword search is incompatible with description fallback; search mode never silently falls back to video description.
+- `getVideoTranscriptData` accepts an optional `TranscriptSearchOptions` object (8th parameter), preserving all existing call compatibility.
+
+### Verified
+- 286 tests (42 new), TypeScript build, npm package dry-run, MCP smoke test, and git diff --check.
+
+---
+
 ## [1.7.1] - 2026-07-20
 
 ### Docs

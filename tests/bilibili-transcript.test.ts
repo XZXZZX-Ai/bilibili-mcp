@@ -22,6 +22,7 @@ import {
   getVideoInfoWithSubtitle,
   getVideoTranscriptData,
 } from "../src/bilibili/subtitle.js";
+import type { TranscriptSearchOptions } from "../src/bilibili/types.js";
 import { cacheManager } from "../src/utils/cache.js";
 import { BilibiliAPIError, NoSubtitleError } from "../src/utils/errors.js";
 
@@ -407,6 +408,350 @@ describe("getVideoTranscriptData - timestamps", () => {
         false,
         10,
         30,
+      ),
+    ).rejects.toThrow(NoSubtitleError);
+  });
+});
+
+function searchOpts(
+  query: string,
+  max_matches = 10,
+  context_segments = 1,
+): TranscriptSearchOptions {
+  return { query, max_matches, context_segments };
+}
+
+describe("getVideoTranscriptData - keyword search", () => {
+  it("finds case-insensitive literal matches", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2, content: "Hello World" },
+        { from: 2, to: 4, content: "goodbye" },
+        { from: 4, to: 6, content: "hello again" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("hello"),
+    );
+
+    expect(result.data_source).toBe("subtitle");
+    expect(result.total_matches).toBe(2);
+    expect(result.returned_matches).toBe(2);
+    expect(result.truncated).toBe(false);
+    expect(result.matches).toHaveLength(2);
+    expect(result.matches![0].content).toBe("Hello World");
+    expect(result.matches![1].content).toBe("hello again");
+  });
+
+  it("counts each matching segment once regardless of occurrences", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2, content: "hello hello hello" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("hello"),
+    );
+
+    expect(result.total_matches).toBe(1);
+    expect(result.matches).toHaveLength(1);
+  });
+
+  it("includes timestamped context around each match", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2, content: "before" },
+        { from: 2, to: 4, content: "MATCH" },
+        { from: 4, to: 6, content: "after" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("match"),
+    );
+
+    expect(result.matches![0].context).toContain("before");
+    expect(result.matches![0].context).toContain("MATCH");
+    expect(result.matches![0].context).toContain("after");
+  });
+
+  it("respects context_segments=0", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2, content: "before" },
+        { from: 2, to: 4, content: "MATCH" },
+        { from: 4, to: 6, content: "after" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("match", 10, 0),
+    );
+
+    const ctx = result.matches![0].context;
+    expect(ctx).toContain("MATCH");
+    expect(ctx).not.toContain("before");
+    expect(ctx).not.toContain("after");
+  });
+
+  it("respects max_matches limit", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 1, content: "hit 1" },
+        { from: 1, to: 2, content: "hit 2" },
+        { from: 2, to: 3, content: "hit 3" },
+        { from: 3, to: 4, content: "hit 4" },
+        { from: 4, to: 5, content: "hit 5" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("hit", 3),
+    );
+
+    expect(result.returned_matches).toBe(3);
+    expect(result.total_matches).toBe(5);
+    expect(result.truncated).toBe(true);
+    expect(result.matches).toHaveLength(3);
+  });
+
+  it("returns empty matches and transcript on no match", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2, content: "Hello" },
+        { from: 2, to: 4, content: "World" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("xyzzy"),
+    );
+
+    expect(result.data_source).toBe("subtitle");
+    expect(result.total_matches).toBe(0);
+    expect(result.matches).toHaveLength(0);
+    expect(result.transcript).toBe("");
+  });
+
+  it("applies range filter before searching", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 5, content: "hello early" },
+        { from: 5, to: 10, content: "hello middle" },
+        { from: 10, to: 15, content: "hello late" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      6,
+      9,
+      searchOpts("hello"),
+    );
+
+    expect(result.total_matches).toBe(1);
+    expect(result.matches![0].content).toBe("hello middle");
+  });
+
+  it("context stays inside the requested range", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 3, content: "outside left" },
+        { from: 3, to: 6, content: "hello match" },
+        { from: 6, to: 9, content: "outside right" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      3.5,
+      5.5,
+      searchOpts("hello"),
+    );
+
+    const ctx = result.matches![0].context;
+    expect(ctx).toContain("hello match");
+    expect(ctx).not.toContain("outside left");
+    expect(ctx).not.toContain("outside right");
+  });
+
+  it("matches Chinese queries", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2, content: "你好世界" },
+        { from: 2, to: 4, content: "Hello World" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("你好"),
+    );
+
+    expect(result.total_matches).toBe(1);
+    expect(result.matches![0].content).toBe("你好世界");
+  });
+
+  it("builds compact transcript from returned contexts", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2, content: "before" },
+        { from: 2, to: 4, content: "HIT ONE" },
+        { from: 4, to: 6, content: "after" },
+        { from: 6, to: 8, content: "HIT TWO" },
+        { from: 8, to: 10, content: "trailing" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("HIT"),
+    );
+
+    expect(result.transcript).toContain("HIT ONE");
+    expect(result.transcript).toContain("HIT TWO");
+  });
+
+  it("exposes hit start/end seconds and content", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 10, to: 15, content: "target" },
+      ]),
+    );
+
+    const result = await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      searchOpts("target"),
+    );
+
+    expect(result.matches![0].start_seconds).toBe(10);
+    expect(result.matches![0].end_seconds).toBe(15);
+    expect(result.matches![0].content).toBe("target");
+  });
+
+  it("rejects an oversized matching context", async () => {
+    mockGetSubtitleContent.mockResolvedValue(
+      makeFakeSubtitleContent([
+        { from: 0, to: 2, content: `target${"a".repeat(500_001)}` },
+      ]),
+    );
+
+    await expect(
+      getVideoTranscriptData(
+        "BV1T6PQzQErF",
+        undefined,
+        false,
+        undefined,
+        false,
+        undefined,
+        undefined,
+        searchOpts("target"),
+      ),
+    ).rejects.toThrow("Subtitle text exceeds maximum length");
+  });
+});
+
+describe("getVideoTranscriptData - search rejects description fallback", () => {
+  it("throws when subtitles are empty even with fallback enabled", async () => {
+    mockGetVideoSubtitle.mockResolvedValue(makeFakeSubtitles([]));
+
+    await expect(
+      getVideoTranscriptData(
+        "BV1T6PQzQErF",
+        undefined,
+        true,
+        undefined,
+        false,
+        undefined,
+        undefined,
+        searchOpts("hello"),
+      ),
+    ).rejects.toThrow(NoSubtitleError);
+  });
+
+  it("throws when subtitle body is empty even with fallback enabled", async () => {
+    mockGetSubtitleContent.mockResolvedValue(makeFakeSubtitleContent([]));
+
+    await expect(
+      getVideoTranscriptData(
+        "BV1T6PQzQErF",
+        undefined,
+        true,
+        undefined,
+        false,
+        undefined,
+        undefined,
+        searchOpts("hello"),
       ),
     ).rejects.toThrow(NoSubtitleError);
   });

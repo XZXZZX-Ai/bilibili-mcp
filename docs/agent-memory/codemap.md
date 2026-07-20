@@ -18,7 +18,7 @@ This file is a navigation index for `@xzxzzx/bilibili-mcp`. It is not a design s
 Current tool families:
 
 - Credential setup, status, and package freshness: `get_credential_setup_instructions`, `check_bilibili_credentials`, `check_mcp_update`.
-- Video content: `get_video_info`, `get_video_transcript`, `get_video_metadata`.
+- Video content: `get_video_info`, `get_video_transcript` (transcript and keyword search), `get_video_metadata`.
 - Comments: `get_video_comments`.
 - Chapters: `get_video_chapters`.
 
@@ -32,7 +32,7 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 - `src/bilibili/fingerprint.ts`: buvid/fingerprint support.
 - `src/bilibili/video-api.ts`: video/subtitle/player API calls and response safety checks.
 - `src/bilibili/navigation.ts`: shared Part/CID resolution for multi-Part videos.
-- `src/bilibili/subtitle.ts`: subtitle selection, transcript formatting, timestamp output, range filtering, and fallback behavior.
+- `src/bilibili/subtitle.ts`: subtitle selection, transcript formatting, timestamp output, range filtering, keyword search, and fallback behavior.
 - `src/bilibili/metadata.ts`: metadata retrieval, shaping, and Part summaries.
 - `src/bilibili/chapters.ts`: Bilibili-provided Chapter (view_points) retrieval.
 - `src/bilibili/comments-api.ts`: raw comments API access.
@@ -44,7 +44,7 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 - `src/utils/credentials.ts`: global credential storage and credential source detection.
 - `src/utils/credential-guidance.ts`: safe credential setup instructions, status payloads, and next-step generation.
 - `src/utils/error-guidance.ts`: unified structured MCP error payload mapper with bilingual recovery guidance and category/retry metadata.
-- `src/utils/validation.ts`: BV, language, detail-level, comment limit, and sort validation.
+- `src/utils/validation.ts`: BV, language, detail-level, comment limit, sort, query, max_matches, and context_segments validation.
 - `src/utils/sanitization.ts`: BV/URL sanitization and output sanitization helpers.
 - `src/utils/errors.ts`: domain-specific error classes and codes.
 - `src/utils/logger.ts`: secret redaction and debug logging helpers.
@@ -64,7 +64,7 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 - `tests/credential-guidance.test.ts`: credential setup/status guidance.
 - `tests/bilibili-video-api.test.ts`: video/subtitle API safety and behavior checks.
 - `tests/bilibili-navigation.test.ts`: Part normalization, page resolution, ValidationError behavior, and preFetchedVideoData path.
-- `tests/bilibili-transcript.test.ts`: transcript fallback, size-limit, one-sided/two-sided range filtering, and timestamp behavior.
+- `tests/bilibili-transcript.test.ts`: transcript fallback, size-limit, range filtering, timestamp, keyword search matching/context, search compatibility, and search-description-rejection behavior.
 - `tests/bilibili-metadata.test.ts`: metadata and Part-listing behavior (pages as required array).
 - `tests/bilibili-chapters.test.ts`: Chapter retrieval, content→title mapping, error propagation, and empty-list fallback.
 - `tests/bilibili-request-count.test.ts`: verifies exactly 1 view-api request per default flow; cache-hit prevents subtitle requests.

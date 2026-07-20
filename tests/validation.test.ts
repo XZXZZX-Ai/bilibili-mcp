@@ -4,10 +4,13 @@ import {
   validateBVInput,
   validateCommentLimit,
   validateCommentSort,
+  validateContextSegments,
   validateDetailLevel,
   validateLanguage,
   validateLength,
+  validateMaxMatches,
   validatePage,
+  validateQuery,
   validateTimestampRange,
 } from "../src/utils/validation.js";
 
@@ -244,6 +247,51 @@ describe("validateTimestampRange", () => {
 
   it("accepts only end_seconds without start_seconds", () => {
     expect(() => validateTimestampRange(undefined, 30)).not.toThrow();
+  });
+});
+
+describe("validateQuery", () => {
+  it.each([undefined, "hello", "你好世界", "a".repeat(100)])(
+    "accepts %j",
+    (value) => expect(() => validateQuery(value)).not.toThrow(),
+  );
+
+  it.each([
+    ["a".repeat(101), "query must not exceed 100 characters"],
+    ["   ", "query must not be empty"],
+    [123 as unknown as string, "query must be a string"],
+  ])("rejects %j", (value, message) => {
+    expect(() => validateQuery(value)).toThrow(message);
+  });
+});
+
+describe("validateMaxMatches", () => {
+  it.each([undefined, 1, 10, 20])("accepts %j", (value) => {
+    expect(() => validateMaxMatches(value)).not.toThrow();
+  });
+
+  it.each([
+    [0, "max_matches must be between 1 and 20"],
+    [21, "max_matches must be between 1 and 20"],
+    [5.5, "max_matches must be an integer between 1 and 20"],
+    ["10" as unknown as number, "max_matches must be an integer between 1 and 20"],
+  ])("rejects %j", (value, message) => {
+    expect(() => validateMaxMatches(value)).toThrow(message);
+  });
+});
+
+describe("validateContextSegments", () => {
+  it.each([undefined, 0, 1, 5])("accepts %j", (value) => {
+    expect(() => validateContextSegments(value)).not.toThrow();
+  });
+
+  it.each([
+    [-1, "context_segments must be between 0 and 5"],
+    [6, "context_segments must be between 0 and 5"],
+    [1.5, "context_segments must be an integer between 0 and 5"],
+    ["1" as unknown as number, "context_segments must be an integer between 0 and 5"],
+  ])("rejects %j", (value, message) => {
+    expect(() => validateContextSegments(value)).toThrow(message);
   });
 });
 

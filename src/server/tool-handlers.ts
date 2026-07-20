@@ -20,9 +20,12 @@ import {
   validateBVInput,
   validateCommentLimit,
   validateCommentSort,
+  validateContextSegments,
   validateDetailLevel,
   validateLanguage,
+  validateMaxMatches,
   validatePage,
+  validateQuery,
   validateTimestampRange,
 } from "../utils/validation.js";
 import {
@@ -109,6 +112,9 @@ export async function handleToolCall(name: string, args: ToolArgs) {
       const includeTimestamps = args?.include_timestamps as boolean | undefined;
       const startSeconds = args?.start_seconds as number | undefined;
       const endSeconds = args?.end_seconds as number | undefined;
+      const query = args?.query as string | undefined;
+      const maxMatches = args?.max_matches as number | undefined;
+      const contextSegments = args?.context_segments as number | undefined;
 
       let sanitizedBvidOrUrl: string;
       try {
@@ -121,12 +127,23 @@ export async function handleToolCall(name: string, args: ToolArgs) {
         if (args?.fallback_to_description !== undefined && typeof args.fallback_to_description !== "boolean") {
           throw new Error("fallback_to_description must be a boolean");
         }
+        validateQuery(query);
+        validateMaxMatches(maxMatches);
+        validateContextSegments(contextSegments);
         sanitizedBvidOrUrl = sanitizeBVInput(bvidOrUrl);
       } catch (error) {
         return toErrorTextContent(buildValidationErrorPayload(error));
       }
 
       const normalizedLang = getPreferredLanguage(preferredLang);
+
+      const searchOptions = query !== undefined
+        ? {
+            query: query.trim(),
+            max_matches: maxMatches ?? 10,
+            context_segments: contextSegments ?? 1,
+          }
+        : undefined;
 
       try {
         const result = await getVideoTranscriptData(
@@ -137,6 +154,7 @@ export async function handleToolCall(name: string, args: ToolArgs) {
           includeTimestamps,
           startSeconds,
           endSeconds,
+          searchOptions,
         );
         return toTextContent(result);
       } catch (error) {

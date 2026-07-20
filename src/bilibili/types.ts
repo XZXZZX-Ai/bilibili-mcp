@@ -160,6 +160,14 @@ export interface ChapterInfo {
   end_seconds: number;
 }
 
+// Transcript Match：一个字幕段命中关键词的结果
+export interface TranscriptMatch {
+  start_seconds: number;
+  end_seconds: number;
+  content: string;
+  context: string;
+}
+
 // 视频转录数据类型
 export interface VideoTranscriptData {
   bvid: string;
@@ -168,6 +176,19 @@ export interface VideoTranscriptData {
   transcript: string;
   title: string;
   page?: number;
+  // search mode fields（仅当 query 存在时返回）
+  query?: string;
+  total_matches?: number;
+  returned_matches?: number;
+  truncated?: boolean;
+  matches?: TranscriptMatch[];
+}
+
+// 内部搜索选项（仅供 getVideoTranscriptData 使用）
+export interface TranscriptSearchOptions {
+  query: string;
+  max_matches: number;
+  context_segments: number;
 }
 
 // 视频章节数据类型

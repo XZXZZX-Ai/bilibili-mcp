@@ -4,6 +4,25 @@
 
 ---
 
+## [Unreleased]
+
+---
+
+## [1.7.2] - 2026-07-20
+
+### 新增
+- `get_video_transcript` 支持可选关键词搜索：新增 `query`、`max_matches`、`context_segments` 参数，返回带上下文的 `Transcript Match` 列表和紧凑 transcript。大小写不敏感字面匹配，不增加额外网络请求。
+- 新增验证函数：`validateQuery`、`validateMaxMatches`、`validateContextSegments`。
+
+### 变更
+- 关键词搜索与描述降级不兼容：搜索模式下不会静默降低到视频描述。
+- `getVideoTranscriptData` 接受可选的 `TranscriptSearchOptions` 对象（第8参数），保留所有现有调用兼容性。
+
+### 验证
+- 通过 286 项测试（新增 42 项）、TypeScript 构建、npm package dry-run、MCP smoke test 和 git diff --check。
+
+---
+
 ## [1.7.1] - 2026-07-20
 
 ### 文档

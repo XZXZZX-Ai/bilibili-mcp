@@ -998,3 +998,9 @@
 - Commands: independent build; full `npm test`; production audit; package dry run; scoped secret and UTF-8 scans; annotated tag push; Actions run inspection; live npm metadata and attestation lookup; published CLI help smoke; GitHub Release creation and inspection.
 - Result: 23 files and 244 tests passed; production audit reported zero vulnerabilities; the 124-entry package contained the expected entry points and no credential/Smithery artifacts. Actions run `29723831279` succeeded, npm latest is `1.7.1` with SLSA provenance, and the non-draft GitHub Release is available at `https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.7.1`.
 - Caveat: Actions emitted the existing non-blocking notice that `actions/checkout@v4` and `actions/setup-node@v4` are forced from Node 20 to Node 24 by GitHub.
+
+## 2026-07-20 Transcript Keyword Search
+
+- Commands: Paseo-managed Claude Code implementation with `test-baseline-builder` and `risk-reviewer`; Codex same-scope size-guard repair after Paseo HTTP 402; 154-test focused Vitest run; full `npm test`; `npm run build`; MCP schema/stdio smoke; `npm pack --dry-run --json`; strict UTF-8 decoding; intended-file high-confidence secret scan; `git diff --check`.
+- Result: `get_video_transcript` now supports bounded, case-insensitive literal keyword location with timestamped contexts, range-first filtering, structured counts, and a compact transcript. Codex independently verified 23 files and 286 tests, a clean build, eight unchanged MCP tools, zero extra Bilibili requests in search mode, 124 expected package files, zero UTF-8 failures, and zero high-confidence secret hits.
+- Caveat: Search is intentionally literal and limited to one selected Part's real subtitles; description fallback is rejected. No live Bilibili request, version change, commit, push, tag, npm publication, or GitHub Release was performed.

@@ -2,9 +2,9 @@
 
 Workflow: Matt Pocock skills with GitHub Issues, bounded Codex-to-Claude handoffs, and Paseo CLI execution.
 
-Active work: none. The bounded v1.7.1 release handoff is complete and retained under `docs/agent-memory/handoffs/`.
+Active work: v1.7.2 patch release under `docs/agent-memory/handoffs/2026-07-20-v1.7.2-release-task-ticket.md`.
 
-Status: version `1.7.1` is published to npm with provenance and has an annotated tag plus a non-draft GitHub Release.
+Status: local v1.7.2 preparation complete and user-authorized publication is in progress.
 
 Codex launches and reviews one bounded Claude Code implementation agent through Paseo. The user does not manually transfer prompts between Codex and Claude Code.
 

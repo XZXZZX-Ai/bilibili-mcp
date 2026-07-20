@@ -69,6 +69,30 @@ describe("handler page validation", () => {
     vi.clearAllMocks();
   });
 
+  it.each([
+    ["empty query", { query: "   " }],
+    ["max_matches out of range", { query: "hello", max_matches: 999 }],
+    ["context_segments out of range", { query: "hello", context_segments: 99 }],
+  ])("get_video_transcript with %s returns VALIDATION_ERROR", async (_case, args) => {
+    const handler = getCallToolHandler();
+    const result = await handler({
+      method: "tools/call",
+      jsonrpc: "2.0",
+      id: 3,
+      params: {
+        name: "get_video_transcript",
+        arguments: {
+          bvid_or_url: "BV1T6PQzQErF",
+          ...args,
+        },
+      },
+    });
+
+    expect(result.isError).toBe(true);
+    const text = JSON.parse(result.content[0].text);
+    expect(text.code).toBe("VALIDATION_ERROR");
+  });
+
   it("get_video_chapters with out-of-range page returns VALIDATION_ERROR via generic error handler", async () => {
     const { ValidationError } = await import("../src/utils/errors.js");
     mockGetVideoChaptersData.mockRejectedValue(new ValidationError("Page 99 not found"));

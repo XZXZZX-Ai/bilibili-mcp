@@ -6,7 +6,7 @@
 
 MCP server that gives AI clients access to Bilibili video subtitles, transcripts, metadata, and popular comments.
 
-View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.7.1](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.7.1)
+View in [简体中文](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README.md) · 📜 [Changelog](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG_EN.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.7.2](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.7.2)
 
 > [!TIP]
 > ⚠️ You can copy the "Install With Your Agent" prompt below to Codex, Claude Code, Cursor, or another agent and let it add this MCP server to your client and guide Cookie setup. For reliable subtitles, transcripts, and comments, you still need to configure Bilibili Cookies after installation; do not write Cookies into MCP client config. Metadata may work without cookies. See [**Credential Configuration**](#-credential-configuration).
@@ -122,15 +122,18 @@ After the MCP server is connected, if available, call get_credential_setup_instr
 ### 3. Video Transcript (`get_video_transcript`)
 - Returns clean subtitle text, joined by newlines.
 - Supports preferred language selection (defaults to `zh-Hans` > `ai-zh` > `zh-CN` > `zh-Hant` > `en` priority).
-- Supports multi-Part selection, timestamp output, and time-range filtering.
+- Supports multi-Part selection, timestamp output, time-range filtering, and optional keyword search.
 - Optional parameters:
   - `preferred_lang`: Preferred subtitle language code.
   - `fallback_to_description`: Fall back to video description if subtitles unavailable (default `false`).
   - `page`: Multi-Part video page number (1-based positive integer).
   - `include_timestamps`: Prefix each line with `[HH:MM:SS --> HH:MM:SS]`.
   - `start_seconds` / `end_seconds`: Only return segments overlapping this range.
+  - `query`: Keyword search term (max 100 chars, case-insensitive literal matching).
+  - `max_matches`: Maximum matches to return (1-20, default 10).
+  - `context_segments`: Context segments per match side (0-5, default 1).
 - By default, returns `SUBTITLE_UNAVAILABLE` error when no subtitles exist.
-- Timestamps/range filtering is incompatible with description fallback.
+- Timestamps/range filtering/keyword search is incompatible with description fallback.
 - Cookie expiration always returns `COOKIE_EXPIRED`, never silently falls back.
 
 ### 4. Video Metadata (`get_video_metadata`)
@@ -1243,7 +1246,7 @@ Do not share cookies with others. Do not paste them into public chats, issues, P
 | Goal | Recommended tool | What you get |
 |---|---|---|
 | Summarize a video | `get_video_info` | Subtitles first; falls back to title, description, tags |
-| Get clean transcript text | `get_video_transcript` | Plain subtitle text, language, data source; supports timestamps and range filtering |
+| Get clean transcript text or locate keywords | `get_video_transcript` | Plain subtitle text, language, data source; supports timestamps, range filtering, and keyword search |
 | See structured metadata | `get_video_metadata` | Title, author, duration, publish date, tags, stats, multi-Part listing |
 | View audience reactions | `get_video_comments` | Popular comments, timestamped highlights, optional replies |
 | See video Chapters | `get_video_chapters` | Chapter titles, start/end seconds; empty list when absent |
@@ -1320,6 +1323,22 @@ Request:
 Returns: `bvid`, `title`, `language`, `transcript` (newline-joined), `data_source` (`subtitle` or `description`), `page`.
 
 > Returns `SUBTITLE_UNAVAILABLE` when no subtitles exist. Set `fallback_to_description: true` to fall back.
+
+**Keyword search example**:
+
+```json
+{
+  "name": "get_video_transcript",
+  "arguments": {
+    "bvid_or_url": "BV1xx411c7mD",
+    "query": "machine learning",
+    "max_matches": 5,
+    "context_segments": 1
+  }
+}
+```
+
+Search mode returns: `query`, `total_matches`, `returned_matches`, `truncated`, `matches` (with `start_seconds`, `end_seconds`, `content`, `context`), and compact `transcript`.
 
 **Timed range example**:
 
@@ -1487,7 +1506,7 @@ This project is a crystal of AI-collaborative development, spanning from prototy
 
 1.  **Initial Generation**: Core architecture and base logic were rapidly built by **Claude Code** (powered by **GLM-4.7** model).
 2.  **Debugging & Optimization**: Bugs were fixed and features enhanced using **Claude** and **Gemini** models within the **Antigravity** environment, ensuring stable subtitle extraction and comment analysis.
-3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, launching **Claude Code** via **Paseo** for implementation; now covers 30+ AI client MCP configurations, 8 MCP tools, and 244 unit tests.
+3.  **Iteration & Expansion**: **Codex** handles architectural decisions and planning, launching **Claude Code** via **Paseo** for implementation; now covers 30+ AI client MCP configurations, 8 MCP tools, and 286 unit tests.
 
 ---
 

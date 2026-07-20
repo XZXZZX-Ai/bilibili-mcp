@@ -103,6 +103,32 @@ describe("request counts", () => {
     expect(mockGetPlayerData).toHaveBeenCalledTimes(1);
   });
 
+  it("transcript search mode adds zero extra requests", async () => {
+    mockGetSubtitleContent.mockResolvedValue({
+      body: [
+        { from: 0, to: 1, content: "hello" },
+        { from: 1, to: 2, content: "world" },
+      ],
+    });
+
+    await getVideoTranscriptData(
+      "BV1T6PQzQErF",
+      undefined,
+      false,
+      undefined,
+      false,
+      undefined,
+      undefined,
+      { query: "hello", max_matches: 10, context_segments: 1 },
+    );
+
+    // resolvePartCid calls getVideoInfo exactly once
+    expect(mockGetVideoInfo).toHaveBeenCalledTimes(1);
+    // No extra subtitle/content fetch beyond the single call
+    expect(mockGetVideoSubtitle).toHaveBeenCalledTimes(1);
+    expect(mockGetSubtitleContent).toHaveBeenCalledTimes(1);
+  });
+
   it("transcript with page makes exactly 1 getVideoInfo request", async () => {
     mockGetVideoInfo.mockResolvedValue(
       makeVideoData({

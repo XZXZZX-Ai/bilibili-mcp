@@ -97,7 +97,7 @@ export const toolSchemas: Tool[] = [
   {
     name: "get_video_transcript",
     description:
-      "获取 Bilibili 视频纯字幕文本（按行合并）。支持分集选择、时间戳输出和时间区间过滤。不自动降级到描述；仅在 fallback_to_description 为 true 且字幕不可用时返回视频描述。Requires Bilibili Cookie for reliable subtitle access. If unavailable, call get_credential_setup_instructions.",
+      "获取 Bilibili 视频纯字幕文本（按行合并）。支持分集选择、时间戳输出、时间区间过滤和可选关键词搜索。不自动降级到描述；仅在 fallback_to_description 为 true 且字幕不可用时返回视频描述。关键词搜索与描述降级不兼容。Requires Bilibili Cookie for reliable subtitle access. If unavailable, call get_credential_setup_instructions.",
     inputSchema: {
       type: "object",
       properties: {
@@ -135,6 +135,26 @@ export const toolSchemas: Tool[] = [
           type: "number",
           description:
             "可选，字幕区间结束秒数（非负整数或小数）。只返回 from <= end_seconds 的字幕段。当同时提供 start_seconds 和 end_seconds 时需 end_seconds >= start_seconds。",
+        },
+        query: {
+          type: "string",
+          maxLength: 100,
+          description:
+            "可选，关键词搜索。大小写不敏感的字面匹配。非空且最多100字符。与 description 降级不兼容。",
+        },
+        max_matches: {
+          type: "integer",
+          minimum: 1,
+          maximum: 20,
+          description:
+            "可选，最大返回匹配数（1-20，默认10）。仅在 query 存在时生效。",
+        },
+        context_segments: {
+          type: "integer",
+          minimum: 0,
+          maximum: 5,
+          description:
+            "可选，每个匹配前后的字幕段上下文数量（0-5，默认1）。仅在 query 存在时生效。",
         },
       },
       required: ["bvid_or_url"],

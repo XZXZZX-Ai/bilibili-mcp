@@ -1,5 +1,19 @@
 # Decisions
 
+## 2026-07-20
+
+- Decision: Implement keyword search as a backward-compatible extension of `get_video_transcript` rather than a new MCP tool.
+- Reason: Reuses existing subtitle/cache/request paths; tool count stays at eight; no new endpoint or dependency.
+- Evidence: `docs/transcript-keyword-search-prd.md`, implementation handoff at `docs/agent-memory/handoffs/2026-07-20-transcript-keyword-search-codex-to-claude.md`.
+
+- Decision: Use case-insensitive literal matching only; no fuzzy, semantic, or regex search in the first version.
+- Reason: Keeps implementation simple and predictable; literal matching covers the most common "where did they talk about X" use case without adding a search library.
+- Evidence: PRD out-of-scope section and `searchTranscript` in `src/bilibili/subtitle.ts`.
+
+- Decision: Return `transcript` in search mode as a compact concatenation of returned context segments, not the full transcript.
+- Reason: The whole point of keyword search is to reduce context-token usage; returning the full transcript would defeat the purpose.
+- Evidence: PRD success metrics and the `compactTranscript` assembly in `searchTranscript`.
+
 ## 2026-05-27
 
 - Decision: Complete the stabilization roadmap before splitting `src/bilibili/client.ts` or adding new MCP tools.

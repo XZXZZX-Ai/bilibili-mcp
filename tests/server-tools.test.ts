@@ -202,6 +202,39 @@ describe("MCP tool list baseline", () => {
       expect(schema.inputSchema.properties).toHaveProperty("start_seconds");
       expect(schema.inputSchema.properties).toHaveProperty("end_seconds");
     });
+
+    it("accepts optional query (string), max_matches (integer 1-20), context_segments (integer 0-5)", () => {
+      schema = toolsResult.tools.find(
+        (t) => t.name === "get_video_transcript",
+      )!;
+      const queryProp = schema.inputSchema.properties.query as {
+        type?: string;
+        maxLength?: number;
+      };
+      expect(queryProp).toBeDefined();
+      expect(queryProp.type).toBe("string");
+      expect(queryProp.maxLength).toBe(100);
+
+      const mmProp = schema.inputSchema.properties.max_matches as {
+        type?: string;
+        minimum?: number;
+        maximum?: number;
+      };
+      expect(mmProp).toBeDefined();
+      expect(mmProp.type).toBe("integer");
+      expect(mmProp.minimum).toBe(1);
+      expect(mmProp.maximum).toBe(20);
+
+      const csProp = schema.inputSchema.properties.context_segments as {
+        type?: string;
+        minimum?: number;
+        maximum?: number;
+      };
+      expect(csProp).toBeDefined();
+      expect(csProp.type).toBe("integer");
+      expect(csProp.minimum).toBe(0);
+      expect(csProp.maximum).toBe(5);
+    });
   });
 
   describe("credential helper tools", () => {

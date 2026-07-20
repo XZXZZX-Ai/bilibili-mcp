@@ -6,7 +6,7 @@
 
 Bilibili MCP server — 让 Claude、Cursor、Codex 等 AI 客户端直接读取 Bilibili 视频字幕、转录、元数据和热门评论的 MCP server。
 
-🌐 [English Documentation](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README_EN.md) · 📜 [更新日志](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.7.1](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.7.1)
+🌐 [English Documentation](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/README_EN.md) · 📜 [更新日志](https://github.com/XZXZZX-Ai/bilibili-mcp/blob/master/CHANGELOG.md) · 📦 [npm](https://www.npmjs.com/package/@xzxzzx/bilibili-mcp) · 🚀 [Release v1.7.2](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.7.2)
 
 > [!TIP]
 > ⚠️ 你可以把下方“用 agent 工具帮你安装”的提示词复制给 Codex、Claude Code、Cursor 等 agent，让它帮你完成 MCP 客户端接入和 Cookie 配置引导。为了稳定获取字幕、转录和评论，安装后仍需配置 B 站 Cookie(agent会引导你)；不要把 Cookie 写进 MCP 客户端配置。Metadata 可能无需 Cookie。详见 [**凭证配置**](#️-凭证配置)。
@@ -123,14 +123,18 @@ npx -y @xzxzzx/bilibili-mcp@latest check
 - 返回纯字幕文本，按行合并
 - 支持指定偏好语言（默认按 `zh-Hans` > `ai-zh` > `zh-CN` > `zh-Hant` > `en` 优先级选择）
 - 支持多P分集选择、时间戳输出和时间区间过滤
+- 支持可选关键词搜索：返回带上下文的时间戳匹配列表（大小写不敏感字面匹配）
 - 可选参数：
   - `preferred_lang`: 偏好字幕语言代码
   - `fallback_to_description`: 字幕不可用时是否降级为视频描述（默认 `false`）
   - `page`: 多P视频分集编号（从1开始的正整数）
   - `include_timestamps`: 每行添加 `[HH:MM:SS --> HH:MM:SS]` 时间戳前缀
   - `start_seconds` / `end_seconds`: 只返回与此区间重叠的字幕段
+  - `query`: 关键词搜索词（最多100字符，大小写不敏感字面匹配）
+  - `max_matches`: 最大匹配数（1-20，默认10）
+  - `context_segments`: 每个匹配前后的上下文段数（0-5，默认1）
 - 默认不降级：无字幕时返回 `SUBTITLE_UNAVAILABLE` 错误
-- 时间戳/区间过滤与描述降级不兼容：请求 timed 输出时不会静默降级
+- 时间戳/区间过滤/关键词搜索与描述降级不兼容：请求 timed 输出或搜索时不会静默降级
 - Cookie 失效时始终返回 `COOKIE_EXPIRED`，不静默降级
 
 ### 4. 视频元数据 (`get_video_metadata`)
@@ -1243,7 +1247,7 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 | 目标 | 推荐工具 | 返回重点 |
 |---|---|---|
 | 想让 AI 总结一个视频 | `get_video_info` | 字幕优先；无字幕时返回标题、简介、标签 |
-| 只想拿完整转录文本 | `get_video_transcript` | 纯字幕文本、语言、数据来源；支持时间戳和区间过滤 |
+| 只想拿完整转录文本或关键词定位 | `get_video_transcript` | 纯字幕文本、语言、数据来源；支持时间戳、区间过滤和关键词搜索 |
 | 想查看标题、作者、播放量等结构化信息 | `get_video_metadata` | 标题、作者、时长、发布时间、标签、统计数据、多P分集列表（`pages`） |
 | 想看观众反馈和热门评论 | `get_video_comments` | 热门评论、时间戳评论、可选回复 |
 | 想看视频章节/进度条分段 | `get_video_chapters` | 章节标题、起止时间；无章节时返回空列表 |
@@ -1320,6 +1324,22 @@ BILIBILI_DEDEUSERID=<your_dedeuserid>
 返回内容：`bvid`、`title`、`language`、`transcript`（按行合并）、`data_source`（`subtitle` 或 `description`）、`page`（分集编号）。
 
 > 默认无字幕时返回 `SUBTITLE_UNAVAILABLE`。如需降级，设置 `fallback_to_description: true`。
+
+**关键词搜索示例**：
+
+```json
+{
+  "name": "get_video_transcript",
+  "arguments": {
+    "bvid_or_url": "BV1xx411c7mD",
+    "query": "深度学习",
+    "max_matches": 5,
+    "context_segments": 1
+  }
+}
+```
+
+搜索模式返回：`query`、`total_matches`、`returned_matches`、`truncated`、`matches`（含 `start_seconds`、`end_seconds`、`content`、`context`）和紧凑 `transcript`。
 
 **定时区间转录示例**：
 
@@ -1490,7 +1510,7 @@ npm run watch
 
 1.  **初版生成**：由 **Claude Code** (搭载 **GLM-4.7** 模型) 快速搭建核心架构与基础逻辑。
 2.  **调试与优化**：在 **Antigravity** 环境下，利用 **Claude** 和 **Gemini** 模型进行深度的 Bug 修复与功能增强，确保了字幕提取与评论分析的稳定性。
-3.  **迭代与扩展**：由 **Codex** 进行架构决策与计划分解，通过 **Paseo** 启动 **Claude Code** 执行实现；目前覆盖 30+ AI 客户端的 MCP 接入配置、8 个 MCP 工具、244 个单元测试。
+3.  **迭代与扩展**：由 **Codex** 进行架构决策与计划分解，通过 **Paseo** 启动 **Claude Code** 执行实现；目前覆盖 30+ AI 客户端的 MCP 接入配置、8 个 MCP 工具、286 个单元测试。
 
 ---
 
