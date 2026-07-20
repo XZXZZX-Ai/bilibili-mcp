@@ -164,6 +164,10 @@
 
 ## 2026-07-20
 
+- Fact: Version `1.7.2` publishes transcript keyword search through the existing tag-triggered npm trusted-publishing workflow.
+- Evidence: Commit `b05001b`, annotated tag `v1.7.2`, Actions run `29728674803`, npm latest/provenance metadata, exact-version CLI smoke, and the non-draft GitHub Release.
+- Impact: Users can locate literal subtitle keywords with bounded timestamped context through `get_video_transcript`; the public tool count remains eight.
+
 - Fact: `get_video_transcript` supports optional keyword search (`query`, `max_matches`, `context_segments`), returning case-insensitive literal `Transcript Match` results with bounded timestamped context. Eight MCP tools preserved; zero extra Bilibili requests.
 - Evidence: `src/bilibili/subtitle.ts` searchTranscript helper, `src/bilibili/types.ts` TranscriptMatch/TranscriptSearchOptions types, `src/utils/validation.ts` query/max_matches/context_segments validators, 286-test suite, and the PRD at `docs/transcript-keyword-search-prd.md`.
 - Impact: Search mode requires real subtitles and rejects description fallback; no-query behavior, request counts, and public tool list are unchanged.

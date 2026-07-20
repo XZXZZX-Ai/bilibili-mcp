@@ -186,3 +186,9 @@ Remove or stop using:
 - Keep: bounded release handoff, explicit exclusion of generated learning state, and post-publish npm/provenance/CLI checks.
 - Change: none.
 - Remove: no additional release scaffolding.
+
+### 2026-07-20 Harness Eval: v1.7.2 feature release
+
+- The existing one-agent preparation plus Codex release gates caught a missing text-length guard before publication and kept the generated learning queue out of both commits.
+- Current official npm/GitHub checks confirmed the existing OIDC workflow needed no edit; the tag-triggered release passed without repair.
+- Keep the same bounded handoff and independent final verification. Do not add another release layer; report accuracy and scoped staging remain the useful controls.
