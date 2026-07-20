@@ -193,3 +193,9 @@
 - Objective: Delete the unused authentication module, remove inert package configuration, connect runtime cache sizing, remove stale Smithery wording, and prevent deleted modules from surviving in publishable build output.
 - Files in scope: `src/bilibili/auth.ts`, `src/utils/cache.ts`, `src/index.ts`, `tests/cache.test.ts`, `package.json`, the codemap, and task handoff/report records.
 - Result: The unused 220-line module and inert package block were deleted, both caches now use `config.maxCacheSize`, and the build performs a guarded portable `dist` clean before `tsc`. Codex independently verified the clean build, 244/244 tests, a 124-entry package with no `auth.*` or sentinel artifact, scoped reference scans, and `git diff --check`. No commit, push, PR, release, or publish was performed.
+
+## 2026-07-20 v1.7.1 Release
+
+- Owner: Codex executed the release after one Paseo-managed Claude Code `release-verifier` handoff.
+- Result: Release-preparation commit `ff5f8f4` was pushed, annotated tag `v1.7.1` triggered Actions run `29723831279`, and the trusted publish job passed install, 244 tests, build, and npm publication. npm latest is `1.7.1` with SLSA provenance; the published CLI help smoke passed; the GitHub Release is non-draft and non-prerelease.
+- Scope boundary: The generated `pending-learning-proposals.md` date change remained unstaged. No source, dependency, test, or workflow change was required during release execution.

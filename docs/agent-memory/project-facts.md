@@ -154,9 +154,9 @@
 - Evidence: GitHub Issue #15, the `finally` cleanup in `src/bilibili/fingerprint.ts`, and `tests/bilibili-fingerprint.test.ts`.
 - Impact: A rejected fingerprint fetch still performs one attempt and resolves `null` without leaving its request timer pending.
 
-- Fact: Source version `1.7.1` combines the README synchronization with the legacy auth/config/cache/build cleanup, without a tag or publication.
-- Evidence: `package.json` version, bilingual changelog entries, build/test/pack verification, and the README sync handoff.
-- Impact: npm latest and GitHub Release remain `1.7.0`; publishing `1.7.1` requires a separate authorized step.
+- Fact: Version `1.7.1` combines the README synchronization with the legacy auth/config/cache/build cleanup and is published to npm with provenance.
+- Evidence: annotated tag `v1.7.1`, Actions run `29723831279`, npm attestation metadata, and the non-draft GitHub Release.
+- Impact: npm latest and the current GitHub Release are `1.7.1`; later release work should start from this baseline.
 
 - Fact: Both READMEs now document `BILIBILI_CACHE_SIZE`, `USER_AGENT`, and the restart requirement for runtime tuning environment variables.
 - Evidence: `README.md` and `README_EN.md` API rate limiting sections, `src/config.ts` environment variable loading.

@@ -167,3 +167,22 @@ Remove or stop using:
 - [x] `harness-security.md`
 - [x] `AGENTS.md`
 - [x] `CLAUDE.md`
+
+### 2026-07-20 Harness Eval: v1.7.1 patch release
+
+#### Period
+
+- Start/End: 2026-07-20
+- Related task: README/config cleanup patch and `v1.7.1` release
+
+#### Signals And Finding
+
+- One bounded Paseo release-verifier found and corrected a stale changelog claim before tagging.
+- Independent Codex gates and the existing tag-triggered trusted-publishing workflow completed without repair.
+- The existing one-agent handoff plus top-level verification remains sufficient for a patch release; no additional agent or workflow layer is needed.
+
+#### Keep / Change / Remove
+
+- Keep: bounded release handoff, explicit exclusion of generated learning state, and post-publish npm/provenance/CLI checks.
+- Change: none.
+- Remove: no additional release scaffolding.

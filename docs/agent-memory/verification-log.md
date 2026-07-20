@@ -992,3 +992,9 @@
 - Commands: Paseo-managed Claude Code implementation; `package-maintainer` build/package repair; sentinel clean-build check; `npm run build`; full `npm test`; `npm pack --dry-run --json`; `git diff --check`; scoped `rg` checks for `BilibiliAuth`, `src/bilibili/auth`, and Smithery wording.
 - Result: `src/bilibili/auth.ts` is deleted with no live references; `config.maxCacheSize` controls both QuickLRU instances; the stale Smithery comment and inert `package.json.config.bilibili` block are gone. Codex independently verified 23 files and 244 tests, a clean TypeScript build, and 124 package entries with zero `dist/bilibili/auth.*` or sentinel artifacts.
 - Caveat: The cache regression uses a file-scoped hoisted `BILIBILI_CACHE_SIZE=3` and restores the previous value after the file. No live Bilibili request, MCP public behavior, credential behavior, dependency, version, commit, push, release, or publish changed.
+
+## 2026-07-20 v1.7.1 Publication
+
+- Commands: independent build; full `npm test`; production audit; package dry run; scoped secret and UTF-8 scans; annotated tag push; Actions run inspection; live npm metadata and attestation lookup; published CLI help smoke; GitHub Release creation and inspection.
+- Result: 23 files and 244 tests passed; production audit reported zero vulnerabilities; the 124-entry package contained the expected entry points and no credential/Smithery artifacts. Actions run `29723831279` succeeded, npm latest is `1.7.1` with SLSA provenance, and the non-draft GitHub Release is available at `https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.7.1`.
+- Caveat: Actions emitted the existing non-blocking notice that `actions/checkout@v4` and `actions/setup-node@v4` are forced from Node 20 to Node 24 by GitHub.
