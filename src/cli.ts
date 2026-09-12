@@ -634,18 +634,34 @@ export async function setupCredentials(
     }
   }
 
-  // Optional ASR installation prompt
+  // Read local readiness without installing or probing devices again.
+  const asrState = readAsrState(deriveAsrPaths().stateFile);
+  const profile = asrState.executionProfile && resolveExecutionProfile(
+    asrState.executionProfile.device, asrState.executionProfile.computeType,
+  );
+  const reuseAsr = asrState.kind === "ready" && profile !== undefined &&
+    asrState.deviceReadiness === "ready" && asrState.migrationStatus === "completed";
   console.log("");
-  console.log(
-    "ASR 语音识别（可选）：安装本地 faster-whisper 模型，",
-  );
-  console.log(
-    "用于后续在没有 CC/AI 字幕时提供本地语音识别。setup 会用程序生成的短 WAV 验证设备，不访问 Bilibili。",
-  );
+  if (reuseAsr) {
+    console.log(`ASR 已安装并就绪：${asrState.modelKey} / ${profile.device} / ${profile.computeType}`);
+    console.log("重新配置会重建运行环境并验证设备；相同模型复用文件，更换模型需下载。");
+  } else {
+    console.log(
+      "ASR 语音识别（可选）：安装本地 faster-whisper 模型，",
+    );
+    console.log(
+      "用于后续在没有 CC/AI 字幕时提供本地语音识别。setup 会用程序生成的短 WAV 验证设备，不访问 Bilibili。",
+    );
+    if (asrState.kind !== "not_installed") {
+      console.log("检测到已有 ASR，但安装不完整或设备尚未验证，需要修复或重新验证。");
+    }
+  }
 
-  const answer = await askHiddenFn("是否现在安装？[y/N] ");
+  const answer = await askHiddenFn(reuseAsr ? "是否重新配置 ASR？[y/N] "
+    : asrState.kind === "not_installed" ? "是否现在安装？[y/N] " : "是否修复或重新验证 ASR？[y/N] ");
   if (answer.toLowerCase() !== "y" && answer.toLowerCase() !== "yes") {
-    console.log("已跳过 ASR 安装。稍后可重新运行 setup 来安装。");
+    console.log(reuseAsr ? "继续使用现有 ASR，无需重新安装。"
+      : "已跳过 ASR 安装或修复。稍后可重新运行 setup。");
     return;
   }
 

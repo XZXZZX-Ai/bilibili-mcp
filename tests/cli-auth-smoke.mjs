@@ -1,10 +1,14 @@
 import { spawn } from 'node:child_process';
-import { resolve } from 'node:path';
+import { resolve, join } from 'node:path';
+import { mkdtempSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import assert from 'node:assert/strict';
 const cli = resolve('dist/cli.js');
+const smokeHome = mkdtempSync(join(tmpdir(), 'bilibili-cli-smoke-'));
 const run = (command, prompts, expected, interactive = true, qrStage) => new Promise((done, reject) => {
   const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !k.startsWith('BILIBILI_')));
   Object.assign(env, { BILIBILI_SESSDATA: 'synthetic-smoke', BILIBILI_BILI_JCT: 'synthetic-csrf', BILIBILI_DEDEUSERID: '10001' });
+  Object.assign(env, { HOME: smokeHome, USERPROFILE: smokeHome });
   const code = `
     process.stdin.isTTY=${interactive};
     const qrStage=${JSON.stringify(qrStage)};
@@ -43,6 +47,7 @@ const run = (command, prompts, expected, interactive = true, qrStage) => new Pro
     } catch (error) { reject(error); }
   });
 });
+try {
 await run(['config'], [['SESSDATA:', '\x03']], 130);
 await run(['setup'], [['重新登录：', '\r'], ['是否现在安装', '\x03']], 130);
 await run(['setup'], [['重新登录：', '\r'], ['是否现在安装', 'n\r']], 0);
@@ -53,3 +58,6 @@ await run(['setup'], [...qrPrompts, ['r. 重新生成二维码', '\r']], 1);
 await run(['setup'], qrPrompts, 130, true, 'generate');
 await run(['setup'], qrPrompts, 130, true, 'poll');
 console.log('8 built CLI smoke scenarios passed; only synthetic credentials and stubbed fetch used.');
+} finally {
+  rmSync(smokeHome, { recursive: true, force: true });
+}

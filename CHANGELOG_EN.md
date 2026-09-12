@@ -4,6 +4,14 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.14.1] - 2026-09-12
+
+### Fixed
+- `setup` recognizes ready ASR installations, displays the current model and device, and defaults to reuse instead of prompting to install again. Reconfiguration explains runtime rebuilding, model reuse and downloads before proceeding.
+- Missing installations offer setup; incomplete or unverified installations offer repair/verification. Noninteractive installation flags retain their existing behavior.
+
+---
+
 ## [1.14.0] - 2026-09-12
 
 - Updated transitive fast-uri, hono and qs dependencies to resolve production audit findings.
