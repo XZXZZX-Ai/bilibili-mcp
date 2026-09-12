@@ -296,12 +296,14 @@ export async function getVideoCommentsData(
       processedComments.push(...processedReplies);
     }
 
-    // 优先排序：有时间戳的评论排在前面
-    processedComments.sort((a, b) => {
-      if (a.has_timestamp && !b.has_timestamp) return -1;
-      if (!a.has_timestamp && b.has_timestamp) return 1;
-      return b.likes - a.likes; // 都有或都没有时间戳，按点赞数排序
-    });
+    // 热门模式优先保留视频时间点；时间模式保持上游主评论顺序及其后的回复块。
+    if (sort !== 0) {
+      processedComments.sort((a, b) => {
+        if (a.has_timestamp && !b.has_timestamp) return -1;
+        if (!a.has_timestamp && b.has_timestamp) return 1;
+        return b.likes - a.likes;
+      });
+    }
 
     // 统计
     const commentsWithTimestamp = processedComments.filter(

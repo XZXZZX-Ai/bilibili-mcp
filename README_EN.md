@@ -26,7 +26,7 @@ Bilibili MCP is a local MCP server that lets AI agents read Bilibili. You can re
 
 ## What it does
 
-- **Read transcripts and comments** — pull the full transcript or search it for keywords, every match carrying context, a timestamp, and a direct Bilibili link to that moment; read hot- (default) or time-sorted comments and replies, with timestamped comments kept with priority.
+- **Read transcripts and comments** — pull the full transcript or search it for keywords, every match carrying context, a timestamp, and a direct Bilibili link to that moment; read hot- (default) or time-sorted comments and replies. Hot mode prioritizes comments containing video timestamps; time mode preserves the upstream order of newest root comments.
 - **Read a single video** — fetch metadata such as title, creator, and play counts, plus the multi-part structure and chapters.
 - **Find videos** — search Bilibili by topic and get candidates in Bilibili's platform order, each with title, creator, duration, and BVID.
 - **Find Creators** — search Creator candidates and confirm the account you actually mean.
@@ -57,8 +57,8 @@ Please help me install the Bilibili MCP server: @xzxzzx/bilibili-mcp.
    npx -y @xzxzzx/bilibili-mcp@latest check
    npx -y @xzxzzx/bilibili-mcp@latest doctor --json
    doctor --json checks local configuration only; it does not replace the live login verification below.
-   If setup shows a login-method menu, select QR login with Enter and tell me to scan using the mobile Bilibili App and confirm on my phone.
-   Keep the QR in my interactive terminal; do not collect the QR, login URL, or Cookies in chat. Released versions without this menu still use manual Cookie entry.
+   Recommend QR login: press Enter at the login-method menu, then tell me to scan using the mobile Bilibili App and confirm on my phone. Choose manual Cookie entry if scanning is unavailable.
+   Keep the QR in my interactive terminal; do not collect the QR, login URL, or Cookies in chat.
    setup will ask about installing the optional local ASR model; choosing no is fine. Automated environments can run setup --non-interactive (credentials come from existing environment variables or the global config file; no prompts, and credential values are never read from stdin/argv); add --asr-model <tiny|base|small> to install a model and --asr-device <auto|cpu|cuda> to choose the device preference (default: auto).
 5. Ask me to restart or reconnect the client. When you can't do it for me,
    tell me explicitly to do it myself.
@@ -93,9 +93,9 @@ Credentials are stored at `~/.bilibili-mcp/config.json` (Windows: `%USERPROFILE%
 
 ### QR login (recommended)
 
-Run setup and press Enter to choose QR login. Scan the QR in your terminal with the **mobile Bilibili App**, then confirm on your phone. No browser Cookie copying is needed, making login easier. Manual Cookie entry remains available if you cannot scan.
+Run setup and press Enter to choose QR login. Scan the QR in your terminal with the **mobile Bilibili App**, then confirm on your phone. No browser Cookie copying is needed, making login easier.
 
-> QR login is implemented on the current development branch but has not been released to npm yet. Use manual Cookie entry if your installed version does not offer QR login.
+**Can't scan?** Choose manual Cookie entry in the login-method menu, then follow the [manual Cookie setup guide](./docs/client-setup.en.md#finding-credential-fields-in-your-browser) to find your credentials and enter them in your local terminal.
 
 ## Usage examples
 

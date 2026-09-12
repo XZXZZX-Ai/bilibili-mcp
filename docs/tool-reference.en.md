@@ -35,7 +35,7 @@ This page preserves detailed behavior, parameters, examples, error contracts, an
 ### 2. Comment Summarization (`get_video_comments`)
 - Retrieves popular comments to help gauge video sentiment.
 - Filters emoji placeholders (e.g., `[doge]`) for cleaner text.
-- Prioritizes comments with timestamps (e.g., `05:20`) for quick highlight location.
+- Hot mode prioritizes comments with video timestamps (e.g., `05:20`); time mode preserves the upstream chronological order of root comments.
 - Supports two levels of detail:
   - `brief`: 10 popular comments summary.
   - `detailed`: 20 popular comments + high-quality replies.
@@ -571,6 +571,8 @@ Request:
 ```
 
 Returns: `comments[]` (author, content, likes, timestamp, has_timestamp), `summary` (total count, timestamp count).
+
+`sort: "time"` preserves the upstream newest-first root order without reordering by likes or video timestamps in the text. Detailed output with replies places roots first, then appends up to three replies per root in root traversal order; it does not globally interleave roots and replies by creation time. `sort: "hot"` retains video-timestamp priority followed by descending likes.
 
 > `limit` applies only to main comments. With `include_replies: true` and `detail_level: "detailed"`, the flattened `comments[]` also contains child replies and may therefore exceed `limit`. Expired or missing cookies may result in empty comments. Use `sort: "time"` for newest comments, `include_replies: false` to skip replies.
 

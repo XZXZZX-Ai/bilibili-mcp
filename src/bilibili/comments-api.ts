@@ -62,7 +62,7 @@ export async function getVideoComments(
     pn: page,
     ps: Math.min(pageSize, 20),
     sort: sort.toString(),
-    mode: "3",
+    mode: sort === 0 ? "2" : "3",
   };
 
   logger.debug(
@@ -93,7 +93,7 @@ export async function getVideoComments(
     pn: page,
     ps: Math.min(pageSize, 20),
     sort,
-    mode: 3,
+    mode: sort === 0 ? 2 : 3,
   };
 
   /**

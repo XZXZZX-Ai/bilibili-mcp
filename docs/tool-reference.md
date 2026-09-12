@@ -35,7 +35,7 @@
 ### 2. 评论总结 (`get_video_comments`)
 - 获取视频热门评论，辅助判断视频真实口碑
 - 自动过滤表情占位符（如 `[doge]`）以保持文本整洁
-- 优先保留包含时间戳的评论（如 `05:20`），方便定位高能片段
+- 热门模式优先保留包含视频时间点的评论（如 `05:20`）；时间模式保留主评论的上游时间顺序
 - 支持两种详细程度：
   - `brief`: 10 条热门评论速览
   - `detailed`: 20 条热门评论 + 高赞连带回复
@@ -575,6 +575,8 @@ Series 使用相同模式但 `section` 为 `"series"`，且必须使用 Series �
 ```
 
 返回内容：`comments[]`（含 `author`、`content`、`likes`、`timestamp`、`has_timestamp`）、`summary`（总数和时间戳评论数）。
+
+`sort: "time"` 保留主评论的上游最新顺序，不按点赞数或正文中的视频时间点重排。详细模式包含回复时，先返回主评论，再按主评论顺序追加每条最多 3 条子回复；不将主评论和子回复混排成一个全局时间序列。`sort: "hot"` 保留视频时间点优先、再按点赞数排序的行为。
 
 > `limit` 只限制主评论数量；当 `include_replies: true` 且 `detail_level: "detailed"` 时，扁平的 `comments[]` 还包含子回复，因此总条数可超过 `limit`。Cookie 过期或未登录可能导致评论为空。`sort: "time"` 可获取最新评论，`include_replies: false` 不返回子回复。
 

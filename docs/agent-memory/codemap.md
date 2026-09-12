@@ -150,6 +150,9 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 
 ## Tests
 
+- `tests/comments-sort.test.ts`: WBI/plain hot/time mode mapping, time root
+  order across pages and legacy/options callers, bounded appended replies,
+  unchanged hot timestamp/likes ranking and sort-aware cache isolation.
 - `tests/qr-login.test.ts`: synthetic QR response/status/cookie parsing,
   terminal layout, fake-time polling/deadline/cancellation and leak checks.
 - `tests/setup-qr.test.ts`: QR/manual/recovery decisions and real setup-to-QR-to-nav
