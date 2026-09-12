@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 import { server } from "./server.js";
 import { credentialManager } from "./utils/credentials.js";
 import { checkLoginStatus } from "./bilibili/http.js";
+import { loginWithQr, QrLoginError } from "./bilibili/qr-login.js";
 import { BilibiliAPIError } from "./utils/errors.js";
 import { throwIfAborted, createAbortError } from "./security/operation-context.js";
 import { Writable } from "stream";
@@ -457,6 +458,7 @@ export interface SetupCredentialsOptions {
 export async function setupAuthentication(
   ask: (question: string, signal?: AbortSignal) => Promise<string> = askHidden,
   verify: typeof checkLoginStatus = checkLoginStatus,
+  acquireQr: typeof loginWithQr = loginWithQr,
 ): Promise<boolean> {
   const controller = new AbortController();
   const { signal } = controller;
@@ -501,32 +503,46 @@ export async function setupAuthentication(
       console.log("当前环境变量会覆盖保存的登录结果；不会修改环境变量。");
       if (await prompt("输入 y 继续，Enter 退出：") !== "y") return false;
     }
-    console.log("手动 Cookie 登录：请从浏览器开发者工具获取，输入不会回显。");
-    // Credential values are case-sensitive; only menu choices are normalized.
-    const read = async (question: string) => {
-      throwIfAborted(signal);
-      const value = (await ask(question, signal)).trim();
-      throwIfAborted(signal);
-      return value;
-    };
-    const candidate = {
-      sessdata: await read("SESSDATA: "),
-      bili_jct: await read("bili_jct: "),
-      dedeuserid: await read("DedeUserID: "),
-      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
-    };
-    const result = await verify(candidate, signal);
-    throwIfAborted(signal);
-    if (!result.isLogin) {
-      console.error("新凭证未通过验证；已有凭证保持不变。");
-      return false;
+    let method: string;
+    do { method = await prompt("1. 扫码登录（推荐，默认；使用手机 B站 App） / 2. 手动 Cookie："); }
+    while (!["", "1", "2"].includes(method));
+    while (true) {
+      try {
+        // Credential values are case-sensitive; only menu choices are normalized.
+        const read = async (question: string) => {
+          throwIfAborted(signal);
+          const value = (await ask(question, signal)).trim();
+          throwIfAborted(signal);
+          return value;
+        };
+        if (method === "2") console.log("手动 Cookie 登录：请从浏览器开发者工具获取，输入不会回显。");
+        const candidate = method === "2" ? {
+          sessdata: await read("SESSDATA: "),
+          bili_jct: await read("bili_jct: "),
+          dedeuserid: await read("DedeUserID: "),
+          expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+        } : await acquireQr(signal);
+        throwIfAborted(signal);
+        const result = await verify(candidate, signal);
+        throwIfAborted(signal);
+        if (!result.isLogin) throw new Error("Candidate rejected");
+        credentialManager.saveToFile(candidate);
+        if (!envOverrides) credentialManager.setCredentials(candidate);
+        console.log(envOverrides
+          ? "登录凭证已验证并保存；当前仍使用环境变量凭证。"
+          : "登录完成，凭证已验证并保存。");
+        return true;
+      } catch (error) {
+        throwIfAborted(signal);
+        if (error instanceof Error && error.name === "AbortError") throw error;
+        if (method === "2") throw error;
+        console.error(error instanceof QrLoginError ? error.message : "新凭证验证或保存失败；已有凭证保持不变。");
+        const recovery = await prompt("r. 重新生成二维码 / m. 手动 Cookie / Enter. 退出：");
+        if (recovery === "r") continue;
+        if (recovery === "m") { method = "2"; continue; }
+        return false;
+      }
     }
-    credentialManager.saveToFile(candidate);
-    if (!envOverrides) credentialManager.setCredentials(candidate);
-    console.log(envOverrides
-      ? "登录凭证已验证并保存；当前仍使用环境变量凭证。"
-      : "登录完成，凭证已验证并保存。");
-    return true;
   } catch (error) {
     if (signal.aborted || (error instanceof Error && error.name === "AbortError")) {
       process.exitCode = 130;

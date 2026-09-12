@@ -23,6 +23,13 @@ This file is a navigation index for `@xzxzzx/bilibili-mcp`. It is not a design s
   `tests/setup-auth.test.ts` covers transitions and cancellation;
   `node tests/cli-auth-smoke.mjs` checks built CLI prompts and exit codes with
   synthetic credentials and stubbed HTTP after `npm run build`.
+- `src/bilibili/qr-login.ts`: CLI-only anonymous QR acquisition. Checks TTY and
+  dimensions, encodes locally with qrcode-generator, renders four-module quiet
+  zones, uses fixed no-redirect HTTPS endpoints with bounded bodies and
+  cancellable 15-second requests/180-second attempts, polls sequentially every
+  three seconds, and returns strictly parsed candidate cookies. No credential
+  installation, persistence, redirect follow-up or MCP registration occurs here.
+  Setup owns method/recovery menus and validates the candidate before saving.
 - `src/config.ts`: runtime configuration with strict positive-safe-integer
   validation for rate limits, timeouts, and cache sizing, plus canonical
   supported-language selection that preserves `ai-zh` and rejects unknown values.
@@ -143,6 +150,10 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 
 ## Tests
 
+- `tests/qr-login.test.ts`: synthetic QR response/status/cookie parsing,
+  terminal layout, fake-time polling/deadline/cancellation and leak checks.
+- `tests/setup-qr.test.ts`: QR/manual/recovery decisions and real setup-to-QR-to-nav
+  integration for successful ASR continuation, identity mismatch and cancellation.
 - `tests/login-candidate.test.ts`: candidate/ambient credential isolation,
   input and account validation, malformed nav responses and cancellation.
 - `tests/credentials-storage.test.ts`: real isolated Windows file replacement,

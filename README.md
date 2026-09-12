@@ -55,6 +55,8 @@ Bilibili MCP 是一个本地 MCP server，让 AI Agent 读取 Bilibili 内容。
    npx -y @xzxzzx/bilibili-mcp@latest check
    npx -y @xzxzzx/bilibili-mcp@latest doctor --json
    doctor --json 只检查本机配置状态，不能代替后面的实时登录验证。
+   如果 setup 显示登录方式菜单，回车选择扫码登录，并提醒我“请用手机 B站 App 扫码，在手机上确认登录”。
+   二维码只在我的交互终端显示；不要把二维码、登录链接或 Cookie 收集到聊天中。没有扫码选项的已发布版本仍按手动 Cookie 提示操作。
    setup 会询问是否安装可选的本地 ASR 模型，选否即可。自动化环境可用 setup --non-interactive（凭据来自已有的环境变量或全局配置，绝不提示、也绝不从 stdin/argv 读取凭据值）；加 --asr-model <tiny|base|small> 可同时安装指定模型，--asr-device <auto|cpu|cuda> 选择设备偏好（默认 auto）。
 5. 让我重启或重连客户端。你无法代替我完成这一步时，请明确让我操作。
 6. 重连后调用 MCP 工具 check_bilibili_credentials。
@@ -84,6 +86,12 @@ Bilibili MCP 是一个本地 MCP server，让 AI Agent 读取 Bilibili 内容。
 </p>
 
 凭证保存在 `~/.bilibili-mcp/config.json`（Windows：`%USERPROFILE%\.bilibili-mcp\config.json`），不保证操作系统级加密。登录失败时的排查路径见[客户端配置指南](./docs/client-setup.md#凭证配置与验证)。
+
+### 扫码登录（推荐）
+
+运行 setup 后，按回车选择扫码登录，用手机 **B站 App** 扫描终端里的二维码，再在手机上确认即可。无需从浏览器复制 Cookie，更简单方便。无法扫码时，仍可选择手动 Cookie 登录。
+
+> 扫码登录已在当前开发分支实现，尚未随 npm 发布；已发布版本没有扫码选项时，请使用手动 Cookie。
 
 ## 使用示例
 

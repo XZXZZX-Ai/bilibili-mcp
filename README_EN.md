@@ -57,6 +57,8 @@ Please help me install the Bilibili MCP server: @xzxzzx/bilibili-mcp.
    npx -y @xzxzzx/bilibili-mcp@latest check
    npx -y @xzxzzx/bilibili-mcp@latest doctor --json
    doctor --json checks local configuration only; it does not replace the live login verification below.
+   If setup shows a login-method menu, select QR login with Enter and tell me to scan using the mobile Bilibili App and confirm on my phone.
+   Keep the QR in my interactive terminal; do not collect the QR, login URL, or Cookies in chat. Released versions without this menu still use manual Cookie entry.
    setup will ask about installing the optional local ASR model; choosing no is fine. Automated environments can run setup --non-interactive (credentials come from existing environment variables or the global config file; no prompts, and credential values are never read from stdin/argv); add --asr-model <tiny|base|small> to install a model and --asr-device <auto|cpu|cuda> to choose the device preference (default: auto).
 5. Ask me to restart or reconnect the client. When you can't do it for me,
    tell me explicitly to do it myself.
@@ -88,6 +90,12 @@ Prefer to do it yourself? The same flow takes four steps:
 </p>
 
 Credentials are stored at `~/.bilibili-mcp/config.json` (Windows: `%USERPROFILE%\.bilibili-mcp\config.json`). Operating-system-level encryption is not guaranteed. For login-failure troubleshooting, see the [client setup guide](./docs/client-setup.en.md#credential-setup-and-verification).
+
+### QR login (recommended)
+
+Run setup and press Enter to choose QR login. Scan the QR in your terminal with the **mobile Bilibili App**, then confirm on your phone. No browser Cookie copying is needed, making login easier. Manual Cookie entry remains available if you cannot scan.
+
+> QR login is implemented on the current development branch but has not been released to npm yet. Use manual Cookie entry if your installed version does not offer QR login.
 
 ## Usage examples
 

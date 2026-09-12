@@ -25,7 +25,7 @@ it("keeps old credentials when validation is unavailable", async () => {
   expect(credentialManager.saveToFile).not.toHaveBeenCalled();
 });
 it("validates the manual candidate before saving and installing", async () => {
-  const ask = vi.fn().mockResolvedValueOnce("2").mockResolvedValueOnce("synthetic-new").mockResolvedValueOnce("new-csrf").mockResolvedValueOnce("20002");
+  const ask = vi.fn().mockResolvedValueOnce("2").mockResolvedValueOnce("2").mockResolvedValueOnce("synthetic-new").mockResolvedValueOnce("new-csrf").mockResolvedValueOnce("20002");
   const verify = vi.fn().mockResolvedValue({ isLogin: true });
   expect(await setupAuthentication(ask, verify)).toBe(true);
   expect(verify.mock.calls[1][0].dedeuserid).toBe("20002");
@@ -34,7 +34,7 @@ it("validates the manual candidate before saving and installing", async () => {
 });
 it("does not install a candidate after a late verification response following SIGINT", async () => {
   vi.mocked(credentialManager.getCredentials).mockReturnValue(null);
-  const ask = vi.fn().mockResolvedValueOnce("synthetic-new").mockResolvedValueOnce("new-csrf").mockResolvedValueOnce("20002");
+  const ask = vi.fn().mockResolvedValueOnce("2").mockResolvedValueOnce("synthetic-new").mockResolvedValueOnce("new-csrf").mockResolvedValueOnce("20002");
   const verify = vi.fn().mockImplementation(async () => { process.emit("SIGINT"); return { isLogin: true }; });
   expect(await setupAuthentication(ask, verify)).toBe(false);
   expect(process.exitCode).toBe(130);
@@ -46,9 +46,9 @@ it("retries uncertain validation before offering reuse", async () => {
   expect(await setupAuthentication(vi.fn().mockResolvedValueOnce("r").mockResolvedValueOnce(""), verify)).toBe(true);
   expect(verify).toHaveBeenCalledTimes(2);
 });
-it("confirmed expired credentials go directly to manual login", async () => {
+it("confirmed expired credentials allow choosing manual login", async () => {
   const verify = vi.fn().mockRejectedValueOnce(new BilibiliAPIError("expired", "COOKIE_EXPIRED")).mockResolvedValueOnce({ isLogin: true });
-  const ask = vi.fn().mockResolvedValueOnce("New-Synthetic").mockResolvedValueOnce("New-Csrf").mockResolvedValueOnce("20002");
+  const ask = vi.fn().mockResolvedValueOnce("2").mockResolvedValueOnce("New-Synthetic").mockResolvedValueOnce("New-Csrf").mockResolvedValueOnce("20002");
   expect(await setupAuthentication(ask, verify)).toBe(true);
   expect(verify.mock.calls[1][0].sessdata).toBe("New-Synthetic");
 });
@@ -61,7 +61,7 @@ it("asks before collecting replacement credentials when environment wins", async
 });
 it("saves an approved candidate without replacing effective environment credentials", async () => {
   vi.mocked(credentialManager.getCredentialSource).mockReturnValue("env");
-  const ask = vi.fn().mockResolvedValueOnce("2").mockResolvedValueOnce("y").mockResolvedValueOnce("new").mockResolvedValueOnce("csrf").mockResolvedValueOnce("20002");
+  const ask = vi.fn().mockResolvedValueOnce("2").mockResolvedValueOnce("y").mockResolvedValueOnce("2").mockResolvedValueOnce("new").mockResolvedValueOnce("csrf").mockResolvedValueOnce("20002");
   expect(await setupAuthentication(ask, vi.fn().mockResolvedValue({ isLogin: true }))).toBe(true);
   expect(credentialManager.saveToFile).toHaveBeenCalledOnce();
   expect(credentialManager.setCredentials).not.toHaveBeenCalled();
@@ -70,7 +70,7 @@ it("saves an approved candidate without replacing effective environment credenti
 it.each(["invalid", "save failure"])("preserves old state on %s", async (failure) => {
   vi.mocked(credentialManager.getCredentials).mockReturnValue(null);
   if (failure === "save failure") vi.mocked(credentialManager.saveToFile).mockImplementation(() => { throw new Error("private path"); });
-  const ask = vi.fn().mockResolvedValueOnce("new").mockResolvedValueOnce("csrf").mockResolvedValueOnce("20002");
+  const ask = vi.fn().mockResolvedValueOnce("2").mockResolvedValueOnce("new").mockResolvedValueOnce("csrf").mockResolvedValueOnce("20002");
   expect(await setupAuthentication(ask, vi.fn().mockResolvedValue({ isLogin: failure !== "invalid" }))).toBe(false);
   expect(credentialManager.setCredentials).not.toHaveBeenCalled();
   expect(JSON.stringify(vi.mocked(console.error).mock.calls)).not.toContain("private path");
