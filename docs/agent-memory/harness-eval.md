@@ -800,3 +800,7 @@ Candidate metrics:
 ## 2026-09-12 v1.14.0 release evaluation
 
 Codex Direct completed the authorized release with one bounded release-verifier review. Audit caught three vulnerable production dependencies before publication; compatible transitive updates cleared them, followed by build, 1264 tests and 8 CLI smoke checks. Full GitHub CI and OIDC npm publish passed. Existing migration fixtures required mechanical package and durable-memory digest refresh; evaluator behavior was preserved. Windows harness checks dominated waiting time. No additional worker tree, workflow change or manual secret handling was needed. Real phone/native terminal acceptance remains an explicit unverified limitation rather than an automated-test claim.
+
+## 2026-09-12 v1.14.1 release evaluation
+
+A bounded Codex Direct patch and one read-only release-verifier review fixed the ready-ASR prompt. Regression tests cover reuse, explicit reconfiguration, absent/legacy/incomplete installation and failed login. The CLI smoke test exposed dependence on the host ASR state; a temporary child home made it deterministic. 1273 tests, 8 smoke scenarios, build, audit and complete remote CI passed before tag/publication. Windows harness tests dominated elapsed time. No installer or credential changes, workflow expansion or additional agent tree was needed.

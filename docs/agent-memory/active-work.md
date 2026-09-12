@@ -2,15 +2,14 @@
 
 ## Current Product Release
 
-`v1.14.0` is the current npm/GitHub published release. Annotated tag `v1.14.0`
-peels to `2939cb07fb3c86de12b77c5183bd750c199bb2c5`; Verify run
-`34689954043` and trusted-publish run `34690476965` succeeded. npm latest is
-1.14.0 with provenance and Apache-2.0 metadata; the bilingual GitHub Release
-is public/latest. Clean-directory exact-version npx prints 1.14.0.
-Official MCP Registry publication was not part of this release execution.
-Real phone confirmation and native terminal QR acceptance remain unverified
-and are disclosed in the release. The dirty primary checkout was preserved.
-See `docs/qa/2026-09-12-release-1.14.0.md` for verification evidence.
+`v1.14.1` is the current npm/GitHub release. Annotated tag `v1.14.1`
+peels to `8bfac926510a0eac01f7b126570779816d6b5f58`; Verify run
+`34691719018` and trusted-publish run `34692223065` succeeded. npm latest is
+1.14.1 with provenance; bilingual GitHub Release is public/latest.
+Clean-directory exact-version npx prints 1.14.1. Interactive setup now defaults
+to reusing ready ASR and distinguishes install, repair and reconfiguration.
+Official MCP Registry publication was outside scope. The dirty primary
+checkout was preserved. See `docs/qa/2026-09-12-asr-setup-1.14.1.md`.
 
 ## Harness v2
 
