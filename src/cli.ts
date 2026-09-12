@@ -219,8 +219,8 @@ export async function configureCredentials(
       expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
     };
 
-    credentialManager.setCredentials(credentials);
     credentialManager.saveToFile(credentials);
+    credentialManager.setCredentials(credentials);
 
     const { GLOBAL_CONFIG_FILE } = await import("./utils/credentials.js");
 

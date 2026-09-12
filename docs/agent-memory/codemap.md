@@ -91,7 +91,9 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 - `src/bilibili/client.ts`: compatibility-oriented client layer and shared request behavior.
 - `src/bilibili/http.ts`: bounded first-party HTTP helpers, active/queue
   admission, total deadlines/cancellation, redirect rejection,
-  bounded JSON, retry ownership, and login-status behavior.
+  bounded JSON, retry ownership, and login-status behavior. `checkLoginStatus`
+  also accepts an explicit candidate plus cancellation signal, verifies account
+  identity without installing the candidate, and rejects malformed nav data.
 - `src/bilibili/wbi.ts`: WBI signing plus bounded single-flight nav-key
   bootstrap, waiter isolation, redirect rejection, and body/key validation.
 - `src/bilibili/fingerprint.ts`: bounded single-flight buvid/fingerprint
@@ -117,7 +119,9 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
 
 ## Utilities
 
-- `src/utils/credentials.ts`: global credential storage and credential source detection.
+- `src/utils/credentials.ts`: global credential storage and credential source detection;
+  exclusive same-directory temporary writes and rename preserve the old file on
+  replacement failure. Candidate header construction does not mutate runtime state.
 - `src/utils/credential-guidance.ts`: safe credential setup instructions, status payloads, and next-step generation.
 - `src/utils/error-guidance.ts`: unified structured MCP error payload mapper with bilingual recovery guidance and category/retry metadata, including the user-choice `ASR_FAKE_IP_DNS` cause, security boundary, exact proxy remedies, non-ASR alternative, and no-automatic-action constraints.
 - `src/utils/validation.ts`: BV, language, detail-level, comment/search limits, sort, query, max_matches, context_segments, Favorites cursor (type/length/base64url charset), and Creator Content input (mid/section/cursor/container identity, including the Dynamic section) validation.
@@ -132,6 +136,12 @@ When adding or changing a public MCP tool, inspect both `tool-schemas.ts` and `t
   freshness check with per-caller cancellation isolation.
 
 ## Tests
+
+- `tests/login-candidate.test.ts`: candidate/ambient credential isolation,
+  input and account validation, malformed nav responses and cancellation.
+- `tests/credentials-storage.test.ts`: real isolated Windows file replacement,
+  injected partial-write/rename failures, temporary-file ownership and direct
+  config save-before-state protection using synthetic credentials.
 
 - `tests/mcp-server-smoke.test.ts`: built `index.js`/`cli.js` stdio coverage, Agent-facing doctor/setup/version CLI probes, MCP handler smoke coverage, and a public JSON-clean `initialize` → `tools/list` → representative `tools/call` wire test.
 - `tests/cli.test.ts`: deterministic CLI tests for help output,

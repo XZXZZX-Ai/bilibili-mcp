@@ -6,6 +6,7 @@
 import fs from "fs";
 import path from "path";
 import os from "os";
+import { randomUUID } from "node:crypto";
 
 export type CredentialSource = "env" | "global_config" | "none";
 
@@ -79,18 +80,33 @@ export class CredentialManager {
    * 将当前凭证持久化保存至全局配置文件
    */
   saveToFile(credentials: BilibiliCredentials): void {
-    if (!fs.existsSync(GLOBAL_CONFIG_DIR)) {
-      fs.mkdirSync(GLOBAL_CONFIG_DIR, { recursive: true, mode: 0o700 });
-    }
-    fs.writeFileSync(
-      GLOBAL_CONFIG_FILE,
-      JSON.stringify(credentials, null, 2),
-      { encoding: "utf-8", mode: 0o600 },
-    );
+    const temporaryFile = path.join(GLOBAL_CONFIG_DIR, `.config-${randomUUID()}.tmp`);
+    let descriptor: number | undefined;
+    let ownsTemporaryFile = false;
     try {
-      fs.chmodSync(GLOBAL_CONFIG_FILE, 0o600);
+      fs.mkdirSync(GLOBAL_CONFIG_DIR, { recursive: true, mode: 0o700 });
+      descriptor = fs.openSync(temporaryFile, "wx", 0o600);
+      ownsTemporaryFile = true;
+      fs.writeFileSync(descriptor, JSON.stringify(credentials, null, 2), "utf-8");
+      try {
+        fs.fchmodSync(descriptor, 0o600);
+      } catch {
+        // Best effort: Windows ACLs do not map directly to POSIX modes.
+      }
+      fs.closeSync(descriptor);
+      descriptor = undefined;
+      fs.renameSync(temporaryFile, GLOBAL_CONFIG_FILE);
+      ownsTemporaryFile = false;
     } catch {
-      // Best-effort hardening; Windows ACL semantics may not map cleanly to POSIX modes.
+      // Do not expose filesystem paths or serialize the candidate into diagnostics.
+      throw new Error("Unable to save Bilibili credentials; existing credentials were preserved");
+    } finally {
+      if (descriptor !== undefined) {
+        try { fs.closeSync(descriptor); } catch { /* Best-effort cleanup. */ }
+      }
+      if (ownsTemporaryFile) {
+        try { fs.unlinkSync(temporaryFile); } catch { /* Preserve the original failure. */ }
+      }
     }
   }
 
@@ -198,8 +214,8 @@ export class CredentialManager {
   /**
    * 获取请求头
    */
-  getAuthHeaders(): Record<string, string> {
-    const creds = this.getCredentials();
+  getAuthHeaders(candidate?: BilibiliCredentials): Record<string, string> {
+    const creds = candidate ?? this.getCredentials();
     if (!creds) {
       return {};
     }

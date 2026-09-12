@@ -7,10 +7,12 @@ import {
   PaidVideoError,
   ResourceLimitError,
   TimeoutError,
+  UpstreamResponseError,
+  ValidationError,
 } from "../utils/errors.js";
 import { logger } from "../utils/logger.js";
 import { withRetry } from "../utils/retry.js";
-import { credentialManager } from "../utils/credentials.js";
+import { credentialManager, type BilibiliCredentials } from "../utils/credentials.js";
 import { generateWBISign, getWBI } from "./wbi.js";
 import { SECURITY_LIMITS } from "../security/limits.js";
 import {
@@ -205,10 +207,45 @@ export async function retryableFetch<T>(
  * 检查当前 Cookie 是否处于登录状态。
  * 该函数不会在日志或错误信息中输出任何 Cookie 内容。
  */
-export async function checkLoginStatus(): Promise<{ isLogin: boolean }> {
-  const authHeaders = credentialManager.getAuthHeaders();
-  const data = await fetchWithoutWBI("/x/web-interface/nav", undefined, authHeaders);
-  return { isLogin: (data as { isLogin?: unknown } | undefined)?.isLogin === true };
+export async function checkLoginStatus(
+  candidate?: BilibiliCredentials,
+  signal?: AbortSignal,
+): Promise<{ isLogin: boolean }> {
+  const operationSignal = getOperationSignal(signal);
+  throwIfAborted(operationSignal);
+  if (candidate !== undefined) {
+    // Cookie values must not introduce new fields or headers. Do not echo input.
+    const cookieValue = /^[\x21\x23-\x2B\x2D-\x3A\x3C-\x5B\x5D-\x7E]+$/;
+    if (
+      !candidate ||
+      typeof candidate.sessdata !== "string" || !cookieValue.test(candidate.sessdata) ||
+      typeof candidate.bili_jct !== "string" || !cookieValue.test(candidate.bili_jct) ||
+      typeof candidate.dedeuserid !== "string" || !/^[1-9]\d*$/.test(candidate.dedeuserid) ||
+      !Number.isFinite(candidate.expiresAt) || candidate.expiresAt <= Date.now()
+    ) {
+      throw new ValidationError("Invalid candidate Bilibili credentials");
+    }
+  }
+  const authHeaders = credentialManager.getAuthHeaders(candidate);
+  const data = await fetchWithoutWBI("/x/web-interface/nav", undefined, authHeaders, operationSignal);
+  throwIfAborted(operationSignal);
+  if (
+    !data || typeof data !== "object" || Array.isArray(data) ||
+    !("isLogin" in data) || typeof data.isLogin !== "boolean"
+  ) {
+    throw new UpstreamResponseError("Invalid Bilibili login response");
+  }
+  if (candidate && data.isLogin) {
+    const mid = "mid" in data ? data.mid : undefined;
+    if (
+      !((typeof mid === "number" && Number.isSafeInteger(mid) && mid > 0) ||
+        (typeof mid === "string" && /^[1-9]\d*$/.test(mid))) ||
+      String(mid) !== candidate.dedeuserid
+    ) {
+      throw new UpstreamResponseError("Bilibili login account does not match candidate");
+    }
+  }
+  return { isLogin: data.isLogin };
 }
 
 /**
