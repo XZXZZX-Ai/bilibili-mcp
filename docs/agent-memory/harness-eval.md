@@ -796,3 +796,7 @@ Candidate metrics:
   dependencies / 0 vulnerabilities; 98 verified dependency signatures; 10
   attestations; twelve public MCP tools; one release-verifier PASS; zero
   credential-bearing Bilibili calls.
+
+## 2026-09-12 v1.14.0 release evaluation
+
+Codex Direct completed the authorized release with one bounded release-verifier review. Audit caught three vulnerable production dependencies before publication; compatible transitive updates cleared them, followed by build, 1264 tests and 8 CLI smoke checks. Full GitHub CI and OIDC npm publish passed. Existing migration fixtures required mechanical package and durable-memory digest refresh; evaluator behavior was preserved. Windows harness checks dominated waiting time. No additional worker tree, workflow change or manual secret handling was needed. Real phone/native terminal acceptance remains an explicit unverified limitation rather than an automated-test claim.

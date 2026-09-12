@@ -2,12 +2,15 @@
 
 ## Current Product Release
 
-`v1.13.1` is the current published baseline. Annotated tag `v1.13.1` peels to
-release commit `d791e0c3c32650b8d7b38bfd670a902bce2d8cc0`; trusted-publish run
-`32687900597` published npm `latest` with provenance, the bilingual GitHub
-Release is public/latest, and Official MCP Registry `1.13.1` is
-`active`/`isLatest=true`. There is no active release task. The dirty primary
-checkout remained outside the isolated release path.
+`v1.14.0` is the current npm/GitHub published release. Annotated tag `v1.14.0`
+peels to `2939cb07fb3c86de12b77c5183bd750c199bb2c5`; Verify run
+`34689954043` and trusted-publish run `34690476965` succeeded. npm latest is
+1.14.0 with provenance and Apache-2.0 metadata; the bilingual GitHub Release
+is public/latest. Clean-directory exact-version npx prints 1.14.0.
+Official MCP Registry publication was not part of this release execution.
+Real phone confirmation and native terminal QR acceptance remain unverified
+and are disclosed in the release. The dirty primary checkout was preserved.
+See `docs/qa/2026-09-12-release-1.14.0.md` for verification evidence.
 
 ## Harness v2
 
