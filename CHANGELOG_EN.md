@@ -4,12 +4,23 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
-## [Unreleased]
+## [1.14.0] - 2026-09-12
+
+- Updated transitive fast-uri, hono and qs dependencies to resolve production audit findings.
+
+### Added
+- `setup` now recommends terminal QR login: scan with the mobile Bilibili App and confirm on your phone, without copying Cookies. Manual Cookie entry and optional ASR installation remain available. (#75–#78)
+- Existing credentials are verified online before reuse or explicit re-login. Expired QR codes and failed requests offer regeneration, manual entry, or exit. Environment variables retain priority and are never edited automatically.
+
+### Security and compatibility
+- New credentials are independently verified and safely saved before becoming effective; failures and Ctrl+C preserve old credentials. QR login runs only in interactive terminals, adds no MCP QR tool, preserves noninteractive setup, and does not renew sessions automatically.
+- Automated tests cover acquisition, verification, persistence, recovery and cancellation. Real phone confirmation and native Windows/macOS/Linux terminal scanning acceptance remain unverified.
 
 ### Changed
 - Migrated the project license from GPL-3.0 to Apache-2.0 to reduce restrictions on commercial use, modification, redistribution, and integration while providing an explicit contribution-related patent grant. Published versions through v1.13.1 remain available under their original GPL-3.0 license.
 
 ### Fixed
+- Fixed `get_video_comments(sort="time")`: both WBI and plain requests select time mode, and root comments are no longer reordered by likes or video timestamps. Hot sorting is unchanged. Thanks to @XeAuCs for the detailed reproduction and endpoint comparison. (#74)
 - When the WBI subtitle endpoint is blocked by Bilibili risk controls with HTTP 412, retry once through `/x/player/v2`; other transport, authentication, and parsing errors retain their existing behavior. (Issue #53)
 
 ---

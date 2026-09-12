@@ -90,7 +90,7 @@
   ],
   "durable_memory": {
     "docs/agent-memory/active-work.md": "bdfb1911b2110a21128301ab91f754df13e5d9b00b97bbdb89e4782c5d093ef2",
-    "docs/agent-memory/codemap.md": "4e5be4c3b09c4a51e7d2adc8338f78680a156d8342162b54fb72d4f0897f0f26",
+    "docs/agent-memory/codemap.md": "936cb4d408befea9378b842c7865d237f597749c919a4b6ffa96edb9b535f1a1",
     "docs/agent-memory/decisions.md": "bf86d7611de41ba56874eac8ecddc01521dc2500e364bfe65e722716949ac5c7",
     "docs/agent-memory/executions/2026-08-14-github-36-codex-direct-report.md": "439b169470c2ab1ec3af3625b8ca3e247d6ccd4f01bc39ff967deff673853570",
     "docs/agent-memory/harness-eval.md": "853b0f59ffc8142faae7663ea2b693c84c69e40f7585df1095a3eb72d017c25e",
@@ -100,17 +100,17 @@
     "docs/agent-memory/verification-log.md": "54e2c6359ff7d3e89cfe3595625d8f52d4e2cb622d1603104f3227085716b001"
   },
   "package": {
-    "output_digest": "2e28e2ed262d1a42a9040e51cfa69e2328722796696c0339bec275e1d1d83212",
+    "output_digest": "ce82de9a57fbdcd66f34435ef5e1219a0064ea084fc6b1a765b8f257fea457c2",
     "pack_output": [
       {
-        "id": "@xzxzzx/bilibili-mcp@1.13.1",
+        "id": "@xzxzzx/bilibili-mcp@1.14.0",
         "name": "@xzxzzx/bilibili-mcp",
-        "version": "1.13.1",
-        "size": 1143156,
-        "unpackedSize": 1969030,
-        "shasum": "9558951305d53fa5f7837c76c94f6dd1826e02b7",
-        "integrity": "sha512-KrUwXy8riI3eM+Y/3CVJAOXUXU2oMTr6gT7q49jNuOgzokVG/PVZXAwwzLZUPGgsT3dXZVrYxW419PUphMaMSg==",
-        "filename": "xzxzzx-bilibili-mcp-1.13.1.tgz",
+        "version": "1.14.0",
+        "size": 1151580,
+        "unpackedSize": 2004958,
+        "shasum": "c62c22e4bd6c79917a14eb0721786806e07c02ca",
+        "integrity": "sha512-Ux7yBK9/OKaTiTgkhuQU89xxssyb4iTluHGEMUdwoQu3/BuVwko0M902q2mcdaeI45zEbAvPM9uOVHebHZgapA==",
+        "filename": "xzxzzx-bilibili-mcp-1.14.0.tgz",
         "files": [
           {
             "path": "LICENSE",
@@ -119,12 +119,12 @@
           },
           {
             "path": "README_EN.md",
-            "size": 20932,
+            "size": 21769,
             "mode": 420
           },
           {
             "path": "README.md",
-            "size": 19244,
+            "size": 20010,
             "mode": 420
           },
           {
@@ -264,12 +264,12 @@
           },
           {
             "path": "dist/bilibili/comments-api.js",
-            "size": 4727,
+            "size": 4763,
             "mode": 420
           },
           {
             "path": "dist/bilibili/comments-api.js.map",
-            "size": 3904,
+            "size": 4006,
             "mode": 420
           },
           {
@@ -284,12 +284,12 @@
           },
           {
             "path": "dist/bilibili/comments.js",
-            "size": 9445,
+            "size": 9514,
             "mode": 420
           },
           {
             "path": "dist/bilibili/comments.js.map",
-            "size": 7808,
+            "size": 7844,
             "mode": 420
           },
           {
@@ -354,22 +354,22 @@
           },
           {
             "path": "dist/bilibili/http.d.ts",
-            "size": 1233,
+            "size": 1354,
             "mode": 420
           },
           {
             "path": "dist/bilibili/http.d.ts.map",
-            "size": 1109,
+            "size": 1216,
             "mode": 420
           },
           {
             "path": "dist/bilibili/http.js",
-            "size": 14216,
+            "size": 15749,
             "mode": 420
           },
           {
             "path": "dist/bilibili/http.js.map",
-            "size": 11470,
+            "size": 12824,
             "mode": 420
           },
           {
@@ -430,6 +430,26 @@
           {
             "path": "dist/bilibili/playback.js.map",
             "size": 5411,
+            "mode": 420
+          },
+          {
+            "path": "dist/bilibili/qr-login.d.ts",
+            "size": 475,
+            "mode": 420
+          },
+          {
+            "path": "dist/bilibili/qr-login.d.ts.map",
+            "size": 395,
+            "mode": 420
+          },
+          {
+            "path": "dist/bilibili/qr-login.js",
+            "size": 8194,
+            "mode": 420
+          },
+          {
+            "path": "dist/bilibili/qr-login.js.map",
+            "size": 8300,
             "mode": 420
           },
           {
@@ -554,22 +574,22 @@
           },
           {
             "path": "dist/cli.d.ts",
-            "size": 2474,
+            "size": 2779,
             "mode": 420
           },
           {
             "path": "dist/cli.d.ts.map",
-            "size": 1978,
+            "size": 2264,
             "mode": 420
           },
           {
             "path": "dist/cli.js",
-            "size": 23969,
+            "size": 29627,
             "mode": 420
           },
           {
             "path": "dist/cli.js.map",
-            "size": 19112,
+            "size": 23692,
             "mode": 420
           },
           {
@@ -894,22 +914,22 @@
           },
           {
             "path": "dist/utils/credentials.d.ts",
-            "size": 1834,
+            "size": 1865,
             "mode": 420
           },
           {
             "path": "dist/utils/credentials.d.ts.map",
-            "size": 1063,
+            "size": 1090,
             "mode": 420
           },
           {
             "path": "dist/utils/credentials.js",
-            "size": 5043,
+            "size": 6123,
             "mode": 420
           },
           {
             "path": "dist/utils/credentials.js.map",
-            "size": 4327,
+            "size": 5088,
             "mode": 420
           },
           {
@@ -1064,21 +1084,21 @@
           },
           {
             "path": "docs/tool-reference.en.md",
-            "size": 38917,
+            "size": 39359,
             "mode": 420
           },
           {
             "path": "docs/tool-reference.md",
-            "size": 37014,
+            "size": 37414,
             "mode": 420
           },
           {
             "path": "package.json",
-            "size": 2483,
+            "size": 2516,
             "mode": 420
           }
         ],
-        "entryCount": 193,
+        "entryCount": 197,
         "bundled": []
       }
     ]
