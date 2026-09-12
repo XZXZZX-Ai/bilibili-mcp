@@ -6,6 +6,9 @@ import os from "os";
 import { fileURLToPath } from "url";
 import { server } from "./server.js";
 import { credentialManager } from "./utils/credentials.js";
+import { checkLoginStatus } from "./bilibili/http.js";
+import { BilibiliAPIError } from "./utils/errors.js";
+import { throwIfAborted, createAbortError } from "./security/operation-context.js";
 import { Writable } from "stream";
 import { redactSecrets } from "./utils/logger.js";
 import { buildPackageUpdateInfo } from "./utils/update-check.js";
@@ -140,8 +143,9 @@ const packageJson = JSON.parse(
   fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
 
-async function askHidden(question: string): Promise<string> {
+async function askHidden(question: string, signal?: AbortSignal): Promise<string> {
   const readline = await import("readline");
+  throwIfAborted(signal);
   const mutedOutput = new Writable({
     write(chunk, encoding, callback) {
       if (!(mutedOutput as Writable & { muted?: boolean }).muted) {
@@ -157,13 +161,20 @@ async function askHidden(question: string): Promise<string> {
     terminal: true,
   });
 
-  return new Promise<string>((resolve) => {
+  return new Promise<string>((resolve, reject) => {
+    const abort = () => { rl.close(); reject(createAbortError()); };
+    signal?.addEventListener("abort", abort, { once: true });
+    rl.once("SIGINT", () => { process.emit("SIGINT"); abort(); });
+    rl.once("close", () => {
+      signal?.removeEventListener("abort", abort);
+      reject(createAbortError());
+    });
     mutedOutput.muted = false;
     rl.question(question, (answer) => {
       mutedOutput.muted = false;
       process.stdout.write("\n");
-      rl.close();
       resolve(answer.trim());
+      rl.close();
     });
     mutedOutput.muted = true;
   });
@@ -443,8 +454,95 @@ export interface SetupCredentialsOptions {
   asrDevice?: AsrDevicePreference;
 }
 
+export async function setupAuthentication(
+  ask: (question: string, signal?: AbortSignal) => Promise<string> = askHidden,
+  verify: typeof checkLoginStatus = checkLoginStatus,
+): Promise<boolean> {
+  const controller = new AbortController();
+  const { signal } = controller;
+  const cancel = () => controller.abort();
+  process.on("SIGINT", cancel);
+  const prompt = async (question: string) => {
+    throwIfAborted(signal);
+    const answer = await ask(question, signal);
+    throwIfAborted(signal);
+    return answer.trim().toLowerCase();
+  };
+  try {
+    const existing = credentialManager.getCredentials();
+    if (existing) {
+      while (true) {
+        let valid: boolean;
+        try {
+          valid = (await verify(existing, signal)).isLogin;
+          throwIfAborted(signal);
+        } catch (error) {
+          throwIfAborted(signal);
+          if (error instanceof BilibiliAPIError && error.code === "COOKIE_EXPIRED") {
+            valid = false;
+          } else {
+            console.error("暂时无法验证已有凭证；不会视为失效或覆盖。");
+            if (await prompt("输入 r 重试，Enter 退出：") === "r") continue;
+            return false;
+          }
+        }
+        if (valid) {
+          console.log(`已有凭证验证有效。来源：${credentialManager.getCredentialSource()}`);
+          let choice: string;
+          do { choice = await prompt("1. 继续（默认） / 2. 重新登录："); }
+          while (!["", "1", "2"].includes(choice));
+          if (choice !== "2") return true;
+        }
+        break;
+      }
+    }
+    const envOverrides = credentialManager.getCredentialSource() === "env";
+    if (envOverrides) {
+      console.log("当前环境变量会覆盖保存的登录结果；不会修改环境变量。");
+      if (await prompt("输入 y 继续，Enter 退出：") !== "y") return false;
+    }
+    console.log("手动 Cookie 登录：请从浏览器开发者工具获取，输入不会回显。");
+    // Credential values are case-sensitive; only menu choices are normalized.
+    const read = async (question: string) => {
+      throwIfAborted(signal);
+      const value = (await ask(question, signal)).trim();
+      throwIfAborted(signal);
+      return value;
+    };
+    const candidate = {
+      sessdata: await read("SESSDATA: "),
+      bili_jct: await read("bili_jct: "),
+      dedeuserid: await read("DedeUserID: "),
+      expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
+    };
+    const result = await verify(candidate, signal);
+    throwIfAborted(signal);
+    if (!result.isLogin) {
+      console.error("新凭证未通过验证；已有凭证保持不变。");
+      return false;
+    }
+    credentialManager.saveToFile(candidate);
+    if (!envOverrides) credentialManager.setCredentials(candidate);
+    console.log(envOverrides
+      ? "登录凭证已验证并保存；当前仍使用环境变量凭证。"
+      : "登录完成，凭证已验证并保存。");
+    return true;
+  } catch (error) {
+    if (signal.aborted || (error instanceof Error && error.name === "AbortError")) {
+      process.exitCode = 130;
+      console.log("登录已取消；已有凭证保持不变。");
+    } else {
+      process.exitCode = 1;
+      console.error("登录验证或保存失败；已有凭证保持不变。请重新运行 setup。");
+    }
+    return false;
+  } finally {
+    process.removeListener("SIGINT", cancel);
+  }
+}
+
 export async function setupCredentials(
-  configure: () => Promise<boolean | void> = configureCredentials,
+  configure?: () => Promise<boolean | void>,
   runAsr: (modelKey: AsrModelKey, devicePreference: AsrDevicePreference) => Promise<AsrSetupResult> = async () => ({ success: false, error: "installer not injected" }),
   askHiddenFn: (question: string) => Promise<string> = askHidden,
   options: SetupCredentialsOptions = {},
@@ -512,19 +610,10 @@ export async function setupCredentials(
     process.exit(1);
   }
 
-  const creds = credentialManager.getCredentials();
-  if (creds !== null) {
-    const source = credentialManager.getCredentialSource();
-    console.log("Credentials are already configured.");
-    console.log(`Source: ${source}`);
-    console.log(
-      "To reconfigure, run: bilibili-mcp config",
-    );
-    // Fall through to ASR question even with existing credentials
-  } else {
-    const configured = await configure();
+  {
+    const configured = await (configure ? configure() : setupAuthentication(askHiddenFn));
     if (configured === false) {
-      process.exitCode = 1;
+      if (process.exitCode !== 130) process.exitCode = 1;
       return;
     }
   }
@@ -654,7 +743,7 @@ export function createCli() {
         options.asrDevice = devicePreference;
       }
       await setupCredentials(
-        configureCredentials,
+        undefined,
         async (modelKey: AsrModelKey, devicePreference: AsrDevicePreference) =>
           runAsrInstallation({ modelKey, devicePreference, onStage: (s) => console.log(`  ${s}`) }),
         askHidden,
@@ -684,6 +773,10 @@ async function main() {
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   main().catch((error) => {
+    if (error instanceof Error && error.name === "AbortError") {
+      console.log("操作已取消。");
+      process.exit(130);
+    }
     console.error("Fatal error in main():", redactSecrets(error));
     process.exit(1);
   });

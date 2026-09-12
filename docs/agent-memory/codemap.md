@@ -17,6 +17,12 @@ This file is a navigation index for `@xzxzzx/bilibili-mcp`. It is not a design s
   selector), `doctor` (credential status plus model, controlled execution
   Profile, Device Readiness, migration status, and optional sanitized failure
   category), `config`, `check`, `check-update`, and `version`.
+  Interactive `setupAuthentication` verifies existing or manual candidate
+  credentials before reuse/persistence, retains environment precedence and
+  gates ASR on successful authentication. Non-interactive setup stays local.
+  `tests/setup-auth.test.ts` covers transitions and cancellation;
+  `node tests/cli-auth-smoke.mjs` checks built CLI prompts and exit codes with
+  synthetic credentials and stubbed HTTP after `npm run build`.
 - `src/config.ts`: runtime configuration with strict positive-safe-integer
   validation for rate limits, timeouts, and cache sizing, plus canonical
   supported-language selection that preserves `ai-zh` and rejects unknown values.

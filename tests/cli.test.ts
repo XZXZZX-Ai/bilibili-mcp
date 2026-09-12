@@ -617,7 +617,7 @@ describe("setup credential loadability", () => {
 
     await setupCredentials(configure, runAsr, askHiddenFn);
 
-    expect(configure).not.toHaveBeenCalled();
+    expect(configure).toHaveBeenCalledOnce();
     expect(runAsr).toHaveBeenCalledOnce();
     expect(runAsr).toHaveBeenCalledWith("small", "auto");
   });
