@@ -2,14 +2,15 @@
 
 ## Current Product Release
 
-`v1.14.1` is the current npm/GitHub release. Annotated tag `v1.14.1`
-peels to `8bfac926510a0eac01f7b126570779816d6b5f58`; Verify run
-`34691719018` and trusted-publish run `34692223065` succeeded. npm latest is
-1.14.1 with provenance; bilingual GitHub Release is public/latest.
-Clean-directory exact-version npx prints 1.14.1. Interactive setup now defaults
-to reusing ready ASR and distinguishes install, repair and reconfiguration.
-Official MCP Registry publication was outside scope. The dirty primary
-checkout was preserved. See `docs/qa/2026-09-12-asr-setup-1.14.1.md`.
+`v1.14.2` is the current npm/GitHub release. Annotated tag `v1.14.2`
+peels to `5b65c1a7ef1c967c124c944b02cfba97a9d5ee84`; Verify run
+`36301364450` and trusted-publish run `36301970592` succeeded. npm latest is
+1.14.2 with provenance; the bilingual GitHub Release is public/latest and
+credits PR #81 author @eeeggplant. Clean-directory exact-version npx prints
+1.14.2. This patch rejects AI subtitles that exceed trusted Part duration by
+more than 5 seconds; equal-duration semantic mismatches remain a known gap.
+The dirty primary checkout was preserved. See
+`docs/qa/2026-09-27-v1.14.2-release.md`.
 
 ## Harness v2
 

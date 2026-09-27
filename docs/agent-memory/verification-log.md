@@ -2768,3 +2768,10 @@ Six release blockers fixed; one regression proof per root cause (new tests
   Linux GPU remains an explicit non-hardware-verified boundary. No Bilibili
   credential-bearing request, tag move, force push, workflow edit, runtime
   change, dependency change, or system proxy/DNS configuration change occurred.
+
+## 2026-09-27 — v1.14.2 AI subtitle duration guard publication
+
+- Source: PR #81 merged as `6b1e5cbb4f9972cf62ab17ce3e715c93d693d948` for Issue #80. Its Verify Product job failed because the migration package receipt still recorded the old built `subtitle-integrity` file sizes; 1289 tests and build had passed.
+- Repair/release: isolated release commit `5b65c1a7ef1c967c124c944b02cfba97a9d5ee84` updated the 1.14.2 version, bilingual changelogs and contributor credit, plus the deterministic package receipt/digest. Local build, 52 files / 1289 tests, receipt unittest, 197-file pack check, production audit (zero findings), redacted Gitleaks scan and CLI version check passed.
+- Remote: [Verify 36301364450](https://github.com/XZXZZX-Ai/bilibili-mcp/actions/runs/36301364450) passed all jobs. Annotated `v1.14.2` tag resolves to the release commit. [Publish 36301970592](https://github.com/XZXZZX-Ai/bilibili-mcp/actions/runs/36301970592) passed with signed provenance; npm exact/latest reports `1.14.2`. The [bilingual GitHub Release](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.14.2) and PR #81 thank @eeeggplant. Empty-directory exact-version npx returned `1.14.2`.
+- Limits: The guard rejects clear duration overruns when a trusted Part duration exists. Equal-duration semantic mismatches remain possible; no new live Bilibili mismatch was observed for this release. The primary dirty checkout was preserved.
