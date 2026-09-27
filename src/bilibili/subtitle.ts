@@ -14,7 +14,7 @@ import { logger, redactSecrets } from "../utils/logger.js";
 import { SECURITY_LIMITS, utf8ByteLength } from "../security/limits.js";
 import { throwIfAborted } from "../security/operation-context.js";
 import { boundedRemoteText } from "../utils/bounded-text.js";
-import { assessAiSubtitleIntegrity } from "./subtitle-integrity.js";
+import { assessAiSubtitleIntegrity, trustedPartDurationSeconds } from "./subtitle-integrity.js";
 import type {
   BilibiliSubtitleItem,
   PartInfo,
@@ -402,16 +402,7 @@ export async function getVideoTranscriptData(
   ): Promise<VideoTranscriptData> => {
     if (runAsr) {
       throwIfAborted(signal);
-      const exactPart = pages.find((part) => part.cid === cid);
-      const durationSeconds =
-        exactPart?.duration ??
-        (
-          pages.length === 1 &&
-          videoData.cid === cid &&
-          typeof videoData.duration === "number"
-            ? videoData.duration
-            : undefined
-        );
+      const durationSeconds = trustedPartDurationSeconds(cid, pages, videoData);
       if (
         durationSeconds === undefined ||
         !Number.isFinite(durationSeconds) ||
@@ -494,7 +485,7 @@ export async function getVideoTranscriptData(
       );
     }
 
-    // 对每个选中的 ai-* 无条件做确定性完整性评估（稳定性 → 语言，语言仅针对 ai-zh）；
+    // 对每个选中的 ai-* 无条件做确定性完整性评估（稳定性 → 时长 → 语言，语言仅针对 ai-zh）；
     // 不通过则绝不返回正文，进入既有确定性缺失路径（ASR/description/错误）；
     // 同语言语义偏差为接受限制（force_asr/exclude_ai_subtitles 控制）；人工字幕保持单读路径
     if (isAiSubtitle(bestSubtitle)) {
@@ -503,6 +494,7 @@ export async function getVideoTranscriptData(
         subtitleContent?.body ?? [],
         secondContent?.body ?? [],
         bestSubtitle.lan,
+        trustedPartDurationSeconds(cid, pages, videoData),
       );
       if (!assessment.usable) {
         return await handleDefinitiveSubtitleAbsence(
@@ -566,7 +558,7 @@ export async function getVideoInfoWithSubtitle(
 
     logger.debug("Video cache miss", { bvid, cacheKey }, { type: "subtitle" });
 
-    const { cid, videoData } = await resolvePartCid(bvidOrUrl, page);
+    const { cid, pages, videoData } = await resolvePartCid(bvidOrUrl, page);
 
     const title = videoData.title;
     const description = videoData.desc || "";
@@ -653,13 +645,14 @@ export async function getVideoInfoWithSubtitle(
         return result;
       }
 
-      // 对选中的 ai-* 无条件做确定性完整性评估（语言仅针对 ai-zh）；不通过则返回 description 且不缓存
+      // 对选中的 ai-* 无条件做确定性完整性评估（稳定性 → 时长 → 语言，语言仅针对 ai-zh）；不通过则返回 description 且不缓存
       if (isAiSubtitle(bestSubtitle)) {
         const secondContent = await getSubtitleContent(bestSubtitle.subtitle_url);
         const assessment = assessAiSubtitleIntegrity(
           subtitleContent.body,
           secondContent?.body ?? [],
           bestSubtitle.lan,
+          trustedPartDurationSeconds(cid, pages, videoData),
         );
         if (!assessment.usable) {
           const result = descriptionFallback();
