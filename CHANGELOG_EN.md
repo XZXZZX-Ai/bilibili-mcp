@@ -4,6 +4,14 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.14.2] - 2026-09-27
+
+### Fixed
+- Added a trusted Part-duration check for platform AI subtitles. A subtitle whose last segment ends more than five seconds beyond the target video's duration is rejected through the existing missing-subtitle fallback, preventing clear cross-video content from reaching summaries. The check is inconclusive when duration is untrusted; semantically wrong subtitles within the duration may still pass. (#80, #81)
+- Thanks to @eeeggplant for the reproductions, duration guard, and regression tests.
+
+---
+
 ## [1.14.1] - 2026-09-12
 
 ### Fixed

@@ -100,17 +100,17 @@
     "docs/agent-memory/verification-log.md": "54e2c6359ff7d3e89cfe3595625d8f52d4e2cb622d1603104f3227085716b001"
   },
   "package": {
-    "output_digest": "a3cb440b9f9a78368b3194ce74c11db2e46be257423456dbb10bbbbd2f56844b",
+    "output_digest": "4118eb9fbac7ef47d85129dfbf7f44ae9832cd16ee646affc605c3af1edd6018",
     "pack_output": [
       {
-        "id": "@xzxzzx/bilibili-mcp@1.14.1",
+        "id": "@xzxzzx/bilibili-mcp@1.14.2",
         "name": "@xzxzzx/bilibili-mcp",
-        "version": "1.14.1",
-        "size": 1152037,
-        "unpackedSize": 2006814,
-        "shasum": "7e2e373049ba2246cb0b4366deefd6807242aeda",
-        "integrity": "sha512-I4ZMtlnicpGCZ4PJeBDpkXGh1TvwQgtCqpEjqohOEsO17oWVnV5mPxJoYYmNxPspuejHYZJwgLPK+PAXhQ2V8w==",
-        "filename": "xzxzzx-bilibili-mcp-1.14.1.tgz",
+        "version": "1.14.2",
+        "size": 1153045,
+        "unpackedSize": 2010678,
+        "shasum": "2fbf20f6cc029d20f6b5807b9598b2f895ea7312",
+        "integrity": "sha512-ScqKA+5R6bL4hvauFPALukOrcQp0NNXst9JykAmE/tFNTK+3aExP+koQTVyJhu/35QL9AAR6VfQMncvvdaodKg==",
+        "filename": "xzxzzx-bilibili-mcp-1.14.2.tgz",
         "files": [
           {
             "path": "LICENSE",
@@ -474,22 +474,22 @@
           },
           {
             "path": "dist/bilibili/subtitle-integrity.d.ts",
-            "size": 633,
+            "size": 1194,
             "mode": 420
           },
           {
             "path": "dist/bilibili/subtitle-integrity.d.ts.map",
-            "size": 438,
+            "size": 696,
             "mode": 420
           },
           {
             "path": "dist/bilibili/subtitle-integrity.js",
-            "size": 2108,
+            "size": 4101,
             "mode": 420
           },
           {
             "path": "dist/bilibili/subtitle-integrity.js.map",
-            "size": 1476,
+            "size": 2727,
             "mode": 420
           },
           {
@@ -504,12 +504,12 @@
           },
           {
             "path": "dist/bilibili/subtitle.js",
-            "size": 21804,
+            "size": 21726,
             "mode": 420
           },
           {
             "path": "dist/bilibili/subtitle.js.map",
-            "size": 16583,
+            "size": 16462,
             "mode": 420
           },
           {
