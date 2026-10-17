@@ -374,6 +374,46 @@ describe("buildDoctorStatus", () => {
     expect(status.credentials.source).toBe("env");
   });
 
+  it("reports shadowed_sources when env credentials shadow a saved global config", () => {
+    credentialManager.clearCredentials();
+    process.env.BILIBILI_SESSDATA = "env-val";
+    process.env.BILIBILI_BILI_JCT = "env-val";
+    process.env.BILIBILI_DEDEUSERID = "env-val";
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs, "readFileSync").mockReturnValue(
+      JSON.stringify({
+        sessdata: "f",
+        bili_jct: "f",
+        dedeuserid: "f",
+        expiresAt: Date.now() + 86400000,
+      }),
+    );
+
+    const status = buildDoctorStatus();
+    expect(status.credentials.source).toBe("env");
+    expect(status.credentials.shadowed_sources).toEqual(["global_config"]);
+  });
+
+  it("reports empty shadowed_sources when only one credential source exists", () => {
+    expect(buildDoctorStatus().credentials.shadowed_sources).toEqual([]);
+
+    vi.restoreAllMocks();
+    clearCredentialEnv();
+    credentialManager.clearCredentials();
+    vi.spyOn(fs, "existsSync").mockReturnValue(true);
+    vi.spyOn(fs, "readFileSync").mockReturnValue(
+      JSON.stringify({
+        sessdata: "f",
+        bili_jct: "f",
+        dedeuserid: "f",
+        expiresAt: Date.now() + 86400000,
+      }),
+    );
+    const status = buildDoctorStatus();
+    expect(status.credentials.source).toBe("global_config");
+    expect(status.credentials.shadowed_sources).toEqual([]);
+  });
+
   it("doctor does not perform any network request", () => {
     const status = buildDoctorStatus();
     expect(status).toBeDefined();

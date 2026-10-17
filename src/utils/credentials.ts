@@ -173,27 +173,56 @@ export class CredentialManager {
   }
 
   getCredentialSource(): CredentialSource {
-    if (
-      process.env.BILIBILI_SESSDATA &&
-      process.env.BILIBILI_BILI_JCT &&
-      process.env.BILIBILI_DEDEUSERID
-    ) {
+    if (this.hasEnvCredentials()) {
       return "env";
     }
 
-    if (fs.existsSync(GLOBAL_CONFIG_FILE)) {
-      try {
-        const raw = fs.readFileSync(GLOBAL_CONFIG_FILE, "utf-8");
-        const parsed = JSON.parse(raw) as Partial<BilibiliCredentials>;
-        if (parsed.sessdata && parsed.bili_jct && parsed.dedeuserid) {
-          return "global_config";
-        }
-      } catch {
-        return "none";
-      }
+    if (this.hasFileCredentials()) {
+      return "global_config";
     }
 
     return "none";
+  }
+
+  /**
+   * 返回同样存有完整凭证、但被更高优先级来源遮蔽的来源。
+   * 用于诊断“重新登录后仍使用旧凭证”这类来源冲突。
+   */
+  getShadowedSources(): Exclude<CredentialSource, "none">[] {
+    const present: Exclude<CredentialSource, "none">[] = [];
+    if (this.hasEnvCredentials()) {
+      present.push("env");
+    }
+    if (this.hasFileCredentials()) {
+      present.push("global_config");
+    }
+    const effective = this.getCredentialSource();
+    if (effective === "none") {
+      return present;
+    }
+    const effectiveIndex = present.indexOf(effective);
+    return effectiveIndex < 0 ? present : present.slice(effectiveIndex + 1);
+  }
+
+  private hasEnvCredentials(): boolean {
+    return Boolean(
+      process.env.BILIBILI_SESSDATA &&
+      process.env.BILIBILI_BILI_JCT &&
+      process.env.BILIBILI_DEDEUSERID
+    );
+  }
+
+  private hasFileCredentials(): boolean {
+    if (!fs.existsSync(GLOBAL_CONFIG_FILE)) {
+      return false;
+    }
+    try {
+      const raw = fs.readFileSync(GLOBAL_CONFIG_FILE, "utf-8");
+      const parsed = JSON.parse(raw) as Partial<BilibiliCredentials>;
+      return Boolean(parsed.sessdata && parsed.bili_jct && parsed.dedeuserid);
+    } catch {
+      return false;
+    }
   }
 
   /**

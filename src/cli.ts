@@ -311,6 +311,7 @@ export interface DoctorStatus {
     configured: boolean;
     source: "env" | "global_config" | "none";
     loadable: boolean;
+    shadowed_sources: ("env" | "global_config")[];
   };
   asr: {
     status: AsrStateKind;
@@ -334,6 +335,7 @@ export function buildDoctorStatus(
   const creds = configured ? credentialManager.getCredentials() : null;
   const loadable = creds !== null;
   const isReady = configured && loadable;
+  const shadowedSources = credentialManager.getShadowedSources();
 
   const asrState = readAsrStateFn(asrPaths.stateFile);
   const asrModelKey: AsrModelKey | null = asrState.modelKey ?? null;
@@ -369,6 +371,7 @@ export function buildDoctorStatus(
       configured,
       source,
       loadable,
+      shadowed_sources: shadowedSources,
     },
     asr: {
       status: asrState.kind,
@@ -413,6 +416,12 @@ export function doctorCommand(
       );
       console.log(`Credentials configured: ${status.credentials.configured}`);
       console.log(`Credential source: ${status.credentials.source}`);
+      if (status.credentials.shadowed_sources.length > 0) {
+        console.log(
+          `凭证警告：${status.credentials.source} 来源遮蔽了 ${status.credentials.shadowed_sources.join(", ")} 中的登录；` +
+            "若重新登录后仍提示凭证失效，请检查环境变量或项目 .env 中的旧 Cookie。",
+        );
+      }
       console.log(`Credentials loadable: ${status.credentials.loadable}`);
       console.log(`ASR: ${status.asr.status}`);
       if (status.asr.model) {
