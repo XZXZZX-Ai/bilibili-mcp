@@ -628,3 +628,10 @@
 - Lesson: 本机 Python 默认 GBK 编码，读写 UTF-8 文件和打印非 ASCII 输出都会报错。
 - Evidence: 同一会话内两次踩坑：`open('package.json')` 读 JSON 触发 UnicodeDecodeError；修复后打印含 ✅ 的输出又触发 UnicodeEncodeError。
 - Future behavior: 已写入用户级全局规则 `~/.agents/AGENTS.md`：Python 读写文件一律显式 `encoding="utf-8"`，打印非 ASCII 时设 `PYTHONIOENCODING=utf-8`。
+- Lesson: 发版 commit 必须同步刷新 harness 确定性回执，否则 Verify 在推送后失败。
+- Evidence: v1.14.3 发版 commit 只 bump 了版本和 changelog，未更新 `harness/fixtures/pilot-artifacts/migration.json` 的包回执；Verify run 39028462372 的 Product 与 Harness core 三个 job 以 `1.14.2 != 1.14.3` 失败。v1.14.2 的发版 commit（5b65c1a）当时包含此步骤。
+- Future behavior: 发版清单固定为：bump 版本 → 双语 changelog → `python .scratch/update_pack_receipt.py`（或等价脚本）刷新包回执 → 刷新 durable_memory 摘要与 evidence 哈希 → 本地跑 `python -m unittest harness.tests.test_cli_and_adapters` 后再推送 tag。
+
+- Lesson: RULES.md 被 clean-room 检查钉在固定 base SHA 上，修改它必须同时移动锚点。
+- Evidence: retro 加入的实施前 fetch 规则改了 RULES.md，conformance 测试以 base 8de058e 对比 HEAD 失败；修复锚点后 PR #39 修复证据又因新锚点已含修复而失效。
+- Future behavior: 不可变路径锚点与修复证据锚点分离（`clean_room.base_sha` 与 `repair_base_sha`）；修改 RULES.md 时同步前移 base_sha 并在 verification log 记录原因，不要删除任何历史修复证据。
