@@ -4,6 +4,19 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.14.3] - 2026-10-17
+
+### Fixed
+- Video info now uses the WBI-signed `/x/web-interface/wbi/view` endpoint. The legacy `/x/web-interface/view` endpoint returns HTTP 412 in some regions and accounts, which broke video info, subtitle, chapter, and comment tools. The legacy endpoint is retried only when the new one returns 412; all other errors keep their existing behavior. Thanks to @AG-0814 for reporting the failure with a working-endpoint comparison. (#83)
+
+### Added
+- `doctor --json` now reports `shadowed_sources` under `credentials`, with a matching warning in text output, whenever environment variables or a project `.env` shadow the login saved in the global config. This makes "re-login still reports expired credentials" conflicts visible. No credential values are included.
+
+### Documentation
+- The client setup guide now documents the Windows `spawn npx ENOENT` failure and the `cmd /c npx` configuration workaround.
+
+---
+
 ## [1.14.2] - 2026-09-27
 
 ### Fixed
