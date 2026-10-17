@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   getSubtitleContent,
+  getVideoInfo,
   getVideoSubtitle,
 } from "../src/bilibili/client.js";
 import { credentialManager } from "../src/utils/credentials.js";
@@ -284,6 +285,174 @@ describe("getVideoSubtitle", () => {
     expect(
       calls.filter((call) => call.url.includes("/x/player/v2")),
     ).toHaveLength(0);
+  });
+});
+
+describe("getVideoInfo", () => {
+  function makeVideoInfoData() {
+    return {
+      bvid: "BV1tQH96XEgH",
+      aid: 123,
+      cid: 999,
+      title: "Test Video",
+      desc: "Description",
+      pic: "",
+      owner: { name: "Author", face: "" },
+      stat: {
+        view: 1,
+        danmaku: 0,
+        reply: 0,
+        favorite: 0,
+        coin: 0,
+        share: 0,
+        like: 0,
+      },
+      duration: 100,
+      pubdate: 1716912000,
+    };
+  }
+
+  function stubInfoEndpoints(options: {
+    wbiStatus?: number;
+    legacyStatus?: number;
+  }) {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/x/web-interface/nav")) {
+        return jsonResponse({
+          code: 0,
+          data: {
+            wbi_img: {
+              img_url:
+                "https://i0.hdslb.com/bfs/wbi/abcdefghijklmnopqrstuvwxyz123456.png",
+              sub_url:
+                "https://i0.hdslb.com/bfs/wbi/123456abcdefghijklmnopqrstuvwxyz.png",
+            },
+          },
+        });
+      }
+
+      if (url.includes("/x/web-interface/wbi/view")) {
+        if (options.wbiStatus && options.wbiStatus !== 200) {
+          return textResponse("risk control", options.wbiStatus);
+        }
+        return jsonResponse({ code: 0, data: makeVideoInfoData() });
+      }
+
+      if (url.includes("/x/web-interface/view")) {
+        if (options.legacyStatus && options.legacyStatus !== 200) {
+          return textResponse("risk control", options.legacyStatus);
+        }
+        return jsonResponse({
+          code: 0,
+          data: { ...makeVideoInfoData(), title: "Legacy Video" },
+        });
+      }
+
+      throw new Error(`Unexpected fetch URL: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
+
+  it("uses the WBI-signed /x/web-interface/wbi/view endpoint by default", async () => {
+    const fetchMock = stubInfoEndpoints({});
+
+    const result = await getVideoInfo("BV1tQH96XEgH");
+
+    expect(result.title).toBe("Test Video");
+    const calls = getFetchCalls(fetchMock);
+    expect(
+      calls.some((call) => call.url.includes("/x/web-interface/wbi/view")),
+    ).toBe(true);
+    expect(
+      calls.some(
+        (call) =>
+          call.url.includes("/x/web-interface/view") &&
+          !call.url.includes("/x/web-interface/wbi/view"),
+      ),
+    ).toBe(false);
+  });
+
+  it("falls back to /x/web-interface/view when the WBI endpoint returns HTTP 412", async () => {
+    const fetchMock = stubInfoEndpoints({ wbiStatus: 412 });
+
+    const result = await getVideoInfo("BV1tQH96XEgH");
+
+    expect(result.title).toBe("Legacy Video");
+    const calls = getFetchCalls(fetchMock);
+    expect(
+      calls.filter((call) => call.url.includes("/x/web-interface/wbi/view")),
+    ).toHaveLength(1);
+    expect(
+      calls.filter(
+        (call) =>
+          call.url.includes("/x/web-interface/view") &&
+          !call.url.includes("/x/web-interface/wbi/view"),
+      ),
+    ).toHaveLength(1);
+  });
+
+  it("does not fall back to /x/web-interface/view for other WBI HTTP errors", async () => {
+    const fetchMock = stubInfoEndpoints({ wbiStatus: 403 });
+
+    await expect(
+      getVideoInfo("BV1tQH96XEgH"),
+    ).rejects.toMatchObject({ name: "NetworkError", statusCode: 403 });
+
+    const calls = getFetchCalls(fetchMock);
+    expect(
+      calls.some(
+        (call) =>
+          call.url.includes("/x/web-interface/view") &&
+          !call.url.includes("/x/web-interface/wbi/view"),
+      ),
+    ).toBe(false);
+  });
+
+  it("keeps paid-video semantics on the WBI endpoint without falling back", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes("/x/web-interface/nav")) {
+        return jsonResponse({
+          code: 0,
+          data: {
+            wbi_img: {
+              img_url:
+                "https://i0.hdslb.com/bfs/wbi/abcdefghijklmnopqrstuvwxyz123456.png",
+              sub_url:
+                "https://i0.hdslb.com/bfs/wbi/123456abcdefghijklmnopqrstuvwxyz.png",
+            },
+          },
+        });
+      }
+
+      if (url.includes("/x/web-interface/wbi/view")) {
+        return jsonResponse({ code: -403, message: "该视频为付费内容，购买后可观看" });
+      }
+
+      throw new Error(`Unexpected fetch URL: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(
+      getVideoInfo("BV1tQH96XEgH"),
+    ).rejects.toMatchObject({ name: "PaidVideoError" });
+
+    const calls = getFetchCalls(fetchMock);
+    expect(
+      calls.some(
+        (call) =>
+          call.url.includes("/x/web-interface/view") &&
+          !call.url.includes("/x/web-interface/wbi/view"),
+      ),
+    ).toBe(false);
+  });
+
+  it("propagates the error when both endpoints return HTTP 412", async () => {
+    stubInfoEndpoints({ wbiStatus: 412, legacyStatus: 412 });
+
+    await expect(
+      getVideoInfo("BV1tQH96XEgH"),
+    ).rejects.toMatchObject({ name: "NetworkError", statusCode: 412 });
   });
 });
 

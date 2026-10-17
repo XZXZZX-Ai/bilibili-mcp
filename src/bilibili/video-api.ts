@@ -250,11 +250,29 @@ function parseSubtitleContent(raw: unknown): {
 
 /**
  * 获取视频基本信息（含多P pages）
+ *
+ * 策略：优先使用带 WBI 签名的 /x/web-interface/wbi/view 接口。
+ * B站已对部分地区的旧接口 /x/web-interface/view 返回 HTTP 412（见 issue #83），
+ * 若新接口也遇到 412 风控，自动降级到旧接口重试一次。
  */
 export async function getVideoInfo(bvid: string) {
-  return parseVideoInfoResponse(
-    await fetchWithoutWBI("/x/web-interface/view", { bvid }),
-  );
+  try {
+    return parseVideoInfoResponse(
+      await fetchWithWBI("/x/web-interface/wbi/view", { bvid }),
+    );
+  } catch (error) {
+    if (!(error instanceof NetworkError && error.statusCode === 412)) {
+      throw error;
+    }
+    logger.warn(
+      "WBI video info API returned HTTP 412, falling back to /x/web-interface/view",
+      { bvid },
+      { type: "video-api", operation: "getVideoInfo" },
+    );
+    return parseVideoInfoResponse(
+      await fetchWithoutWBI("/x/web-interface/view", { bvid }),
+    );
+  }
 }
 
 /**

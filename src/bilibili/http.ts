@@ -31,6 +31,7 @@ const RATE_LIMIT_MS = config.rateLimitMs;
 const REQUEST_TIMEOUT_MS = config.requestTimeoutMs;
 const PAID_VIDEO_ENDPOINTS = new Set([
   "/x/web-interface/view",
+  "/x/web-interface/wbi/view",
   "/x/player/v2",
 ]);
 let lastRequestTime: number | null = null;
@@ -357,6 +358,11 @@ export async function fetchWithWBI(
             );
           }
           if (data.code === -403) {
+            if (isExplicitPaidVideoDenial(path, data.message)) {
+              throw new PaidVideoError(
+                "该视频为付费内容，无法获取完整信息",
+              );
+            }
             logger.warn(
               "Bilibili API returned an error",
               {
