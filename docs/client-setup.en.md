@@ -21,6 +21,8 @@ npx -y @xzxzzx/bilibili-mcp@latest
 
 Prefer this command in MCP client configuration so a new session resolves the current npm release.
 
+> **Windows note**: some clients (e.g. Kimi Code) fail with `spawn npx ENOENT` on Windows when `command` is `npx`, because `npx` is a `.cmd` shim rather than an executable. If you hit this, set command to `cmd` and args to `["/c", "npx", "-y", "@xzxzzx/bilibili-mcp@latest"]`.
+
 ### Optional: global installation
 
 ```bash

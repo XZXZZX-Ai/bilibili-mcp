@@ -21,6 +21,8 @@ npx -y @xzxzzx/bilibili-mcp@latest
 
 MCP 客户端优先使用这条命令，这样新会话会解析 npm 上的当前版本。
 
+> **Windows 注意**：部分客户端（如 Kimi Code）在 Windows 上直接以 `command: "npx"` 启动会报 `spawn npx ENOENT`，因为 `npx` 是 `.cmd` 脚本而非可执行文件。遇到此错误时把 command 改为 `cmd`，args 改为 `["/c", "npx", "-y", "@xzxzzx/bilibili-mcp@latest"]`。
+
 ### 可选：全局安装
 
 ```bash

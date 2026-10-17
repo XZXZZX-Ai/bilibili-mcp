@@ -150,11 +150,14 @@ Before implementation:
 
 1. Read this file and the active host adapter.
 2. Inspect `git status --short`; preserve unrelated user changes.
-3. Confirm goal, scope, minimum change, acceptance criteria, verification, and
+3. Run `git fetch --prune` and confirm the working branch is not behind its
+   upstream before editing code. If it is behind, sync or rebase first and
+   reassess the task against current code; never implement on stale code.
+4. Confirm goal, scope, minimum change, acceptance criteria, verification, and
    rollback points.
-4. For substantial work, read the relevant files under
+5. For substantial work, read the relevant files under
    `docs/agent-memory/`, including `harness-security.md` for Harness surfaces.
-5. Freeze the mode, worktree, base SHA, writer, acceptance owner, and manual
+6. Freeze the mode, worktree, base SHA, writer, acceptance owner, and manual
    Skill evidence before the first write.
 
 During implementation:

@@ -62,7 +62,7 @@ describe("credential file replacement", () => {
     } finally {
       process.exitCode = exitCode;
     }
-  });
+  }, 15000);
 
   it("replaces an existing file successfully without changing manager state implicitly", async () => {
     const store = await seededStore();

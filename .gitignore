@@ -25,6 +25,8 @@ Thumbs.db
 !.claude/settings.json
 .codex/memory/
 .codex/runtime/
+.codex/skills/
+.agents/
 .harness/
 
 # 临时文件
