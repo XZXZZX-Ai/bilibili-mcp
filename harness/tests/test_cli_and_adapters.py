@@ -899,11 +899,14 @@ class CliAndAdapterTests(unittest.TestCase):
         clean_room = migration["clean_room"]
         exact_keys(
             clean_room,
-            {"base_sha", "copied_external_code", "paths", "review_repairs"},
+            {"base_sha", "copied_external_code", "paths", "review_repairs", "repair_base_sha"},
         )
         self.assertFalse(clean_room["copied_external_code"])
         self.assertEqual(
-            clean_room["base_sha"], "8de058e772e97a6ab8d16d65386081db76953320"
+            clean_room["base_sha"], "a0ded06b4d0552960b1e27b40e3b3ed38bd72f29"
+        )
+        self.assertEqual(
+            clean_room["repair_base_sha"], "8de058e772e97a6ab8d16d65386081db76953320"
         )
         self.assertEqual(
             set(clean_room["paths"]),
@@ -947,7 +950,7 @@ class CliAndAdapterTests(unittest.TestCase):
             repaired = (ROOT / relative).read_bytes().replace(b"\r\n", b"\n")
             self.assertEqual(hashlib.sha256(repaired).hexdigest(), repair["sha256"])
             baseline = subprocess.run(
-                ["git", "show", f"{clean_room['base_sha']}:{relative}"],
+                ["git", "show", f"{clean_room['repair_base_sha']}:{relative}"],
                 cwd=ROOT,
                 capture_output=True,
             )

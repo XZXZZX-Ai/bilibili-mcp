@@ -2782,3 +2782,10 @@ Six release blockers fixed; one regression proof per root cause (new tests
 - Local: build passed; full vitest run 52 files / 1296 tests passed; pack dry-run 197 files with harness/memory excluded; doctor shadowing verified against simulated env conflict.
 - Remote: [Publish 39028131799](https://github.com/XZXZZX-Ai/bilibili-mcp/actions/runs/39028131799) passed with signed provenance; npm latest reports `1.14.3` after registry processing delay. [Bilingual GitHub Release](https://github.com/XZXZZX-Ai/bilibili-mcp/releases/tag/v1.14.3) created; Issue #83 comment thanks @AG-0814 and requests verification. Empty-directory exact-version npx printed `1.14.3`.
 - Limits: The reporter's regional 412 could not be reproduced locally; fix verification relied on the fallback contract tests plus a live real-account smoke. Reporter confirmation is pending on Issue #83.
+
+## 2026-10-17 — v1.14.3 post-publish Verify repair
+
+- Failure: Verify run `39028462372` (for `9e2783e`) failed in Product and Harness core shards: `test_real_pilots_cover_the_shared_conformance_matrix` reported `1.14.2 != 1.14.3`. The v1.14.3 release commit had not refreshed the deterministic package receipt in `harness/fixtures/pilot-artifacts/migration.json` — the same receipt step the v1.14.2 release commit included.
+- Repair: regenerated `migration.json` package receipt from a live `npm pack --dry-run --json --ignore-scripts` with canonical LF file sizes; refreshed `durable_memory` digests for the release-edited memory files; refreshed the `migration.json` sha in `three-adapter-pilot-evidence.json`.
+- RULES.md re-pin: the retro-added pre-implementation fetch rule changed RULES.md, which the clean-room check pins at a fixed base. The immutable-paths base moved to `a0ded06b4d0552960b1e27b40e3b3ed38bd72f29`; repair evidence stays anchored at the original base via a new `clean_room.repair_base_sha` field (`8de058e772e97a6ab8d16d65386081db76953320`), with the conformance test reading each anchor for its own purpose. No repair findings were dropped.
+- Local evidence: `harness.tests.test_cli_and_adapters` 25/25 OK after the repair; full harness module sweep run before push.

@@ -1,6 +1,6 @@
 {
   "clean_room": {
-    "base_sha": "8de058e772e97a6ab8d16d65386081db76953320",
+    "base_sha": "a0ded06b4d0552960b1e27b40e3b3ed38bd72f29",
     "copied_external_code": false,
     "paths": [
       "RULES.md",
@@ -44,7 +44,8 @@
         "finding": "pr-39-verified-path-existence",
         "sha256": "2d791184b9e15990bc6803d230825499e48746f9fe71efdba9828c9fa15450c8"
       }
-    }
+    },
+    "repair_base_sha": "8de058e772e97a6ab8d16d65386081db76953320"
   },
   "commands": [
     {
@@ -89,28 +90,28 @@
     }
   ],
   "durable_memory": {
-    "docs/agent-memory/active-work.md": "c30f532d0594403b804efb90c70670c3e0dc6fdea3123aed4e65e1b173edd921",
+    "docs/agent-memory/active-work.md": "824c9a90ec59c2b7de4cec1fc811ba4c45e5792bfddcdfa631b2a62bf5b678bb",
     "docs/agent-memory/codemap.md": "936cb4d408befea9378b842c7865d237f597749c919a4b6ffa96edb9b535f1a1",
     "docs/agent-memory/decisions.md": "bf86d7611de41ba56874eac8ecddc01521dc2500e364bfe65e722716949ac5c7",
     "docs/agent-memory/executions/2026-08-14-github-36-codex-direct-report.md": "439b169470c2ab1ec3af3625b8ca3e247d6ccd4f01bc39ff967deff673853570",
     "docs/agent-memory/harness-eval.md": "283a11dbd8816d564dc167be69e04fdbf4c77015d4e9bf68db0c4113cad07f00",
     "docs/agent-memory/harness-security.md": "b907339f85c0ba13c2a8642b475aa682ae1b313cb51cebec9977aca798df3430",
-    "docs/agent-memory/lessons-learned.md": "5c9093b8440c42dfd24d043f4fe6b094db90f69ccb93befae94c3d65591fb6c5",
+    "docs/agent-memory/lessons-learned.md": "e42a19cd8b156871383f493c903548a0bda8344d657f776b9b1677df7a0b3105",
     "docs/agent-memory/project-facts.md": "1a6e57590ff8b4dfd0c9db01d92e674b762969a4ca0f07001991eba61193e2cd",
-    "docs/agent-memory/verification-log.md": "e2986cf9697063a4621b020082dd35cc6fe9b84749734a97049d531104bdeaac"
+    "docs/agent-memory/verification-log.md": "28dc21db0fb1be889174eb5351800d48240295a827ffb63bba067965dd28055d"
   },
   "package": {
-    "output_digest": "4118eb9fbac7ef47d85129dfbf7f44ae9832cd16ee646affc605c3af1edd6018",
+    "output_digest": "ac534fa14d1bd66f85cc255287d644ae1bcb0324b6fec5a80fb46659eafc6940",
     "pack_output": [
       {
-        "id": "@xzxzzx/bilibili-mcp@1.14.2",
+        "id": "@xzxzzx/bilibili-mcp@1.14.3",
         "name": "@xzxzzx/bilibili-mcp",
-        "version": "1.14.2",
-        "size": 1153045,
-        "unpackedSize": 2010678,
-        "shasum": "2fbf20f6cc029d20f6b5807b9598b2f895ea7312",
-        "integrity": "sha512-ScqKA+5R6bL4hvauFPALukOrcQp0NNXst9JykAmE/tFNTK+3aExP+koQTVyJhu/35QL9AAR6VfQMncvvdaodKg==",
-        "filename": "xzxzzx-bilibili-mcp-1.14.2.tgz",
+        "version": "1.14.3",
+        "size": 1154369,
+        "unpackedSize": 2015770,
+        "shasum": "5d99880faffd660920e8655576a08261c7e8d4ac",
+        "integrity": "sha512-jWyBNgwHwWQBXkKbZ7kZBDfDfkVGEDpmqppHwlX9+fGitV8rkEIsOdNKQdCaKMc/17le9SHL5qxg8ScfrVXw5A==",
+        "filename": "xzxzzx-bilibili-mcp-1.14.3.tgz",
         "files": [
           {
             "path": "LICENSE",
@@ -364,12 +365,12 @@
           },
           {
             "path": "dist/bilibili/http.js",
-            "size": 15749,
+            "size": 15994,
             "mode": 420
           },
           {
             "path": "dist/bilibili/http.js.map",
-            "size": 12824,
+            "size": 12957,
             "mode": 420
           },
           {
@@ -534,22 +535,22 @@
           },
           {
             "path": "dist/bilibili/video-api.d.ts",
-            "size": 1716,
+            "size": 1973,
             "mode": 420
           },
           {
             "path": "dist/bilibili/video-api.d.ts.map",
-            "size": 1365,
+            "size": 1369,
             "mode": 420
           },
           {
             "path": "dist/bilibili/video-api.js",
-            "size": 14208,
+            "size": 14880,
             "mode": 420
           },
           {
             "path": "dist/bilibili/video-api.js.map",
-            "size": 12956,
+            "size": 13326,
             "mode": 420
           },
           {
@@ -574,22 +575,22 @@
           },
           {
             "path": "dist/cli.d.ts",
-            "size": 2779,
+            "size": 2834,
             "mode": 420
           },
           {
             "path": "dist/cli.d.ts.map",
-            "size": 2264,
+            "size": 2317,
             "mode": 420
           },
           {
             "path": "dist/cli.js",
-            "size": 30719,
+            "size": 31194,
             "mode": 420
           },
           {
             "path": "dist/cli.js.map",
-            "size": 24456,
+            "size": 24750,
             "mode": 420
           },
           {
@@ -914,22 +915,22 @@
           },
           {
             "path": "dist/utils/credentials.d.ts",
-            "size": 1865,
+            "size": 2173,
             "mode": 420
           },
           {
             "path": "dist/utils/credentials.d.ts.map",
-            "size": 1090,
+            "size": 1203,
             "mode": 420
           },
           {
             "path": "dist/utils/credentials.js",
-            "size": 6123,
+            "size": 6955,
             "mode": 420
           },
           {
             "path": "dist/utils/credentials.js.map",
-            "size": 5088,
+            "size": 5790,
             "mode": 420
           },
           {
@@ -1074,12 +1075,12 @@
           },
           {
             "path": "docs/client-setup.en.md",
-            "size": 45748,
+            "size": 46026,
             "mode": 420
           },
           {
             "path": "docs/client-setup.md",
-            "size": 43743,
+            "size": 44044,
             "mode": 420
           },
           {
