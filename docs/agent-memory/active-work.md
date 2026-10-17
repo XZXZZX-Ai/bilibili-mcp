@@ -2,15 +2,14 @@
 
 ## Current Product Release
 
-`v1.14.2` is the current npm/GitHub release. Annotated tag `v1.14.2`
-peels to `5b65c1a7ef1c967c124c944b02cfba97a9d5ee84`; Verify run
-`36301364450` and trusted-publish run `36301970592` succeeded. npm latest is
-1.14.2 with provenance; the bilingual GitHub Release is public/latest and
-credits PR #81 author @eeeggplant. Clean-directory exact-version npx prints
-1.14.2. This patch rejects AI subtitles that exceed trusted Part duration by
-more than 5 seconds; equal-duration semantic mismatches remain a known gap.
-The dirty primary checkout was preserved. See
-`docs/qa/2026-09-27-v1.14.2-release.md`.
+`v1.14.3` is the current npm/GitHub release. Lightweight tag `v1.14.3`
+points at `95a512ba6f9eaaac268625f3ee3a49d21109d50a`; trusted-publish run
+`39028131799` succeeded. npm latest is 1.14.3 with provenance; the bilingual
+GitHub Release is public/latest and credits Issue #83 reporter @AG-0814.
+Clean-directory exact-version npx prints 1.14.3. This patch routes video info
+through the WBI-signed `/x/web-interface/wbi/view` endpoint with a 412-only
+fallback to the legacy endpoint, adds `doctor` shadowed-credential-source
+reporting, and applies session retro hardening to rules, docs, and tests.
 
 ## Harness v2
 
