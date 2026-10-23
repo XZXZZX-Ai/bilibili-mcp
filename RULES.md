@@ -80,6 +80,12 @@ Recovery Bundle and the current writer-lease state, and report the problem.
 Do not release or transfer the lease implicitly; the later controller ticket
 owns that explicit state transition.
 
+A host not listed in the table (for example Kimi Code) acts as
+`<host>-direct`: that host plans, writes, and accepts for the ticket. Manual
+Skill evidence and capability pointers resolve against the skill directories
+actually installed for that host; do not claim evidence from another host's
+catalog.
+
 ## Typed Task Contract And Lifecycle
 
 Substantial tasks use the GitHub Issue as the planning source and a typed
@@ -179,12 +185,16 @@ Before acceptance:
 - evaluate Harness security for Harness changes;
 - use risk-weighted independent review without a rigid reviewer-count matrix.
 
-Default product verification is:
+Default product verification before a push is:
 
 ```text
-npm run build
-npm test
+npm run verify:local
 ```
+
+It runs `npm test`, `npm run build`, the package forbidden-paths check, and —
+when paths owned by the Harness workflow changed — the harness core test
+modules, mirroring what CI gates. Run the plain `npm run build` / `npm test`
+pair only for quick mid-task loops.
 
 Run `npm pack --dry-run` when package contents could be affected or when a
 Harness ticket must prove exclusion from the npm package. Credential-dependent

@@ -635,3 +635,17 @@
 - Lesson: RULES.md 被 clean-room 检查钉在固定 base SHA 上，修改它必须同时移动锚点。
 - Evidence: retro 加入的实施前 fetch 规则改了 RULES.md，conformance 测试以 base 8de058e 对比 HEAD 失败；修复锚点后 PR #39 修复证据又因新锚点已含修复而失效。
 - Future behavior: 不可变路径锚点与修复证据锚点分离（`clean_room.base_sha` 与 `repair_base_sha`）；修改 RULES.md 时同步前移 base_sha 并在 verification log 记录原因，不要删除任何历史修复证据。
+
+## 2026-10-23
+
+- Lesson: 对 ANSI 着色的终端输出做断言时，直接断言转义结构，不要剥离转义后断言残余文本。
+- Evidence: QR 色块渲染的第一个测试用"剥 ANSI → trimEnd → 断言空格"，但色块输出剥离后是纯空白，trimEnd 把整个字符串吃成 `""`，调试绕了约 6 轮（含一次失败的 heredoc 补丁）才定位；改用 `/^(\x1b\[(40|47)m {2})+\x1b\[0m$/` 结构断言后一次通过。
+- Future behavior: 终端输出测试断言转义序列与单元结构本身；任何"转换后文本"的断言失败时，先打印变换后的值再推理，不凭原值猜。
+
+- Lesson: 推送前的本地验证必须镜像 CI 门禁，否则 CI 独有的检查会变成推送后的红灯。
+- Evidence: QR 修复提交只跑了 RULES.md 当时文档化的 `npm run build && npm test`，CI product job 里的 receipt 测试因 README 尺寸漂移失败（Verify run 39896714130）；该检查此前没有任何文档化的本地入口。
+- Future behavior: 推送前固定跑 `npm run verify:local`（测试 + 构建 + 包内容禁入检查，harness 路径变更时追加 harness core 测试）；RULES.md 的默认验证段已指向它。
+
+- Lesson: 2026-10-17 的发版回执清单中，包版本/尺寸/文件列表回执刷新与 durable_memory 摘要刷新两个步骤已随 receipt 去噪音（2fba215）失效。
+- Evidence: receipt 测试不再对比活体包版本、文件尺寸、文件列表或 memory 摘要，只保留禁入路径与 clean-room 钉住；普通产品与文档编辑不再需要陪葬的 receipt 刷新提交。
+- Future behavior: 发版清单简化为 bump 版本 → 双语 changelog → `npm run verify:local` → tag；`.scratch/update_pack_receipt.py` 仅在回执夹具结构本身变更时才需要。

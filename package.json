@@ -15,6 +15,7 @@
     "watch": "tsc --watch",
     "start": "node dist/index.js",
     "test:fake-ip": "vitest run tests/pinned-https.test.ts tests/asr-transcription.test.ts tests/server-error-next-steps.test.ts",
+    "verify:local": "npm test && npm run build && node scripts/verify-local.mjs",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",
