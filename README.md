@@ -91,7 +91,7 @@ Bilibili MCP 是一个本地 MCP server，让 AI Agent 读取 Bilibili 内容。
 
 运行 setup 后，按回车选择扫码登录，用手机 **B站 App** 扫描终端里的二维码，再在手机上确认即可。无需从浏览器复制 Cookie，更简单方便。
 
-**无法扫码？** 在登录方式菜单选择“手动 Cookie”，按照[手动 Cookie 配置教程](./docs/client-setup.md#从浏览器获取凭证字段)获取凭证并在本地终端输入。
+**无法扫码？** 二维码显示异常（块字符破碎、空心方框）时，Windows 传统控制台的处理见[客户端配置指南](./docs/client-setup.md#推荐本地交互式配置)。也可以在登录方式菜单选择“手动 Cookie”，按照[手动 Cookie 配置教程](./docs/client-setup.md#从浏览器获取凭证字段)获取凭证并在本地终端输入。
 
 ## 使用示例
 

@@ -19,6 +19,13 @@ function requireTerminal() {
   if (!process.stdin.isTTY || !process.stdout.isTTY) throw new QrLoginError("terminal");
 }
 
+function isLegacyWindowsConsole() {
+  // conhost lacks both markers; its CJK fonts often render block glyphs with
+  // gaps or as hollow boxes, making the QR unscannable. Color cells avoid any
+  // glyph dependency. A false positive only makes the QR taller and plainer.
+  return process.platform === "win32" && !process.env.WT_SESSION && !process.env.TERM_PROGRAM;
+}
+
 function displayQr(url: string) {
   requireTerminal();
   const qr = qrcode(0, "M");
@@ -26,18 +33,30 @@ function displayQr(url: string) {
   qr.make();
   const size = qr.getModuleCount();
   const width = size + 8; // Four light modules on every side.
-  if ((process.stdout.columns ?? 0) <= width || (process.stdout.rows ?? 0) < Math.ceil(width / 2) + 6) {
+  const legacy = isLegacyWindowsConsole();
+  const columns = process.stdout.columns ?? 0, rows = process.stdout.rows ?? 0;
+  // Color-cell rendering needs two columns and one full row per module; half-block rendering packs two modules per cell.
+  if (legacy ? columns <= 2 * width || rows < width + 6 : columns <= width || rows < Math.ceil(width / 2) + 6) {
     throw new QrLoginError("terminal");
   }
   const dark = (row: number, col: number) => row >= 4 && row < size + 4 && col >= 4 && col < size + 4 && qr.isDark(row - 4, col - 4);
   let output = "";
-  for (let row = 0; row < width; row += 2) {
-    output += "\x1b[30;47m";
-    for (let col = 0; col < width; col++) {
-      const upper = dark(row, col), lower = dark(row + 1, col);
-      output += upper ? (lower ? "█" : "▀") : (lower ? "▄" : " ");
+  if (legacy) {
+    for (let row = 0; row < width; row++) {
+      for (let col = 0; col < width; col++) {
+        output += dark(row, col) ? "\x1b[40m  " : "\x1b[47m  ";
+      }
+      output += "\x1b[0m\n";
     }
-    output += "\x1b[0m\n";
+  } else {
+    for (let row = 0; row < width; row += 2) {
+      output += "\x1b[30;47m";
+      for (let col = 0; col < width; col++) {
+        const upper = dark(row, col), lower = dark(row + 1, col);
+        output += upper ? (lower ? "█" : "▀") : (lower ? "▄" : " ");
+      }
+      output += "\x1b[0m\n";
+    }
   }
   console.log("请使用手机 B站 App 扫描下方二维码，并在手机上确认登录。Ctrl+C 可取消。");
   process.stdout.write(output);

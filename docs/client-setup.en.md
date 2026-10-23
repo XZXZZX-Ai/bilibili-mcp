@@ -1341,6 +1341,8 @@ npx -y @xzxzzx/bilibili-mcp@latest check
 - `check` confirms only that the current process can load credentials; it does not prove that the Bilibili login is still valid.
 - After credentials are configured, `setup` asks whether to install an optional local ASR speech-recognition model (defaults to No `[y/N]`).
 
+**QR garbled in the legacy Windows console**: in the classic Windows PowerShell console (not Windows Terminal), the QR may render as hollow boxes with broken finder patterns because the console font lacks block characters, making it unscannable. Newer versions detect the legacy console and automatically switch to a font-independent color-cell rendering. On older versions, or if rendering is still broken, verified manual steps (tested on a single Windows machine; the individual effects of font vs. code page were not isolated): Ctrl+C to cancel → run `chcp 65001` → right-click the console title bar → Properties → Font → select Consolas → re-run `setup` to generate a fresh QR, then scan and confirm on your phone. A printed QR is not necessarily a scannable one; if it still fails, use the manual Cookie login method instead.
+
 `doctor --json` is a local-only diagnostic tool with exit codes `0/1/2` (ok / needs setup or credentials not loadable / internal error). It makes no network requests and cannot replace `check_bilibili_credentials` for live login validation. Agents or non-interactive environments can use:
 
 ```bash

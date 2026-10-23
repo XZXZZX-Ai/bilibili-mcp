@@ -19,16 +19,65 @@ const descriptors = original.map(([target, key]) => Object.getOwnPropertyDescrip
 beforeEach(() => {
   vi.useFakeTimers();
   original.forEach(([target, key]) => Object.defineProperty(target, key, { configurable: true, value: key === "columns" ? 120 : key === "rows" ? 60 : true }));
+  vi.stubEnv("WT_SESSION", "synthetic-terminal");
   vi.spyOn(process.stdout, "write").mockReturnValue(true);
   vi.spyOn(console, "log").mockImplementation(() => {});
 });
 afterEach(() => {
-  vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.useRealTimers();
+  vi.restoreAllMocks(); vi.unstubAllGlobals(); vi.unstubAllEnvs(); vi.useRealTimers();
   original.forEach(([target, key], i) => {
     const descriptor = descriptors[i];
     if (descriptor) Object.defineProperty(target, key, descriptor);
     else Reflect.deleteProperty(target, key);
   });
+});
+
+function stubPlatform(value: string) {
+  const descriptor = Object.getOwnPropertyDescriptor(process, "platform")!;
+  Object.defineProperty(process, "platform", { configurable: true, value });
+  afterEach(() => Object.defineProperty(process, "platform", descriptor));
+}
+
+it("renders without block glyphs in a legacy Windows console", async () => {
+  stubPlatform("win32");
+  vi.stubEnv("WT_SESSION", "");
+  vi.stubEnv("TERM_PROGRAM", "");
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(generate()).mockResolvedValueOnce(json({ code: 0 }, cookies())));
+  const result = loginWithQr();
+  await vi.advanceTimersByTimeAsync(3000); await result;
+  const output = String(vi.mocked(process.stdout.write).mock.calls[0][0]);
+  expect(output).not.toMatch(/[█▀▄]/);
+  expect(output).toContain("\x1b[40m");
+  const lines = output.trimEnd().split("\n");
+  for (const line of lines) {
+    expect(line).toMatch(/^(\x1b\[(40|47)m {2})+\x1b\[0m$/); // Color cells only; no glyph dependence.
+    const cells = line.match(/\x1b\[(40|47)m/g)!;
+    expect(cells.slice(0, 4)).toEqual(["\x1b[47m", "\x1b[47m", "\x1b[47m", "\x1b[47m"]); // Four-module quiet zone.
+    expect(cells.slice(-4)).toEqual(["\x1b[47m", "\x1b[47m", "\x1b[47m", "\x1b[47m"]);
+  }
+  expect(lines[0]).not.toContain("\x1b[40m");
+  expect(lines[lines.length - 1]).not.toContain("\x1b[40m");
+});
+
+it("rejects a terminal too short for color-cell rendering in a legacy Windows console", async () => {
+  stubPlatform("win32");
+  vi.stubEnv("WT_SESSION", "");
+  vi.stubEnv("TERM_PROGRAM", "");
+  Object.defineProperty(process.stdout, "rows", { configurable: true, value: 40 }); // Enough for half-block rendering, too short for one line per module.
+  const fetch = vi.fn().mockResolvedValue(generate()); vi.stubGlobal("fetch", fetch);
+  await expect(loginWithQr()).rejects.toMatchObject({ kind: "terminal" });
+  expect(process.stdout.write).not.toHaveBeenCalled();
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it("keeps half-block rendering in a modern Windows terminal", async () => {
+  stubPlatform("win32"); // WT_SESSION is stubbed by beforeEach.
+  vi.stubGlobal("fetch", vi.fn().mockResolvedValueOnce(generate()).mockResolvedValueOnce(json({ code: 0 }, cookies())));
+  const result = loginWithQr();
+  await vi.advanceTimersByTimeAsync(3000); await result;
+  const output = String(vi.mocked(process.stdout.write).mock.calls[0][0]);
+  expect(output).toContain("\x1b[30;47m");
+  expect(output).toMatch(/[█▀▄]/);
 });
 
 it("renders locally and polls no sooner than 3 seconds, returning only candidate fields", async () => {

@@ -95,7 +95,7 @@ Credentials are stored at `~/.bilibili-mcp/config.json` (Windows: `%USERPROFILE%
 
 Run setup and press Enter to choose QR login. Scan the QR in your terminal with the **mobile Bilibili App**, then confirm on your phone. No browser Cookie copying is needed, making login easier.
 
-**Can't scan?** Choose manual Cookie entry in the login-method menu, then follow the [manual Cookie setup guide](./docs/client-setup.en.md#finding-credential-fields-in-your-browser) to find your credentials and enter them in your local terminal.
+**Can't scan?** If the QR renders with broken block characters or hollow boxes, see the legacy Windows console fix in the [client setup guide](./docs/client-setup.en.md#recommended-interactive-local-setup). You can also choose manual Cookie entry in the login-method menu, then follow the [manual Cookie setup guide](./docs/client-setup.en.md#finding-credential-fields-in-your-browser) to find your credentials and enter them in your local terminal.
 
 ## Usage examples
 
