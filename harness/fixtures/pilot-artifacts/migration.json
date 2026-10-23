@@ -1,6 +1,6 @@
 {
   "clean_room": {
-    "base_sha": "a0ded06b4d0552960b1e27b40e3b3ed38bd72f29",
+    "base_sha": "3d8bf65eb61081f7a3d96d6308903d16f6ef2220",
     "copied_external_code": false,
     "paths": [
       "RULES.md",

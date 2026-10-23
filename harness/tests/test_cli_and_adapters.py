@@ -881,7 +881,7 @@ class CliAndAdapterTests(unittest.TestCase):
         )
         self.assertFalse(clean_room["copied_external_code"])
         self.assertEqual(
-            clean_room["base_sha"], "a0ded06b4d0552960b1e27b40e3b3ed38bd72f29"
+            clean_room["base_sha"], "3d8bf65eb61081f7a3d96d6308903d16f6ef2220"
         )
         self.assertEqual(
             clean_room["repair_base_sha"], "8de058e772e97a6ab8d16d65386081db76953320"
