@@ -41,11 +41,17 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Check migration package receipt
-        run: python3 -m unittest harness.tests.test_cli_and_adapters.CliAndAdapterTests.test_real_pilots_cover_the_shared_conformance_matrix
-
       - name: Check package contents
-        run: npm pack --dry-run
+        run: |
+          npm pack --dry-run --json --ignore-scripts > pack-output.json
+          node -e "
+          const files = JSON.parse(require('fs').readFileSync('pack-output.json', 'utf8'))[0].files.map(f => f.path);
+          const prefixes = ['harness/', '.harness/', 'docs/agent-memory/', 'tests/', 'strix_runs/'];
+          const markers = ['recovery-bundle', 'events.jsonl'];
+          const bad = files.filter(p => prefixes.some(x => p.startsWith(x)) || markers.some(x => p.includes(x)));
+          if (bad.length) { console.error('forbidden paths in npm package: ' + bad.join(', ')); process.exit(1); }
+          console.log('package contents OK: ' + files.length + ' files');
+          "
 
   fake_ip_node:
     name: Fake-IP Node ${{ matrix.node-version }}
@@ -73,70 +79,12 @@ jobs:
       - name: Test Fake-IP contracts
         run: npm run test:fake-ip
 
-  harness:
-    name: Harness (${{ matrix.os }}, ${{ matrix.shard }})
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 25
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: ubuntu-latest
-            shard: core
-            modules: >-
-              harness.tests.test_contracts
-              harness.tests.test_events
-              harness.tests.test_cli_and_adapters
-              harness.tests.test_memory
-          - os: windows-latest
-            shard: core
-            modules: >-
-              harness.tests.test_contracts
-              harness.tests.test_events
-              harness.tests.test_cli_and_adapters
-              harness.tests.test_memory
-          - os: ubuntu-latest
-            shard: adapters
-            modules: >-
-              harness.tests.test_codex_direct
-              harness.tests.test_claude_direct
-              harness.tests.test_paseo_collaboration
-          - os: windows-latest
-            shard: adapters
-            modules: >-
-              harness.tests.test_codex_direct
-              harness.tests.test_claude_direct
-              harness.tests.test_paseo_collaboration
-          - os: ubuntu-latest
-            shard: evolution
-            modules: harness.tests.test_evolution
-          - os: windows-latest
-            shard: evolution
-            modules: harness.tests.test_evolution
-    steps:
-      # v7.0.1 resolved from the official actions/checkout repository on 2026-08-16.
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-
-      # v7.0.0 resolved from the official actions/setup-python repository on 2026-08-16.
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
-        with:
-          python-version: 3.13.7
-
-      - name: Run ${{ matrix.shard }} tests
-        env:
-          PYTHONUTF8: "1"
-        run: python -m unittest ${{ matrix.modules }}
-
   required:
     name: Required
     if: always()
     needs:
       - product
       - fake_ip_node
-      - harness
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -144,8 +92,6 @@ jobs:
         env:
           PRODUCT_RESULT: ${{ needs.product.result }}
           FAKE_IP_NODE_RESULT: ${{ needs.fake_ip_node.result }}
-          HARNESS_RESULT: ${{ needs.harness.result }}
         run: >-
           test "$PRODUCT_RESULT" = success &&
-          test "$FAKE_IP_NODE_RESULT" = success &&
-          test "$HARNESS_RESULT" = success
+          test "$FAKE_IP_NODE_RESULT" = success

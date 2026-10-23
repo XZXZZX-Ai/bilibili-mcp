@@ -1,0 +1,93 @@
+name: Harness
+
+on:
+  pull_request:
+    paths:
+      - 'harness/**'
+      - 'RULES.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.codex/**'
+      - '.claude/**'
+      - '.gitattributes'
+      - 'docs/agent-memory/**'
+      - '.github/workflows/harness.yml'
+  push:
+    branches:
+      - master
+    paths:
+      - 'harness/**'
+      - 'RULES.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - '.codex/**'
+      - '.claude/**'
+      - '.gitattributes'
+      - 'docs/agent-memory/**'
+      - '.github/workflows/harness.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: harness-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  harness:
+    name: Harness (${{ matrix.os }}, ${{ matrix.shard }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            shard: core
+            modules: >-
+              harness.tests.test_contracts
+              harness.tests.test_events
+              harness.tests.test_cli_and_adapters
+              harness.tests.test_memory
+          - os: windows-latest
+            shard: core
+            modules: >-
+              harness.tests.test_contracts
+              harness.tests.test_events
+              harness.tests.test_cli_and_adapters
+              harness.tests.test_memory
+          - os: ubuntu-latest
+            shard: adapters
+            modules: >-
+              harness.tests.test_codex_direct
+              harness.tests.test_claude_direct
+              harness.tests.test_paseo_collaboration
+          - os: windows-latest
+            shard: adapters
+            modules: >-
+              harness.tests.test_codex_direct
+              harness.tests.test_claude_direct
+              harness.tests.test_paseo_collaboration
+          - os: ubuntu-latest
+            shard: evolution
+            modules: harness.tests.test_evolution
+          - os: windows-latest
+            shard: evolution
+            modules: harness.tests.test_evolution
+    steps:
+      # v7.0.1 resolved from the official actions/checkout repository on 2026-08-16.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      # v7.0.0 resolved from the official actions/setup-python repository on 2026-08-16.
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: 3.13.7
+
+      - name: Run ${{ matrix.shard }} tests
+        env:
+          PYTHONUTF8: "1"
+        run: python -m unittest ${{ matrix.modules }}
