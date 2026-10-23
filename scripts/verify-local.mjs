@@ -4,9 +4,11 @@
 import { execFileSync, spawnSync } from "node:child_process";
 
 const run = (file, args, options = {}) =>
-  spawnSync(file, args, { stdio: "inherit", shell: process.platform === "win32", ...options });
+  spawnSync(file, args, { stdio: "inherit", ...options });
 
 const pack = JSON.parse(
+  // npm is a .cmd shim on Windows; shell:true is required (direct .cmd spawn
+  // is blocked) and safe here because every argument is a static literal.
   execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], {
     encoding: "utf8",
     shell: process.platform === "win32",

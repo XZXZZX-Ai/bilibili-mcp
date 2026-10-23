@@ -4,6 +4,16 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.14.4] - 2026-10-23
+
+### Fixed
+- QR login in the legacy Windows console (conhost, not Windows Terminal) now renders with font-independent ANSI color cells. CJK console fonts such as NSimSun rendered the block glyphs as hollow boxes with gaps, so the QR printed but could not be scanned. The fallback is automatic on detection; modern terminals keep the existing half-block rendering. Undersized terminals now fail with a clear error instead of printing a truncated QR — enlarge the window or use manual Cookie login. Thanks to @407eternal for the thorough Windows field report and the verified workaround in #79.
+
+### Documentation
+- The client setup guide documents the legacy-console QR rendering issue, the automatic fallback, and the manual `chcp 65001` + Consolas steps for older versions.
+
+---
+
 ## [1.14.3] - 2026-10-17
 
 ### Fixed
