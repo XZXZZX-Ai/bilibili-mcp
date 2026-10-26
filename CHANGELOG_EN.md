@@ -4,6 +4,16 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.14.5] - 2026-10-26
+
+### Fixed
+- `getVideoInfo()` now forwards configured Bilibili authentication headers to the WBI video-info endpoint and its HTTP 412 legacy fallback. Requests remain anonymous when no credentials are configured; in environments where anonymous WBI requests are blocked, an existing login Cookie is no longer ignored, allowing metadata, comments, and transcript flows to reuse the authenticated session. Thanks to @windfile1-del for the detailed real-environment A/B verification, minimal reproduction, and suggested fix in #84.
+
+### Security
+- Refreshed the MCP SDK (1.30.0 → 1.32.2) and transitive dependencies within existing compatible ranges, resolving seven production audit findings (one critical, three high, three moderate). `npm audit --omit=dev` now reports zero vulnerabilities, with dependency declaration ranges unchanged.
+
+---
+
 ## [1.14.4] - 2026-10-23
 
 ### Fixed
