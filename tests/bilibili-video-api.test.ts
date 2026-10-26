@@ -390,6 +390,15 @@ describe("getVideoInfo", () => {
           !call.url.includes("/x/web-interface/wbi/view"),
       ),
     ).toHaveLength(1);
+    const videoInfoCalls = calls.filter((call) =>
+      call.url.includes("/x/web-interface/wbi/view") ||
+      call.url.includes("/x/web-interface/view")
+    );
+    for (const call of videoInfoCalls) {
+      expect(new Headers(call.init?.headers).get("Cookie")).toContain(
+        "SESSDATA=test-sessdata",
+      );
+    }
   });
 
   it("does not fall back to /x/web-interface/view for other WBI HTTP errors", async () => {

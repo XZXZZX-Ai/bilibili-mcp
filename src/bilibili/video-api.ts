@@ -256,9 +256,10 @@ function parseSubtitleContent(raw: unknown): {
  * 若新接口也遇到 412 风控，自动降级到旧接口重试一次。
  */
 export async function getVideoInfo(bvid: string) {
+  const authHeaders = credentialManager.getAuthHeaders();
   try {
     return parseVideoInfoResponse(
-      await fetchWithWBI("/x/web-interface/wbi/view", { bvid }),
+      await fetchWithWBI("/x/web-interface/wbi/view", { bvid }, authHeaders),
     );
   } catch (error) {
     if (!(error instanceof NetworkError && error.statusCode === 412)) {
@@ -270,7 +271,7 @@ export async function getVideoInfo(bvid: string) {
       { type: "video-api", operation: "getVideoInfo" },
     );
     return parseVideoInfoResponse(
-      await fetchWithoutWBI("/x/web-interface/view", { bvid }),
+      await fetchWithoutWBI("/x/web-interface/view", { bvid }, authHeaders),
     );
   }
 }
