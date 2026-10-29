@@ -4,6 +4,13 @@ All notable changes to the **Bilibili MCP Server** will be documented in this fi
 
 ---
 
+## [1.14.6] - 2026-10-29
+
+### Fixed
+- Fixed `setup` exiting silently when invoked through an npm-created symlink. Menu choices now echo while manually entered credentials remain hidden. Thanks to @xqdd for reporting the problem and providing a Linux reproduction and workaround. (#89)
+
+---
+
 ## [1.14.5] - 2026-10-26
 
 ### Fixed
