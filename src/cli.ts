@@ -144,7 +144,7 @@ const packageJson = JSON.parse(
   fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
 
-async function askHidden(question: string, signal?: AbortSignal): Promise<string> {
+async function askInput(question: string, signal?: AbortSignal, hidden = false): Promise<string> {
   const readline = await import("readline");
   throwIfAborted(signal);
   const mutedOutput = new Writable({
@@ -173,13 +173,16 @@ async function askHidden(question: string, signal?: AbortSignal): Promise<string
     mutedOutput.muted = false;
     rl.question(question, (answer) => {
       mutedOutput.muted = false;
-      process.stdout.write("\n");
+      if (hidden) process.stdout.write("\n");
       resolve(answer.trim());
       rl.close();
     });
-    mutedOutput.muted = true;
+    mutedOutput.muted = hidden;
   });
 }
+
+const askHidden = (question: string, signal?: AbortSignal) => askInput(question, signal, true);
+const askVisible = (question: string, signal?: AbortSignal) => askInput(question, signal);
 
 export function parseModelChoice(input: string): AsrModelKey | null {
   const trimmed = input.trim().toLowerCase();
@@ -465,9 +468,10 @@ export interface SetupCredentialsOptions {
 }
 
 export async function setupAuthentication(
-  ask: (question: string, signal?: AbortSignal) => Promise<string> = askHidden,
+  ask: (question: string, signal?: AbortSignal) => Promise<string> = askVisible,
   verify: typeof checkLoginStatus = checkLoginStatus,
   acquireQr: typeof loginWithQr = loginWithQr,
+  askSecret: (question: string, signal?: AbortSignal) => Promise<string> = ask === askVisible ? askHidden : ask,
 ): Promise<boolean> {
   const controller = new AbortController();
   const { signal } = controller;
@@ -520,7 +524,7 @@ export async function setupAuthentication(
         // Credential values are case-sensitive; only menu choices are normalized.
         const read = async (question: string) => {
           throwIfAborted(signal);
-          const value = (await ask(question, signal)).trim();
+          const value = (await askSecret(question, signal)).trim();
           throwIfAborted(signal);
           return value;
         };
@@ -569,7 +573,7 @@ export async function setupAuthentication(
 export async function setupCredentials(
   configure?: () => Promise<boolean | void>,
   runAsr: (modelKey: AsrModelKey, devicePreference: AsrDevicePreference) => Promise<AsrSetupResult> = async () => ({ success: false, error: "installer not injected" }),
-  askHiddenFn: (question: string) => Promise<string> = askHidden,
+  askMenu: (question: string) => Promise<string> = askVisible,
   options: SetupCredentialsOptions = {},
 ) {
   // --asr-model 未与 --non-interactive 同时使用：验证错误，绝不静默改变交互流程
@@ -636,7 +640,7 @@ export async function setupCredentials(
   }
 
   {
-    const configured = await (configure ? configure() : setupAuthentication(askHiddenFn));
+    const configured = await (configure ? configure() : setupAuthentication(askMenu));
     if (configured === false) {
       if (process.exitCode !== 130) process.exitCode = 1;
       return;
@@ -666,7 +670,7 @@ export async function setupCredentials(
     }
   }
 
-  const answer = await askHiddenFn(reuseAsr ? "是否重新配置 ASR？[y/N] "
+  const answer = await askMenu(reuseAsr ? "是否重新配置 ASR？[y/N] "
     : asrState.kind === "not_installed" ? "是否现在安装？[y/N] " : "是否修复或重新验证 ASR？[y/N] ");
   if (answer.toLowerCase() !== "y" && answer.toLowerCase() !== "yes") {
     console.log(reuseAsr ? "继续使用现有 ASR，无需重新安装。"
@@ -687,7 +691,7 @@ export async function setupCredentials(
 
   let modelKey: AsrModelKey | null = null;
   while (modelKey === null) {
-    const choice = await askHiddenFn("> ");
+    const choice = await askMenu("> ");
     modelKey = parseModelChoice(choice);
     if (modelKey === null) {
       console.log(`无效选择，请输入 1/2/3 或 tiny/base/small，或直接按 Enter 选择 small。`);
@@ -705,7 +709,7 @@ export async function setupCredentials(
   console.log("  cuda：必须通过 CUDA Float16 验证；失败时不回退 CPU");
   let devicePreference: AsrDevicePreference | null = null;
   while (devicePreference === null) {
-    devicePreference = parseDeviceChoice(await askHiddenFn("> "));
+    devicePreference = parseDeviceChoice(await askMenu("> "));
     if (devicePreference === null) {
       console.log("无效选择，请输入 auto、cpu 或 cuda，或直接按 Enter 选择 auto。");
     }
@@ -787,7 +791,7 @@ export function createCli() {
         undefined,
         async (modelKey: AsrModelKey, devicePreference: AsrDevicePreference) =>
           runAsrInstallation({ modelKey, devicePreference, onStage: (s) => console.log(`  ${s}`) }),
-        askHidden,
+        askVisible,
         options,
       );
     });
@@ -812,7 +816,16 @@ async function main() {
   await cli.parseAsync(process.argv);
 }
 
-if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+function isMainModule(): boolean {
+  if (!process.argv[1]) return false;
+  try {
+    return fs.realpathSync(process.argv[1]) === fs.realpathSync(fileURLToPath(import.meta.url));
+  } catch {
+    return false;
+  }
+}
+
+if (isMainModule()) {
   main().catch((error) => {
     if (error instanceof Error && error.name === "AbortError") {
       console.log("操作已取消。");
