@@ -46,8 +46,6 @@ Out of scope:
 - [x] `npm run test:fake-ip` passes 92/92 on the local default Node runtime.
 - [x] Final `npm run build` and complete `npm test`: 44 files / 1,076 tests
   pass.
-- [x] Exact real-pilot conformance passed 1/1; Harness contracts, events,
-  adapters, and memory passed 102 tests with 15 skipped.
 - [ ] Hosted Node matrix; requires a later authorized push/PR.
 
 ## Real FlClash Evidence

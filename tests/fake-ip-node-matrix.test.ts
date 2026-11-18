@@ -16,14 +16,9 @@ describe("Fake-IP Node compatibility gate", () => {
     );
   });
 
-  it("runs the focused suite on Node 20, 22, and 25 before Required passes", () => {
+  it("runs the focused suite on Node 20, 22, and 25 in Verify", () => {
     expect(verifyWorkflow).toContain("fake_ip_node:");
     expect(verifyWorkflow).toContain("node-version: [20, 22, 25]");
     expect(verifyWorkflow).toContain("npm run test:fake-ip");
-    expect(verifyWorkflow).toMatch(/required:[\s\S]*needs:[\s\S]*- fake_ip_node/);
-    expect(verifyWorkflow).toContain("FAKE_IP_NODE_RESULT:");
-    expect(verifyWorkflow).toContain(
-      'test "$FAKE_IP_NODE_RESULT" = success',
-    );
   });
 });

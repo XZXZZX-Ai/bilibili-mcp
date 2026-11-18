@@ -6,8 +6,6 @@
   remaining Hono production advisory
 - Date: 2026-07-30
 - Owner: Codex
-- Related task:
-  `docs/agent-memory/handoffs/2026-07-30-deep-security-remediation-task-ticket.md`
 - Refresh before: changing the publish workflow, MCP SDK, HTTP transport, or
   security-scan tooling
 

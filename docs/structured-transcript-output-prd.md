@@ -181,7 +181,6 @@ The schema is declared inline on `get_video_transcript`:
 ## References
 
 - `CONTEXT.md`
-- `docs/agent-memory/decisions.md`
 - `docs/research/2026-07-25-cross-platform-video-content-mcp-landscape.md`
 - `src/server/tool-schemas.ts`
 - `src/server/tool-handlers.ts`

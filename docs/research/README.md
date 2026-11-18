@@ -5,7 +5,7 @@ This directory stores cached research notes for external facts that affect `@xzx
 Use `docs/templates/research-note.md` when a task depends on current or external information, such as:
 
 - OpenAI, Codex, MCP SDK, npm, GitHub Actions, trusted publishing, or provenance behavior.
-- GitHub-hosted examples, third-party skill repositories, external harness projects, or release workflow examples.
+- GitHub-hosted implementation examples or release workflows relevant to the product.
 - Bilibili API behavior, compatibility notes, or upstream behavior changes.
 - Security guidance that depends on external documentation or current ecosystem behavior.
 

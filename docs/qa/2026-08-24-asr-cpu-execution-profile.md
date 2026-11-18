@@ -28,8 +28,6 @@ Base: `547b2bb170121bb7701d523e28f3a1f06b1224a8`
 - Package dry run: 193 files; tests, Harness, and agent memory excluded.
 - Production dependency audit: zero vulnerabilities.
 - Gitleaks 8.30.1: zero findings in the final diff and new evidence files.
-- Harness canonical package/memory receipt conformance: passed after LF
-  normalization of the generated package receipt.
 - Standards, Spec, and risk review: no remaining findings.
 
 ## Deferred Boundary

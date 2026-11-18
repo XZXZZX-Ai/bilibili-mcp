@@ -31,7 +31,6 @@ Out of scope:
 
 - [x] `npm run build` — passed.
 - [x] `npm test` — 23 files, 299 tests passed.
-- [x] Existing generated `docs/agent-memory/pending-learning-proposals.md` modification is excluded from feature work.
 
 ## Automated Acceptance
 

@@ -240,7 +240,6 @@ Status: Completed. `README.md` and `README_EN.md` now document `get_video_transc
 
 - [x] Run: git status --short, npm test, npm run build, npm pack --dry-run
 - [x] Confirm: existing tools present, new schemas stable, package excludes tests/.env/Smithery/debug, no Cookie leaks
-- [x] Report: see verification-log.md
 
 ---
 

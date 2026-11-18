@@ -1372,6 +1372,7 @@ After credentials are configured, `setup` asks whether to install an optional lo
 - Installation lives in the user-managed `~/.bilibili-mcp/asr/` directory; it does not mutate the system Python.
 - One active model per directory; a failed model switch or explicit CUDA check does not replace the previously verified model and Profile.
 - Readiness uses the chosen local model and a generated fixed short WAV to load the model, run minimal transcription, and fully consume the result; the WAV is then removed and no Bilibili request is made. System FFmpeg is not required (PyAV bundles the relevant libraries).
+- For legacy v1 ASR installations, `doctor --json` shows `migration_pending`. The first request that actually runs ASR verifies the installed model, saves the device profile, and continues that same request. If migration fails, rerun `setup` to verify the installation.
 - The project does not install or modify NVIDIA drivers, CUDA, cuBLAS, cuDNN, the system `PATH`, `LD_LIBRARY_PATH`, or global Python. After a GPU failure, keep the verified CPU profile or repair the environment and rerun `setup`; every rerun checks readiness again.
 - A failed new install leaves no ready state; an existing ready configuration remains unchanged on failure.
 - The `doctor --json` `asr.status`, `asr.model`, `device`, `compute_type`, `device_readiness`, and `failure_category` fields are informational only; they do not affect credential exit codes.

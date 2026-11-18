@@ -1362,6 +1362,7 @@ bilibili-mcp check
 - 安装内容存放在用户管理的 `~/.bilibili-mcp/asr/` 中；不修改系统 Python。
 - 同一目录只保留一个活跃模型；切换模型或显式 CUDA 验证失败时，原来已验证的模型与 Profile 不会被替换。
 - readiness 使用所选本地模型和程序生成的固定短 WAV，真实加载模型、执行最小转写并完整消费结果；临时 WAV 随后清理，不访问 Bilibili。系统 FFmpeg 不需要另装（PyAV 已捆绑相关库）。
+- 对于旧版 ASR v1 安装，`doctor --json` 会显示 `migration_pending`。首次实际运行 ASR 时会验证已安装的模型并保存设备配置，然后继续同一次请求。迁移失败时运行 `setup` 重新验证。
 - 项目不会安装或修改 NVIDIA 驱动、CUDA、cuBLAS、cuDNN、系统 `PATH`、`LD_LIBRARY_PATH` 或全局 Python。GPU 失败时可继续使用已验证 CPU，或自行修复环境后重新运行 `setup`；每次重跑都会重新验证。
 - 新安装失败不会留下 ready 状态；已有 ready 配置在失败时保持不变。
 - `doctor --json` 的 `asr.status`、`asr.model`、`device`、`compute_type`、`device_readiness` 与 `failure_category` 字段为纯信息字段，不影响凭证退出状态。

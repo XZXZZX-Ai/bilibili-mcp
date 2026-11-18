@@ -4,7 +4,6 @@
 - Date: 2026-06-18
 - Version or commit: working tree after `v1.6.1`
 - Owner: Codex
-- Related ticket: `docs/agent-memory/handoffs/2026-06-18-bilingual-mcp-guidance-task-ticket.md`
 - QA type: `MCP tool change | credential flow | regression`
 
 ## Scope

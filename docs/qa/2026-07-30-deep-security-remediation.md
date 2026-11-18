@@ -8,7 +8,6 @@
 - Owner: Codex
 - Original scan: `6949ea8e-a129-43d6-9104-6edf7413a1ff`
 - Related ticket:
-  `docs/agent-memory/handoffs/2026-07-30-deep-security-remediation-task-ticket.md`
 - QA type: security regression
 
 ## Scope
@@ -65,10 +64,6 @@ scan is recorded separately when it completes.
 | 7 | `asr-duration-metadata-fail-open` | Low | ASR rejects absent, invalid, non-positive, or over-limit selected-Part duration before state, network, temp, or child work. | `tests/asr-transcription.test.ts`, `tests/bilibili-playback.test.ts` | Remediated |
 | 8 | `asr-malformed-subtitle-fallback` | Low | Malformed subtitle list/body data is a typed failure; only verified absence or verified empty content is eligible for ASR. | `tests/subtitle-fallback-security.test.ts` | Remediated |
 | 9 | `mcp-asr-cancellation-ignored` | Low | SDK request cancellation is propagated through `AsyncLocalStorage`; downloads abort and the managed runtime tree is killed before cleanup and slot release. | `tests/server-handler-sanitization.test.ts`, `tests/bilibili-transcript.test.ts`, `tests/asr-transcription.test.ts` | Remediated |
-| 10 | `d0002-s3-001` | Low | `.codex/agents/stabilization-reviewer.toml` explicitly treats issues, handoffs, reports, and quoted content as bounded untrusted data. | Static policy review and `.codex/scripts/test_hook_safety.py` | Remediated |
-| 11 | `harness-hook-unbounded-input-state` | Low | `hook_safety.py` caps stdin, JSON depth/nodes, JSONL rows/bytes, uses tail reads, locks, atomic replacement, and refuses symlinks. | `.codex/scripts/test_hook_safety.py` | Remediated |
-| 12 | `harness-learning-prompt-injection` | Low | Hooks persist fixed metadata only; SessionStart no longer previews candidate text or stored observations into model context. | `.codex/scripts/test_hook_safety.py`, `.codex/scripts/test_stop_summary.py` | Remediated |
-| 13 | `hook-env-secret-redaction-bypass` | Low | Post-tool capture no longer persists raw command, stdout, stderr, exception, environment, or path text; proposal generation validates fixed enums and IDs. | `.codex/scripts/test_hook_safety.py` | Remediated |
 | 14 | `asr-installer-unbounded-resources` | Low | Installer stages into a managed directory, enforces subprocess deadlines, 64 KiB output, free-space/model-byte/file-count budgets, no symlinks, atomic activation, and cleanup on failure. | `tests/asr-installer.test.ts`, `tests/asr-installer-process.test.ts` | Remediated |
 | 15 | `d0002-s1-installer-env-forwarding` | Low | Installer children receive an allowlisted environment plus fixed noninteractive pip, isolated user-site, UTF-8, no-bytecode, and disabled Hugging Face telemetry settings; proxy, cloud, npm, Hugging Face, and Bilibili secrets are omitted. | `tests/asr-installer.test.ts` | Remediated |
 | 16 | `d0002-s3-008` | Low | Unknown tool names are length-bounded, checked against the fixed tool set, logged as a fixed event, and returned as a fixed public error. | `tests/server-handler-sanitization.test.ts`, `tests/logger-redaction.test.ts` | Remediated |

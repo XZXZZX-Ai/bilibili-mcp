@@ -4,7 +4,6 @@
 - Date: 2026-07-27
 - Version or commit: 1.10.1 (Unreleased)
 - Owner: Claude Code (DeepSeek) with Codex final review and repair
-- Related ticket: `docs/agent-memory/handoffs/2026-07-27-cli-setup-doctor-task-ticket.md`
 - QA type: `pre-release`
 
 ## Scope
@@ -27,7 +26,7 @@ Out of scope:
 
 ## Preconditions
 
-- [x] Current branch: `master`; task changes are present alongside the pre-existing unrelated `pending-learning-proposals.md` modification.
+- [x] Current branch: `master`.
 - [x] Expected package version: 1.10.1 (Unreleased).
 - [x] Required credentials: available through global_config; not pasted into this file.
 - [x] Test Bilibili video IDs or URLs: not needed (local-only commands).
@@ -46,7 +45,7 @@ Results:
 - Build: Passed (TypeScript compilation clean).
 - Tests: 431 passed across 26 files.
 - Focused CLI and entrypoint tests: 30 passed (19 CLI unit tests plus 11 built-entrypoint/MCP smoke cases).
-- Pack: 138 files, excludes tests, docs/qa, agent-memory, .env, .claude, .codex.
+- Pack: 138 files, excludes tests, docs/qa, .env, .claude, .codex.
 - Skipped checks: `npm view` registry check (publishing is out of scope).
 
 ## Package And Install Path

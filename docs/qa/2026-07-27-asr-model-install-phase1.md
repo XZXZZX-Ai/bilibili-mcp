@@ -4,8 +4,7 @@
 - Date: 2026-07-27
 - Version or commit: 1.10.1 working tree (Unreleased)
 - Owner: DeepSeek implementation with Codex final review
-- Related: `docs/asr-model-install-prd.md`,
-  `docs/agent-memory/handoffs/2026-07-27-asr-model-install-phase1-task-ticket.md`
+- Related: `docs/asr-model-install-prd.md`
 - QA type: `package/install`
 
 ## Scope

@@ -6,7 +6,6 @@
 - Date: 2026-06-18
 - Version or commit: pre-release working tree (v1.6.1)
 - Owner: Claude Code
-- Related ticket, plan, PRD, or release: `docs/agent-memory/handoffs/2026-06-18-structured-error-guidance-task-ticket.md`, `docs/superpowers/plans/2026-06-18-structured-error-guidance-implementation-plan.md`
 - QA type: `MCP tool change`
 
 ## Scope

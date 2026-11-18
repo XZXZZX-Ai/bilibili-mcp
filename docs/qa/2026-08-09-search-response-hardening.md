@@ -6,7 +6,6 @@
 - Date: 2026-08-09
 - Version or commit: unreleased `1.11.3` source baseline at `741dcf0`
 - Owner: Codex
-- Related ticket: `docs/agent-memory/handoffs/2026-08-09-search-response-hardening-task-ticket.md`
 - QA type: `MCP tool change | regression`
 
 ## Scope

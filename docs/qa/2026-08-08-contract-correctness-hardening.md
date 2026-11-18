@@ -6,7 +6,6 @@
 - Date: 2026-08-08
 - Version or commit: `1.11.3` baseline at `1b97183c70145eaf273bbddef4e0474e53bc177e`
 - Owner: Codex
-- Related ticket: `docs/agent-memory/handoffs/2026-08-08-contract-correctness-hardening-task-ticket.md`
 - QA type: `MCP tool change | credential flow | regression`
 
 ## Scope

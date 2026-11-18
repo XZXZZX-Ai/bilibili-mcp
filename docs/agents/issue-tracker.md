@@ -7,7 +7,7 @@ Issues, specifications, and tickets produced by Matt Pocock skills for this repo
 - Create, read, comment on, label, and close issues with GitHub tooling from this repository.
 - Fetch the complete issue body, labels, dependencies, and relevant comments before acting on a ticket.
 - Use native GitHub sub-issues and blocking relationships when available. Otherwise record `Blocked by: #<number>` in the issue body.
-- Treat a ticket as ready only when every blocker is closed and it carries the `ready-for-agent` label.
+- For tickets produced by `to-tickets`, start when every blocker is closed and the ticket carries the `ready-for-agent` label. A small fix on its original issue can proceed with reproduction and acceptance criteria.
 - Do not close or modify parent issues unless the active skill explicitly requires it.
 - Do not include Cookie values, tokens, `.env` contents, or private credentials in issues or comments.
 

@@ -1,8 +1,0 @@
-{
-  "event": "post-tool-use",
-  "tool_class": "shell",
-  "category": "test",
-  "outcome": "failed",
-  "exit_code": 1,
-  "has_error": true
-}

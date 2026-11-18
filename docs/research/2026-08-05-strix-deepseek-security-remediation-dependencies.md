@@ -5,7 +5,6 @@
 - Topic: Compatible MCP SDK refresh for current production advisories
 - Date: 2026-08-05
 - Owner: Codex
-- Related task: `2026-08-05-strix-deepseek-security-remediation-task-ticket.md`
 - Refresh before: any later dependency or release decision
 
 ## Question

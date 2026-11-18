@@ -23,7 +23,6 @@ jobs:
       # v7.0.1 resolved from the official actions/checkout repository on 2026-08-16.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
-          fetch-depth: 0
           persist-credentials: false
 
       # v7.0.0 resolved from the official actions/setup-node repository on 2026-08-16.
@@ -35,23 +34,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Test
-        run: npm test
-
-      - name: Build
-        run: npm run build
-
-      - name: Check package contents
-        run: |
-          npm pack --dry-run --json --ignore-scripts > pack-output.json
-          node -e "
-          const files = JSON.parse(require('fs').readFileSync('pack-output.json', 'utf8'))[0].files.map(f => f.path);
-          const prefixes = ['harness/', '.harness/', 'docs/agent-memory/', 'tests/', 'strix_runs/'];
-          const markers = ['recovery-bundle', 'events.jsonl'];
-          const bad = files.filter(p => prefixes.some(x => p.startsWith(x)) || markers.some(x => p.includes(x)));
-          if (bad.length) { console.error('forbidden paths in npm package: ' + bad.join(', ')); process.exit(1); }
-          console.log('package contents OK: ' + files.length + ' files');
-          "
+      - name: Verify product
+        run: npm run verify:local
 
   fake_ip_node:
     name: Fake-IP Node ${{ matrix.node-version }}
@@ -78,20 +62,3 @@ jobs:
 
       - name: Test Fake-IP contracts
         run: npm run test:fake-ip
-
-  required:
-    name: Required
-    if: always()
-    needs:
-      - product
-      - fake_ip_node
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Require all verification jobs
-        env:
-          PRODUCT_RESULT: ${{ needs.product.result }}
-          FAKE_IP_NODE_RESULT: ${{ needs.fake_ip_node.result }}
-        run: >-
-          test "$PRODUCT_RESULT" = success &&
-          test "$FAKE_IP_NODE_RESULT" = success

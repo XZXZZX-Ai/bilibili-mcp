@@ -119,7 +119,7 @@ Rules or files that may need updates after approval:
 - `src/server/tool-schemas.ts`
 - `src/server/tool-handlers.ts`
 - 对应 TypeScript 类型、测试、README/README_EN
-- 新功能的 GitHub Issue、Codex-to-Claude handoff 与 `docs/agent-memory/` 中的正式决策记录
+- 新功能的 GitHub Issue 与对应的产品决策记录
 
 ## Risks And Unknowns
 

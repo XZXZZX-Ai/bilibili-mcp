@@ -124,7 +124,7 @@ Mark untested clients explicitly.
 
 Notes:
 
-- tool-reference.md/.en.md、client-setup.md/.en.md、README.md/EN.md、CHANGELOG.md/EN.md 已同步；`docs/agent-memory/codemap.md` 已更新。
+- tool-reference.md/.en.md、client-setup.md/.en.md、README.md/EN.md、CHANGELOG.md/EN.md 已同步。
 
 ## Security And Privacy Checks
 

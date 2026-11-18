@@ -4,7 +4,6 @@
 - Date: 2026-06-18
 - Version or commit: working tree, package version `1.6.0`
 - Owner: Codex
-- Related ticket, plan, PRD, or release: `docs/agent-memory/handoffs/2026-06-18-mcp-update-guidance-task-ticket.md`
 - QA type: `MCP tool change | package/install | docs/install | regression`
 
 ## Scope
@@ -42,8 +41,7 @@ Results:
 ## Package And Install Path
 
 - [x] `package.json` version is `1.6.0`.
-- [x] `npm pack --dry-run` includes `dist`, `README.md`, `README_EN.md`, `LICENSE`, and `package.json`.
-- [x] `npm pack --dry-run` excludes `tests/`, `docs/agent-memory/`, `.claude/`, `.codex/`, and `.env`.
+- [x] `npm pack --dry-run` includes `dist`, `README.md`, `README_EN.md`, `LICENSE`, and `package.json`, and excludes tests and local configuration.
 - [x] `node dist/cli.js check-update` reached npm latest and reported current `1.6.0` against npm latest `1.5.3`.
 - [x] Local `bin`, `main`, `module`, and `types` still point to built `dist` output.
 

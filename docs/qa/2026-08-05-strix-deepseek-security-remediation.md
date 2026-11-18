@@ -6,7 +6,7 @@
 - Date: 2026-08-05
 - Version or commit: package 1.10.1 (unreleased); worktree `0a1b`; HEAD `ab4dd02`
 - Owner: Claude Code (implementation) / Codex (review)
-- Related ticket, plan, PRD, or release: task ticket SEC-2026-08-05-STRIX; handoff `docs/agent-memory/handoffs/2026-08-05-strix-deepseek-security-remediation-codex-to-claude.md`
+- Related ticket, plan, PRD, or release: task ticket SEC-2026-08-05-STRIX
 - QA type: `MCP tool change | credential flow | regression`
 
 ## Scope
@@ -145,5 +145,4 @@ Notes:
   - Round 4 closed the earlier `fast-uri` caveat: the registry became reachable, `fast-uri` was refreshed 3.1.4 → 3.1.5 inside the compatible `^3.0.1` range (no override), and `npm audit --omit=dev --json` now reports zero vulnerabilities; the obsolete "4.1.2 / unreachable" claim is corrected in the research note and Claude report.
   - The round-1 risk-reviewer subagent was cancelled by the user before producing a result (not relaunched); all three same-scope repair rounds were instead issued directly by the user — round 2 from an independent review (P1 install/write root guards, P2 path-type ready gate), round 3 final minimal repair (ENOTDIR fails closed; chmod fails closed except unsupported codes) — and are fully implemented and tested (see Security And Privacy Checks).
 - Follow-up tickets: none in scope.
-- Codemap update status: checked — no structural code change (no new modules, no moved boundaries); `docs/agent-memory/codemap.md` left unchanged.
 - Research note link, if external facts affected QA: `docs/research/2026-08-05-strix-deepseek-security-remediation-dependencies.md` (dependency advisory classification; Resolution section records the fast-uri 3.1.5 compatible closure and zero-vulnerability audit).

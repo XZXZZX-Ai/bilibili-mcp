@@ -11,7 +11,6 @@
   - `docs/bilibili-favorites-discovery-prd.md`
   - `docs/research/2026-07-27-bilibili-favorites-contract.md`
   - `docs/research/2026-07-27-favorites-discovery-github-source-learning.md`
-  - `docs/agent-memory/handoffs/2026-07-27-bilibili-favorites-discovery-codex-to-claude.md`
 - QA type: `MCP tool change`
 
 ## Scope
@@ -29,7 +28,6 @@ Out of scope:
 ## Preconditions
 
 - [x] Current branch recorded: `master`.
-- [x] The Favorites work is uncommitted and unstaged. The pre-existing unrelated `docs/agent-memory/pending-learning-proposals.md` modification remains preserved and outside this task.
 - [x] No real Bilibili credential, account ID, Folder ID/title, Video title, or cursor value is printed or persisted in this checklist, the implementation, tests, or the Claude report; tests use only synthetic fixtures.
 - [x] Local `~/.bilibili-mcp/config.json` exists and is logged in (used only for the live SDK smoke probe; no values copied).
 
@@ -40,7 +38,7 @@ Out of scope:
   - `npx vitest run tests/bilibili-favorites.test.ts tests/validation.test.ts tests/server-tools.test.ts tests/server-handler-sanitization.test.ts tests/server-error-next-steps.test.ts tests/mcp-server-smoke.test.ts tests/logger-redaction.test.ts`
   - Result: 7 files, 229 tests, all passing.
 - [x] Full Vitest suite `npm test`: 25 files, 405 tests, all passing (baseline at v1.9.1/HEAD was 327).
-- [x] `npm pack --dry-run --json` succeeds with 138 package entries and zero `scripts/`, `tests/`, internal agent-memory, QA, or research paths.
+- [x] `npm pack --dry-run --json` succeeds with 138 package entries and zero `scripts/`, `tests/`, QA, or research paths.
 - [x] `git diff --check` reports only line-ending warnings (no whitespace errors).
 
 ## Tool Discovery And Schema Contract
