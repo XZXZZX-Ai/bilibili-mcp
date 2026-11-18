@@ -20,10 +20,13 @@ writer. Substantial work uses a unified execution report.
 
 ### `codex-paseo-claude`
 
-1. Codex creates a bounded handoff referencing the GitHub Issue and typed
-   contract.
-2. Codex reads live Paseo preferences and launches one Claude writer.
-3. Claude returns a report and uncommitted diff.
+1. Resolve the current user's home directory and read
+   `.paseo/orchestration-preferences.json`. Use `providers.impl` unless
+   the user selected a provider. Check Paseo availability without restarting it.
+2. Codex writes a bounded handoff referencing the GitHub Issue and typed
+   contract, then launches one Claude writer.
+3. Codex preserves the lease until Claude stops and its report and uncommitted
+   diff have been captured.
 4. Codex reviews the actual diff/evidence and accepts or returns same-scope
    repair to the same writer.
 5. Only after Codex acceptance is a focused local commit created. The
@@ -137,6 +140,10 @@ route as evidence.
 ## Evidence Rules
 
 - Reports derive from the final diff and actual command results.
+- Check the result where the user sees it. For tool discovery, inspect
+  `tools/list` from the running server. For a command-line startup fix, run
+  the installed command. Fix failures caused by the change and rerun the
+  affected checks within the existing scope.
 - Include skipped checks and unresolved risk; do not accept an executor's
   unsupported "done" claim.
 - Runtime event logs are not completion reports and `Stop` is not acceptance.

@@ -13,7 +13,7 @@ Your job is to add useful, low-friction Vitest coverage without turning the stab
 
 Before editing:
 
-1. Read `AGENTS.md`, `CLAUDE.md`, and the active stabilization roadmap.
+1. Read `RULES.md` and the active stabilization roadmap.
 2. Check `git status --short`.
 3. Inspect existing pure utilities and package scripts before adding new structure.
 

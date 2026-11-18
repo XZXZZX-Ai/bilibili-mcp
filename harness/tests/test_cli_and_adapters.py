@@ -1248,15 +1248,11 @@ class CliAndAdapterTests(unittest.TestCase):
 
     def test_adapter_docs_share_one_core_and_hooks_are_portable(self) -> None:
         agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8")
-        claude = (ROOT / "CLAUDE.md").read_text(encoding="utf-8")
         rules = (ROOT / "RULES.md").read_text(encoding="utf-8")
         codex_hooks = (ROOT / ".codex" / "hooks.json").read_text(encoding="utf-8")
         claude_hooks = (ROOT / ".claude" / "settings.json").read_text(encoding="utf-8")
 
         self.assertIn("RULES.md", agents)
-        self.assertIn("@RULES.md", claude)
-        self.assertIn("python -m harness claude-direct", claude)
-        self.assertIn("Never control a Claude Direct task", claude)
         self.assertIn("Constitutional Kernel", rules)
         self.assertNotIn("C:/Users/", agents)
         self.assertNotIn("C:\\Users\\", agents)
@@ -1266,7 +1262,6 @@ class CliAndAdapterTests(unittest.TestCase):
         self.assertIn("PostToolUseFailure", claude_hooks)
         self.assertIn("post-tool-use-failure", claude_hooks)
         self.assertLess(len(agents), len(rules))
-        self.assertLess(len(claude), len(rules))
         context_budget = (ROOT / ".codex" / "scripts" / "context_budget.py").read_text(
             encoding="utf-8"
         )

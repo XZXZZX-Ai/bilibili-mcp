@@ -11,7 +11,7 @@ Your job is narrow: remove or externalize secrets without breaking authenticated
 
 Before editing:
 
-1. Read `AGENTS.md`, `CLAUDE.md`, and the relevant `docs/agent-memory/` files if the task is substantial.
+1. Read `RULES.md`. For substantial work, consult the project memory relevant to the credential change.
 2. Check `git status --short`.
 3. Inspect only files related to credential loading, subtitle access, auth helpers, tests, examples, and documentation.
 

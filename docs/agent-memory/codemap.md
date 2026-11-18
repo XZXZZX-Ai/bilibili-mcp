@@ -254,7 +254,6 @@ Before release-oriented work, verify local package state with `npm pack --dry-ru
 
 - `RULES.md`: single shared constitutional/workflow core for all three execution adapters.
 - `AGENTS.md`: thin Codex adapter for `codex-direct` and Codex's controller/acceptance role in `codex-paseo-claude`.
-- `CLAUDE.md`: thin Claude adapter; imports `RULES.md` and defines `claude-direct` plus Paseo-managed writer behavior.
 - `harness/cli.py`: shared diagnostics, typed-contract validation, hook
   ingestion/replay, manual-Skill gate, and mode-fenced `codex-direct` /
   `claude-direct` control commands.
@@ -455,7 +454,7 @@ Codex custom agents:
 - `.codex/agents/release-verifier.toml`: release readiness verification.
 
 Fixed phase routing and manual-Skill boundaries live in `RULES.md`; adapter
-deltas live in `AGENTS.md` and `CLAUDE.md`. Do not assume Codex skills,
+details for Codex live in `AGENTS.md`. Do not assume Codex skills,
 `.agents\skills`, and Claude Code skills are shared unless the Skill is
 discovered in the target runtime.
 
@@ -471,6 +470,6 @@ the user explicitly reintroduces them.
 - Subtitle/transcript behavior: inspect `video-api.ts`, `subtitle.ts`, validation/sanitization utilities, transcript tests, and security limits.
 - Comments behavior: inspect `comments-api.ts`, `comments.ts`, handler validation, and comments tool tests.
 - Package/release behavior: inspect `package.json`, lockfile, publish workflow, README/changelog, and run build/test/pack verification.
-- Harness/rules work: inspect `AGENTS.md`, `CLAUDE.md`, `docs/agent-memory/README.md`, `docs/agent-memory/harness-security.md`, `docs/agent-memory/harness-eval.md`, relevant memory files, templates, hook scripts, and context budget impact.
+- Harness/rules work: inspect `RULES.md`, `AGENTS.md`, `docs/agent-memory/README.md`, `docs/agent-memory/harness-security.md`, `docs/agent-memory/harness-eval.md`, relevant memory files, templates, hook scripts, and context budget impact.
 - External research-dependent work: create a note from `docs/templates/research-note.md` under `docs/research/` when external facts materially affect the decision.
 - Release/install/client QA work: create a checklist from `docs/templates/qa-checklist.md` under `docs/qa/` when public install, credential, stdio, package, or client behavior is affected.

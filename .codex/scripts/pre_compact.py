@@ -78,7 +78,7 @@ def main() -> int:
         active_work.name,
         "",
         "## Resume Guidance",
-        "- Re-read AGENTS.md, CLAUDE.md, and docs/agent-memory before substantial work.",
+        "- Use RULES.md for shared policy and docs/agent-memory for task-specific context.",
         "- Treat runtime observations as candidates only; promote durable lessons manually.",
         "- If debugging was in progress, inspect latest observation-summary.md before continuing.",
     ]

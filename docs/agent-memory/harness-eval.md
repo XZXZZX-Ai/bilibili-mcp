@@ -24,7 +24,7 @@ Use this section to list harness components that should be evaluated after real 
 - `docs/templates/research-note.md` and `docs/research/`: check whether external findings are easier to reuse.
 - `docs/templates/qa-checklist.md` and `docs/qa/`: check whether real user workflow issues are caught before or after releases.
 - `docs/agent-memory/harness-security.md`: check whether harness-surface changes become safer without becoming bureaucratic.
-- Fixed skill/subagent/MCP/CLI triggers in `AGENTS.md` and `CLAUDE.md`: check whether agents choose capabilities more predictably.
+- For skill and tool selection, check whether the capability triggers in `RULES.md` lead agents to the intended workflow.
 - Matt Pocock workflow integration: after several real tasks, check whether GitHub specs/tickets plus file-backed handoffs improve continuity without duplicated planning artifacts and confirm that no Superpowers skill was invoked.
 - Paseo execution bridge: after several delegated tasks, check whether one-agent Codex-to-Claude execution removes manual handoff work without causing overlapping edits, hidden decision points, or noisy repair loops.
 

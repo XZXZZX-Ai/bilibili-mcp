@@ -39,7 +39,6 @@ def main() -> int:
     files = [
         ROOT / "RULES.md",
         ROOT / "AGENTS.md",
-        ROOT / "CLAUDE.md",
         ROOT / "docs" / "agent-memory" / "README.md",
         ROOT / "docs" / "agent-memory" / "active-work.md",
     ]
@@ -82,7 +81,7 @@ def main() -> int:
         "",
         "## Guidance",
         "",
-        "- Keep RULES.md canonical and AGENTS.md/CLAUDE.md as thin adapter deltas.",
+        "- Keep shared rules in RULES.md and Codex-specific guidance in AGENTS.md.",
         "- Keep hooks project-local and avoid loading broad external rules by default.",
         "- Prefer on-demand skills over always-loaded instructions.",
         "- Re-run this script after adding MCP servers, broad rules, or large agent docs.",

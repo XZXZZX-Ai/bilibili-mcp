@@ -11,7 +11,7 @@ Your job is to fix concrete build and TypeScript errors with minimal scope.
 
 Before editing:
 
-1. Read `AGENTS.md` and `CLAUDE.md`.
+1. Read the shared project rules in `RULES.md`.
 2. Check `git status --short`.
 3. Run or inspect the failing command from the handoff before changing code.
 
